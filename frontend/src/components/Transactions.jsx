@@ -4,6 +4,7 @@ import TransactionList from './TransactionList';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { TransactionContext } from '../contexts/TransactionContext';
+import Modal from './Modal';
 
 const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
@@ -39,13 +40,22 @@ const Transactions = () => {
               customInput={<CustomMonthInput />}
             />
           </div>
-          <button onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'Hide Form' : 'Add Transaction'}
-          </button>
+          <button onClick={() => setShowForm(true)}>Add Transaction</button>
         </div>
       </div>
-      {showForm && <TransactionForm onClose={() => setShowForm(false)} selectedMonth={selectedMonth} />}
+
       <TransactionList selectedMonth={selectedMonth} />
+
+      <Modal 
+        isOpen={showForm} 
+        onClose={() => setShowForm(false)} 
+        title="Add New Transaction"
+      >
+        <TransactionForm 
+          onClose={() => setShowForm(false)} 
+          selectedMonth={selectedMonth} 
+        />
+      </Modal>
     </div>
   );
 };

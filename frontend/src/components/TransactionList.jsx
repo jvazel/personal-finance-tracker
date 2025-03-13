@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { TransactionContext } from '../contexts/TransactionContext';
 import TransactionForm from './TransactionForm';
 import { format } from 'date-fns';
+import Modal from './Modal';
 
 const TransactionList = ({ selectedMonth }) => {
   const { transactions, loading, error, deleteTransaction, refreshTransactions } = useContext(TransactionContext);
@@ -30,6 +31,7 @@ const TransactionList = ({ selectedMonth }) => {
 
   const handleCloseForm = () => {
     setShowEditForm(false);
+    setTransactionToEdit(null);
     // Refresh with the selected month after edit
     const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
     const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
@@ -45,11 +47,17 @@ const TransactionList = ({ selectedMonth }) => {
 
   return (
     <div className="transaction-list-container">
-      {showEditForm && <TransactionForm 
-        transactionToEdit={transactionToEdit} 
+      <Modal 
+        isOpen={showEditForm} 
         onClose={handleCloseForm} 
-        selectedMonth={selectedMonth}
-      />}
+        title="Edit Transaction"
+      >
+        <TransactionForm 
+          transactionToEdit={transactionToEdit} 
+          onClose={handleCloseForm} 
+          selectedMonth={selectedMonth}
+        />
+      </Modal>
 
       <table className="transaction-table">
         <thead>
@@ -59,7 +67,7 @@ const TransactionList = ({ selectedMonth }) => {
             <th>Amount</th>
             <th>Type</th>
             <th>Category</th>
-            <th>Actions</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>

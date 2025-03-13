@@ -6,7 +6,7 @@ import { TransactionContext } from '../contexts/TransactionContext';
 const categories = ["Food", "Transport", "Utilities", "Entertainment", "Salary", "Freelance", "Savings", "Rent", "Other"];
 
 const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
-  const { addTransaction, updateTransaction, refreshTransactions } = useContext(TransactionContext);
+  const { addTransaction, updateTransaction } = useContext(TransactionContext);
   
   // Calculate the limits of the selected month
   const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
@@ -40,11 +40,11 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
     }
 
     const transactionData = {
-      date: date,
+      date,
       description,
       amount: parseFloat(amount),
       type,
-      category,
+      category
     };
 
     try {
@@ -53,53 +53,53 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       } else {
         await addTransaction(transactionData);
       }
-      // Refresh transactions for the selected month
-      refreshTransactions(startOfMonth, endOfMonth);
       onClose(); // Close the form after successful submission
     } catch (error) {
-      setFormError('Failed to save transaction.');
-      console.error("Error saving transaction:", error);
+      console.error('Error saving transaction:', error);
+      setFormError('Failed to save transaction. Please try again.');
     }
   };
 
   return (
     <form className="transaction-form" onSubmit={handleSubmit}>
-      {formError && <p className="error-message">{formError}</p>}
-
+      {formError && <div className="form-error">{formError}</div>}
+      
       <div className="form-group">
-        <label htmlFor="date">Date:</label>
+        <label htmlFor="date">Date</label>
         <DatePicker
+          id="date"
           selected={date}
-          onChange={(date) => setDate(date)}
+          onChange={date => setDate(date)}
           dateFormat="yyyy-MM-dd"
           minDate={startOfMonth}
           maxDate={endOfMonth}
         />
       </div>
       
-      {/* Rest of the form remains the same */}
       <div className="form-group">
-        <label htmlFor="description">Description:</label>
+        <label htmlFor="description">Description</label>
         <input
-          type="text"
           id="description"
+          type="text"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
+          onChange={e => setDescription(e.target.value)}
+          placeholder="Enter description"
         />
       </div>
+      
       <div className="form-group">
-        <label htmlFor="amount">Amount:</label>
+        <label htmlFor="amount">Amount</label>
         <input
-          type="number"
           id="amount"
+          type="text"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
+          onChange={e => setAmount(e.target.value)}
+          placeholder="Enter amount"
         />
       </div>
+      
       <div className="form-group">
-        <label htmlFor="type">Type:</label>
+        <label>Type</label>
         <div>
           <label>
             <input
@@ -107,37 +107,39 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
               name="type"
               value="expense"
               checked={type === 'expense'}
-              onChange={(e) => setType(e.target.value)}
-            /> Expense
+              onChange={() => setType('expense')}
+            />
+            Expense
           </label>
-          <label>
+          <label style={{ marginLeft: '15px' }}>
             <input
               type="radio"
               name="type"
               value="income"
               checked={type === 'income'}
-              onChange={(e) => setType(e.target.value)}
-            /> Income
+              onChange={() => setType('income')}
+            />
+            Income
           </label>
         </div>
       </div>
+      
       <div className="form-group">
-        <label htmlFor="category">Category:</label>
+        <label htmlFor="category">Category</label>
         <select
           id="category"
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
+          onChange={e => setCategory(e.target.value)}
         >
-          {categories.map((cat, index) => (
-            <option key={index} value={cat}>{cat}</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
       </div>
-
+      
       <div className="form-actions">
-        <button type="submit">{transactionToEdit ? 'Update Transaction' : 'Add Transaction'}</button>
         <button type="button" className="cancel" onClick={onClose}>Cancel</button>
+        <button type="submit">{transactionToEdit ? 'Update' : 'Add'} Transaction</button>
       </div>
     </form>
   );
