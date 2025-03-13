@@ -1,0 +1,94 @@
+import React, { createContext, useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+
+// Set axios default base URL
+axios.defaults.baseURL = 'http://localhost:5000';
+
+export const TransactionContext = createContext();
+
+export const TransactionProvider = ({ children }) => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Use useCallback to prevent unnecessary re-renders
+  const refreshTransactions = useCallback(async (startDate, endDate) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // If no dates provided, use current month
+      if (!startDate || !endDate) {
+        const now = new Date();
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      }
+      
+      const response = await axios.get('/api/transactions', {
+        params: {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
+        }
+      });
+      setTransactions(response.data);
+    } catch (err) {
+      setError(err);
+      console.error('Error fetching transactions:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Initial load with current month
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    refreshTransactions(startOfMonth, endOfMonth);
+  }, [refreshTransactions]);
+
+  // Rest of the context remains the same
+  const addTransaction = async (transactionData) => {
+    try {
+      const response = await axios.post('/api/transactions', transactionData);
+      return response.data;
+    } catch (err) {
+      console.error('Error adding transaction:', err);
+      throw err;
+    }
+  };
+
+  const updateTransaction = async (id, transactionData) => {
+    try {
+      const response = await axios.put(`/api/transactions/${id}`, transactionData);
+      return response.data;
+    } catch (err) {
+      console.error('Error updating transaction:', err);
+      throw err;
+    }
+  };
+
+  const deleteTransaction = async (id) => {
+    try {
+      await axios.delete(`/api/transactions/${id}`);
+    } catch (err) {
+      console.error('Error deleting transaction:', err);
+      throw err;
+    }
+  };
+
+  return (
+    <TransactionContext.Provider
+      value={{
+        transactions,
+        loading,
+        error,
+        refreshTransactions,
+        addTransaction,
+        updateTransaction,
+        deleteTransaction
+      }}
+    >
+      {children}
+    </TransactionContext.Provider>
+  );
+};
