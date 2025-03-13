@@ -1,0 +1,16 @@
+{
+    "name": "personal-finance-tracker",
+    "version": "1.0.0",
+    "description": "Personal Finance Tracker Application",
+    "scripts": {
+      "start": "node backend/server.js",
+      "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
+      "build": "npm run build --prefix frontend",
+      "install-server": "npm install --prefix backend",
+      "install-client": "npm install --prefix frontend",
+      "install-all": "concurrently \"npm run install-server\" \"npm run install-client\""
+    },
+    "dependencies": {
+      "concurrently": "^8.2.2"
+    }
+  }
