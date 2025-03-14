@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SavingsChart from './SavingsChart';
 import ExpensePieChart from './ExpensePieChart';
+import IncomeExpenseTrend from './IncomeExpenseTrend'; // Import the new component
 
 // Set axios default base URL
 axios.defaults.baseURL = 'http://localhost:5000'; // Adjust this to match your backend URL
@@ -94,7 +95,7 @@ const Dashboard = () => {
       <div className="dashboard-chart-section">
         <div className="chart-card">
           <h3>Tendance des revenus et dépenses</h3>
-          {/* Composant de graphique ici */}
+          <IncomeExpenseTrend /> {/* Add the IncomeExpenseTrend component here */}
         </div>
       </div>
     </div>

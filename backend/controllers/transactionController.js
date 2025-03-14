@@ -209,3 +209,63 @@ exports.getExpensesByCategory = async (req, res) => {
     });
   }
 };
+
+// Add this method to your transactionController.js file
+
+// Get income and expense trends (monthly data for the last 6 months)
+exports.getIncomeExpenseTrends = async (req, res) => {
+  try {
+    const today = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(today.getMonth() - 5); // Get 6 months of data (current month + 5 previous)
+    
+    // Set to beginning of the month
+    sixMonthsAgo.setDate(1);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
+    
+    const transactions = await Transaction.find({
+      date: { $gte: sixMonthsAgo }
+    }).sort({ date: 1 });
+    
+    // Group by month and type (income/expense)
+    const monthlyData = {};
+    
+    // Initialize the data structure for the last 6 months
+    for (let i = 0; i < 6; i++) {
+      const monthDate = new Date(sixMonthsAgo);
+      monthDate.setMonth(sixMonthsAgo.getMonth() + i);
+      const monthKey = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}`;
+      
+      monthlyData[monthKey] = {
+        month: monthDate.toLocaleString('default', { month: 'short' }),
+        year: monthDate.getFullYear(),
+        income: 0,
+        expense: 0
+      };
+    }
+    
+    // Aggregate transactions by month
+    transactions.forEach(transaction => {
+      const date = new Date(transaction.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (monthlyData[monthKey]) {
+        if (transaction.type === 'income') {
+          monthlyData[monthKey].income += transaction.amount;
+        } else if (transaction.type === 'expense') {
+          monthlyData[monthKey].expense += transaction.amount;
+        }
+      }
+    });
+    
+    // Convert to array and sort by date
+    const trendsData = Object.values(monthlyData).sort((a, b) => {
+      return new Date(`${a.year}-${a.month}`) - new Date(`${b.year}-${b.month}`);
+    });
+    
+    res.json(trendsData);
+  } catch (error) {
+    console.error('Error fetching income/expense trends:', error);
+    res.status(500).json({ message: 'Error fetching trends data' });
+  }
+};
