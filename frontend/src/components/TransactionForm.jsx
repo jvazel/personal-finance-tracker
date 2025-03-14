@@ -2,8 +2,12 @@ import React, { useState, useContext } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { TransactionContext } from '../contexts/TransactionContext';
+import { registerLocale } from 'react-datepicker';
+import fr from 'date-fns/locale/fr';
 
-const categories = ["Food", "Transport", "Utilities", "Entertainment", "Salary", "Freelance", "Savings", "Rent", "Other"];
+registerLocale('fr', fr);
+
+const categories = ["Alimentation", "Transport", "Services", "Divertissement", "Salaire", "Freelance", "Épargne", "Loyer", "Autre"];
 
 const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const { addTransaction, updateTransaction } = useContext(TransactionContext);
@@ -31,11 +35,11 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
     setFormError('');
 
     if (!description || !amount || !type || !category) {
-      setFormError('Please fill in all fields.');
+      setFormError('Veuillez remplir tous les champs.');
       return;
     }
     if (isNaN(amount)) {
-      setFormError('Amount must be a number.');
+      setFormError('Le montant doit être un nombre.');
       return;
     }
 
@@ -55,8 +59,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       }
       onClose(); // Close the form after successful submission
     } catch (error) {
-      console.error('Error saving transaction:', error);
-      setFormError('Failed to save transaction. Please try again.');
+      console.error('Erreur lors de l\'enregistrement de la transaction:', error);
+      setFormError('Échec de l\'enregistrement de la transaction. Veuillez réessayer.');
     }
   };
 
@@ -70,7 +74,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           id="date"
           selected={date}
           onChange={date => setDate(date)}
-          dateFormat="yyyy-MM-dd"
+          dateFormat="dd/MM/yyyy"
+          locale="fr"
           minDate={startOfMonth}
           maxDate={endOfMonth}
         />
@@ -83,18 +88,18 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           type="text"
           value={description}
           onChange={e => setDescription(e.target.value)}
-          placeholder="Enter description"
+          placeholder="Entrez une description"
         />
       </div>
       
       <div className="form-group">
-        <label htmlFor="amount">Amount</label>
+        <label htmlFor="amount">Montant</label>
         <input
           id="amount"
           type="text"
           value={amount}
           onChange={e => setAmount(e.target.value)}
-          placeholder="Enter amount"
+          placeholder="Entrez un montant"
         />
       </div>
       
@@ -109,7 +114,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
               checked={type === 'expense'}
               onChange={() => setType('expense')}
             />
-            Expense
+            Dépense
           </label>
           <label style={{ marginLeft: '15px' }}>
             <input
@@ -119,13 +124,13 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
               checked={type === 'income'}
               onChange={() => setType('income')}
             />
-            Income
+            Revenu
           </label>
         </div>
       </div>
       
       <div className="form-group">
-        <label htmlFor="category">Category</label>
+        <label htmlFor="category">Catégorie</label>
         <select
           id="category"
           value={category}
@@ -138,8 +143,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       </div>
       
       <div className="form-actions">
-        <button type="button" className="cancel" onClick={onClose}>Cancel</button>
-        <button type="submit">{transactionToEdit ? 'Update' : 'Add'} Transaction</button>
+        <button type="button" className="cancel" onClick={onClose}>Annuler</button>
+        <button type="submit">{transactionToEdit ? 'Mettre à jour' : 'Ajouter'} la transaction</button>
       </div>
     </form>
   );

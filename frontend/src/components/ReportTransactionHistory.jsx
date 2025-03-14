@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const ReportTransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -15,7 +16,7 @@ const ReportTransactionHistory = () => {
         setTransactions(response.data);
       } catch (err) {
         setError(err);
-        console.error('Error fetching report transactions:', err);
+        console.error('Erreur lors du chargement des transactions du rapport:', err);
       } finally {
         setLoading(false);
       }
@@ -24,30 +25,30 @@ const ReportTransactionHistory = () => {
     fetchReportTransactions();
   }, []);
 
-  if (loading) return <div>Loading transaction history...</div>;
-  if (error) return <div>Error loading transaction history: {error.message}</div>;
-  if (!transactions || transactions.length === 0) return <div>No transactions to report.</div>;
+  if (loading) return <div>Chargement de l'historique des transactions...</div>;
+  if (error) return <div>Erreur lors du chargement de l'historique des transactions : {error.message}</div>;
+  if (!transactions || transactions.length === 0) return <div>Aucune transaction à afficher.</div>;
 
   return (
     <div>
-      <h2>Transaction History Report (Last Year)</h2>
+      <h2>Rapport d'historique des transactions (Dernière année)</h2>
       <table className="transaction-table">
         <thead>
           <tr>
             <th>Date</th>
             <th>Description</th>
-            <th>Amount</th>
+            <th>Montant</th>
             <th>Type</th>
-            <th>Category</th>
+            <th>Catégorie</th>
           </tr>
         </thead>
         <tbody>
           {transactions.map(transaction => (
             <tr key={transaction._id}>
-              <td>{format(new Date(transaction.date), 'yyyy-MM-dd')}</td>
+              <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
               <td>{transaction.description}</td>
-              <td>${transaction.amount.toFixed(2)}</td>
-              <td>{transaction.type}</td>
+              <td>{transaction.amount.toFixed(2)} €</td>
+              <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
               <td>{transaction.category}</td>
             </tr>
           ))}

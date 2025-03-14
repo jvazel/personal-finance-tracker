@@ -4,7 +4,8 @@ const transactionController = require('../controllers/transactionController');
 const router = express.Router();
 
 router.get('/', transactionController.getAllTransactions);
-router.get('/reports', transactionController.getReportTransactions); // Nouvelle route pour les rapports
+router.get('/reports', transactionController.getReportTransactions);
+router.get('/dashboard', transactionController.getDashboardData);
 router.post('/', transactionController.createTransaction);
 router.get('/:id', transactionController.getTransactionById);
 router.put('/:id', transactionController.updateTransaction);

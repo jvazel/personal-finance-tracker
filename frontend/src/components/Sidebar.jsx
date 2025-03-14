@@ -9,13 +9,13 @@ const Sidebar = () => {
       <nav>
         <ul className="sidebar-nav">
           <li className={location.pathname === "/" ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
-            <Link to="/">Budget Dashboard</Link>
+            <Link to="/">Tableau de bord</Link>
           </li>
           <li className={location.pathname === "/transactions" ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
             <Link to="/transactions">Transactions</Link>
           </li>
           <li className={location.pathname === "/reports" ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
-            <Link to="/reports">Reports</Link>
+            <Link to="/reports">Rapports</Link>
           </li>
         </ul>
       </nav>

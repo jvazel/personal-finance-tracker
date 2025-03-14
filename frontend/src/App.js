@@ -5,6 +5,12 @@ import Transactions from './components/Transactions';
 import Reports from './components/Reports';
 import Sidebar from './components/Sidebar';
 import './styles.css';
+import { registerLocale, setDefaultLocale } from 'react-datepicker';
+import fr from 'date-fns/locale/fr';
+
+// Register French locale
+registerLocale('fr', fr);
+setDefaultLocale('fr');
 
 function App() {
   return (

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { TransactionContext } from '../contexts/TransactionContext';
 import TransactionForm from './TransactionForm';
 import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import Modal from './Modal';
 
 const TransactionList = ({ selectedMonth }) => {
@@ -10,7 +11,7 @@ const TransactionList = ({ selectedMonth }) => {
   const [showEditForm, setShowEditForm] = useState(false);
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) {
       try {
         await deleteTransaction(id);
         // After deletion, refresh with the selected month
@@ -18,8 +19,8 @@ const TransactionList = ({ selectedMonth }) => {
         const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
         refreshTransactions(startOfMonth, endOfMonth);
       } catch (err) {
-        console.error("Error deleting transaction:", err);
-        alert('Failed to delete transaction.');
+        console.error("Erreur lors de la suppression de la transaction:", err);
+        alert('Échec de la suppression de la transaction.');
       }
     }
   };
@@ -38,11 +39,11 @@ const TransactionList = ({ selectedMonth }) => {
     refreshTransactions(startOfMonth, endOfMonth);
   };
 
-  if (loading) return <div>Loading transactions...</div>;
-  if (error) return <div>Error loading transactions: {error.message}</div>;
+  if (loading) return <div>Chargement des transactions...</div>;
+  if (error) return <div>Erreur lors du chargement des transactions : {error.message}</div>;
   if (!transactions || transactions.length === 0) {
-    const monthName = selectedMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
-    return <div>No transactions recorded for {monthName}.</div>;
+    const monthName = selectedMonth.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+    return <div>Aucune transaction enregistrée pour {monthName}.</div>;
   }
 
   return (
@@ -50,7 +51,7 @@ const TransactionList = ({ selectedMonth }) => {
       <Modal 
         isOpen={showEditForm} 
         onClose={handleCloseForm} 
-        title="Edit Transaction"
+        title="Modifier la transaction"
       >
         <TransactionForm 
           transactionToEdit={transactionToEdit} 
@@ -64,23 +65,23 @@ const TransactionList = ({ selectedMonth }) => {
           <tr>
             <th>Date</th>
             <th>Description</th>
-            <th>Amount</th>
+            <th>Montant</th>
             <th>Type</th>
-            <th>Category</th>
+            <th>Catégorie</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {transactions.map(transaction => (
             <tr key={transaction._id}>
-              <td>{format(new Date(transaction.date), 'yyyy-MM-dd')}</td>
+              <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
               <td>{transaction.description}</td>
-              <td>${transaction.amount.toFixed(2)}</td>
-              <td>{transaction.type}</td>
+              <td>{transaction.amount.toFixed(2)} €</td>
+              <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
               <td>{transaction.category}</td>
               <td className="transaction-actions">
-                <button onClick={() => handleEdit(transaction)}>Edit</button>
-                <button className="delete" onClick={() => handleDelete(transaction._id)}>Delete</button>
+                <button onClick={() => handleEdit(transaction)}>Modifier</button>
+                <button className="delete" onClick={() => handleDelete(transaction._id)}>Supprimer</button>
               </td>
             </tr>
           ))}

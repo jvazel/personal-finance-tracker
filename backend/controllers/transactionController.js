@@ -96,9 +96,22 @@ exports.getDashboardData = async (req, res) => {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+        console.log('Période du tableau de bord:', {
+            startOfMonth: startOfMonth.toISOString(),
+            endOfMonth: endOfMonth.toISOString(),
+            currentDate: now.toISOString()
+        });
+
         const transactions = await Transaction.find({
             date: { $gte: startOfMonth, $lte: endOfMonth }
         });
+
+        console.log('Nombre de transactions trouvées:', transactions.length);
+        
+        // Afficher quelques transactions pour vérification
+        if (transactions.length > 0) {
+            console.log('Exemple de transaction:', transactions[0]);
+        }
 
         let totalIncome = 0;
         let totalExpenses = 0;
@@ -111,15 +124,20 @@ exports.getDashboardData = async (req, res) => {
             }
         });
 
-        const savings = totalIncome - Math.abs(totalExpenses); // Ensure expenses are positive for savings calculation
+        const savings = totalIncome - Math.abs(totalExpenses);
 
-        res.json({
+        const result = {
             totalIncome,
-            totalExpenses: Math.abs(totalExpenses), // Return expenses as positive
+            totalExpenses: Math.abs(totalExpenses),
             savings,
-        });
+        };
+        
+        console.log('Résultat du tableau de bord:', result);
+        
+        res.json(result);
 
     } catch (error) {
+        console.error('Erreur tableau de bord:', error);
         res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
     }
 };

@@ -25,22 +25,32 @@ const Transactions = () => {
     </button>
   );
 
+  // Fonction pour gérer la fermeture du formulaire et rafraîchir les données
+  const handleFormClose = () => {
+    setShowForm(false);
+    // Rafraîchir les transactions après la fermeture du formulaire
+    const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
+    const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
+    refreshTransactions(startOfMonth, endOfMonth);
+  };
+
   return (
     <div className="transactions-container">
       <div className="transactions-header">
         <h2>Transactions</h2>
         <div className="transactions-controls">
           <div className="month-selector">
-            <span>Month: </span>
+            <span>Mois : </span>
             <DatePicker
               selected={selectedMonth}
               onChange={date => setSelectedMonth(date)}
               dateFormat="MMMM yyyy"
               showMonthYearPicker
+              locale="fr"
               customInput={<CustomMonthInput />}
             />
           </div>
-          <button onClick={() => setShowForm(true)}>Add Transaction</button>
+          <button onClick={() => setShowForm(true)}>Ajouter une transaction</button>
         </div>
       </div>
 
@@ -48,11 +58,11 @@ const Transactions = () => {
 
       <Modal 
         isOpen={showForm} 
-        onClose={() => setShowForm(false)} 
-        title="Add New Transaction"
+        onClose={handleFormClose} 
+        title="Ajouter une nouvelle transaction"
       >
         <TransactionForm 
-          onClose={() => setShowForm(false)} 
+          onClose={handleFormClose} 
           selectedMonth={selectedMonth} 
         />
       </Modal>
