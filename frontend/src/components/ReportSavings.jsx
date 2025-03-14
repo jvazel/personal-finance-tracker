@@ -34,7 +34,7 @@ const ReportSavings = () => {
         setMonthlySavings(savingsArray);
       } catch (err) {
         setError(err);
-        console.error('Error fetching report transactions:', err);
+        console.error('Erreur lors de la récupération des rapports de transactions:', err);
       } finally {
         setLoading(false);
       }
@@ -49,25 +49,25 @@ const ReportSavings = () => {
     return `${year}-${month.toString().padStart(2, '0')}-01`; // Format for date comparison
   };
 
-  if (loading) return <div>Loading savings report...</div>;
-  if (error) return <div>Error loading savings report: {error.message}</div>;
-  if (!monthlySavings || monthlySavings.length === 0) return <div>No savings data available.</div>;
+  if (loading) return <div>Chargement du rapport...</div>;
+  if (error) return <div>Erreur lors du chargement du rapport: {error.message}</div>;
+  if (!monthlySavings || monthlySavings.length === 0) return <div>Aucune donnée disponible.</div>;
 
   return (
     <div>
-      <h2>Savings Report (Last Year)</h2>
+      <h2>Rapport sur l'évolution du solde (sur une année)</h2>
       <table className="transaction-table">
         <thead>
           <tr>
-            <th>Month</th>
-            <th>Savings</th>
+            <th>Mois</th>
+            <th>Solde</th>
           </tr>
         </thead>
         <tbody>
           {monthlySavings.map(item => (
             <tr key={item.monthYear}>
               <td>{item.monthYear.substring(0, 7)}</td> {/* Display YYYY-MM */}
-              <td>${item.savings.toFixed(2)}</td>
+              <td>{item.savings.toFixed(2)} €</td>
             </tr>
           ))}
         </tbody>

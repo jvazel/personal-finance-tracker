@@ -40,9 +40,10 @@ const Transactions = () => {
         <h2>Transactions</h2>
         <div className="transactions-controls">
           <div className="month-selector">
-            <span>Mois : </span>
+            <span className="month-label">Mois : </span>
             <DatePicker
               selected={selectedMonth}
+              className="month-selector-button"
               onChange={date => setSelectedMonth(date)}
               dateFormat="MMMM yyyy"
               showMonthYearPicker

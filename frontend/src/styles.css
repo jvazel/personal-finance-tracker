@@ -543,33 +543,31 @@ div[class*="chart-card"] {
 /* Transaction Controls */
 .transactions-controls {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; /* Alignement à gauche plutôt que space-between */
   gap: 16px;
-  margin-top: 20px; /* Add more space between title and controls */
+  margin-top: 20px;
+  flex-wrap: nowrap; /* Empêche le retour à la ligne */
+  width: 100%;
 }
 
 .month-selector {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap; /* Empêche le texte de se couper */
 }
 
-.month-selector-button {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
+/* Style spécifique pour le label "Mois" */
+.month-label {
+  display: inline-block;
+  margin-right: 5px;
+  color: #e2e8f0;
   font-weight: 500;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.month-selector-button:hover {
-  background-color: #2563eb;
-  transform: translateY(-1px);
+  margin-top: 10px;
+  white-space: nowrap;
 }
 
 /* Add Transaction Button */
@@ -577,6 +575,15 @@ div[class*="chart-card"] {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%; /* Assure que l'en-tête prend toute la largeur */
+}
+
+/* Vous pouvez également ajouter un style pour le conteneur de date si nécessaire */
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap; /* Empêche le texte de se couper */
 }
 
 .transactions-header button {
