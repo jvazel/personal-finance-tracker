@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SavingsChart from './SavingsChart';
+import ExpensePieChart from './ExpensePieChart';
 
 // Set axios default base URL
 axios.defaults.baseURL = 'http://localhost:5000'; // Adjust this to match your backend URL
@@ -10,9 +11,10 @@ const Dashboard = () => {
   const [savings, setSavings] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const [expensesByCategory, setExpensesByCategory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  
   // Charger les données financières au chargement du composant
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -26,6 +28,31 @@ const Dashboard = () => {
         setSavings(response.data.savings || 0);
         setTotalIncome(response.data.totalIncome || 0);
         setTotalExpenses(response.data.totalExpenses || 0);
+        
+        // Calculer les dates pour le mois en cours
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+        // Formater les dates pour l'API (YYYY-MM-DD)
+        const startDate = firstDayOfMonth.toISOString().split('T')[0];
+        const endDate = lastDayOfMonth.toISOString().split('T')[0];
+        
+        // In your fetchDashboardData function, add more detailed error logging:
+        
+        // Récupérer les dépenses par catégorie pour le mois en cours
+        try {
+          const categoriesResponse = await axios.get('/api/transactions/expenses-by-category', {
+            params: { startDate, endDate }
+          });
+          console.log('Categories response:', categoriesResponse.data);
+          setExpensesByCategory(categoriesResponse.data || []);
+        } catch (err) {
+          console.error('Error fetching expenses by category:', err.response ? err.response.data : err.message);
+          // Don't set the error state here to prevent the dashboard from showing an error
+          // Just set empty categories
+          setExpensesByCategory([]);
+        }
       } catch (err) {
         console.error('Erreur lors du chargement des données du tableau de bord:', err);
         setError(err);
@@ -57,11 +84,10 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* Reste du composant Dashboard */}
       <div className="dashboard-chart-section">
         <div className="chart-card">
           <h3>Aperçu des dépenses par catégorie</h3>
-          {/* Composant de graphique ici */}
+          <ExpensePieChart expensesByCategory={expensesByCategory} />
         </div>
       </div>
       

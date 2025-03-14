@@ -7,6 +7,7 @@ router.get('/', transactionController.getAllTransactions);
 router.get('/reports', transactionController.getReportTransactions);
 router.get('/dashboard', transactionController.getDashboardData);
 router.post('/', transactionController.createTransaction);
+router.get('/expenses-by-category', transactionController.getExpensesByCategory);
 router.get('/:id', transactionController.getTransactionById);
 router.put('/:id', transactionController.updateTransaction);
 router.delete('/:id', transactionController.deleteTransaction);

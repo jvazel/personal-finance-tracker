@@ -141,3 +141,71 @@ exports.getDashboardData = async (req, res) => {
         res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
     }
 };
+
+// Get expenses by category between two dates
+exports.getExpensesByCategory = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    console.log('Expenses by category request received:', { startDate, endDate });
+    
+    // Validate date parameters
+    if (!startDate || !endDate) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Les dates de début et de fin sont requises' 
+      });
+    }
+
+    // Format dates for MongoDB query
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Set to end of day
+
+    // Validate date format
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Format de date invalide. Utilisez YYYY-MM-DD' 
+      });
+    }
+
+    console.log('Date range for query:', { start, end });
+
+    // Aggregate expenses by category
+    const expensesByCategory = await Transaction.aggregate([
+      {
+        $match: {
+          type: 'expense',
+          date: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $group: {
+          _id: '$category',
+          amount: { $sum: '$amount' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          category: '$_id',
+          amount: 1
+        }
+      },
+      {
+        $sort: { amount: -1 }
+      }
+    ]);
+
+    console.log('Expenses by category results:', expensesByCategory);
+    res.status(200).json(expensesByCategory);
+  } catch (error) {
+    console.error('Error fetching expenses by category:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erreur lors de la récupération des dépenses par catégorie',
+      error: error.message 
+    });
+  }
+};
