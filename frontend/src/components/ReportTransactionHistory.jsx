@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import AmountDisplay from './AmountDisplay';
 
 const ReportTransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -47,7 +48,9 @@ const ReportTransactionHistory = () => {
             <tr key={transaction._id}>
               <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
               <td>{transaction.description}</td>
-              <td>{transaction.amount.toFixed(2)} €</td>
+              <td className={transaction.type === 'income' ? 'amount-income' : 'amount-expense'}>
+                <AmountDisplay amount={transaction.amount} type={transaction.type} />
+              </td>
               <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
               <td>{transaction.category}</td>
             </tr>

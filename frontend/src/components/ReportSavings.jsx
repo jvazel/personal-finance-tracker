@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import AmountDisplay from './AmountDisplay';
 
 const ReportSavings = () => {
   const [monthlySavings, setMonthlySavings] = useState([]);
@@ -67,7 +68,12 @@ const ReportSavings = () => {
           {monthlySavings.map(item => (
             <tr key={item.monthYear}>
               <td>{item.monthYear.substring(0, 7)}</td> {/* Display YYYY-MM */}
-              <td>{item.savings.toFixed(2)} €</td>
+              <td className={item.savings >= 0 ? 'amount-income' : 'amount-expense'}>
+                <AmountDisplay 
+                  amount={item.savings} 
+                  type={item.savings >= 0 ? 'income' : 'expense'} 
+                />
+              </td>
             </tr>
           ))}
         </tbody>

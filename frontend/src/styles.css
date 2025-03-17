@@ -247,9 +247,33 @@ div[class*="chart-card"] {
 
 /* Ensuring all report text is visible on dark background */
 .report-section p,
-.report-section span,
-.report-section div {
+.report-section span:not(.amount-income):not(.amount-expense):not(.arrow-up):not(.arrow-down) {
   color: #e2e8f0;
+}
+
+/* Make sure these have higher specificity to override the general rule */
+.report-section .amount-expense,
+.report-section span.amount-expense,
+.transaction-table .amount-expense {
+  color: #ef4444 !important; /* Rouge pour les dépenses */
+  font-weight: 500;
+}
+
+.report-section .amount-income,
+.report-section span.amount-income,
+.transaction-table .amount-income {
+  color: #10b981 !important; /* Vert pour les recettes */
+  font-weight: 500;
+}
+
+.report-section .arrow-down,
+.report-section span.arrow-down {
+  color: #ef4444 !important; /* Rouge pour les flèches vers le bas */
+}
+
+.report-section .arrow-up,
+.report-section span.arrow-up {
+  color: #10b981 !important; /* Vert pour les flèches vers le haut */
 }
 
 .transaction-table th {
@@ -286,6 +310,15 @@ div[class*="chart-card"] {
 .amount-income {
   color: #10b981; /* Vert pour les recettes */
   font-weight: 500;
+}
+
+/* Add these arrow styles */
+.arrow-down {
+  color: #ef4444; /* Rouge pour les flèches vers le bas (dépenses) */
+}
+
+.arrow-up {
+  color: #10b981; /* Vert pour les flèches vers le haut (revenus) */
 }
 
 /* Chart card - ensuring dark background */
