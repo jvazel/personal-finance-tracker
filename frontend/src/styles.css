@@ -277,6 +277,17 @@ div[class*="chart-card"] {
   background-color: #3f3f5f; /* Lighter on hover */
 }
 
+/* Classes pour les montants de transactions */
+.amount-expense {
+  color: #ef4444; /* Rouge pour les dépenses */
+  font-weight: 500;
+}
+
+.amount-income {
+  color: #10b981; /* Vert pour les recettes */
+  font-weight: 500;
+}
+
 /* Chart card - ensuring dark background */
 .chart-card {
   width: 100%;
@@ -685,4 +696,17 @@ div[class*="chart-card"] {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Styles pour les flèches des montants */
+.arrow-down {
+  color: #ef4444; /* Rouge pour les dépenses */
+  font-size: 0.8em;
+  margin-right: 4px;
+}
+
+.arrow-up {
+  color: #10b981; /* Vert pour les recettes */
+  font-size: 0.8em;
+  margin-right: 4px;
 }

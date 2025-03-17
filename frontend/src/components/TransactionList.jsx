@@ -4,6 +4,7 @@ import TransactionForm from './TransactionForm';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Modal from './Modal';
+import AmountDisplay from './AmountDisplay';
 
 const TransactionList = ({ selectedMonth }) => {
   const { transactions, loading, error, deleteTransaction, refreshTransactions } = useContext(TransactionContext);
@@ -76,7 +77,12 @@ const TransactionList = ({ selectedMonth }) => {
             <tr key={transaction._id}>
               <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
               <td>{transaction.description}</td>
-              <td>{transaction.amount.toFixed(2)} €</td>
+              <td>
+                <AmountDisplay 
+                  amount={transaction.amount} 
+                  type={transaction.type} 
+                />
+              </td>
               <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
               <td>{transaction.category}</td>
               <td className="transaction-actions">

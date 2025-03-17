@@ -7,7 +7,7 @@ import fr from 'date-fns/locale/fr';
 
 registerLocale('fr', fr);
 
-const categories = ["Alimentation", "Transport", "Services", "Divertissement", "Salaire", "Freelance", "Épargne", "Loyer", "Autre"];
+const categories = ["Alimentation", "Assurance", "Cadeau", "Culture", "Divertissement", "Don", "Éducation", "Électricité", "Épargne", "Gaz", "Internet et téléphone", "Loyer", "Salaire", "Santé", "Services", "Transport", "Autre"];
 
 const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const { addTransaction, updateTransaction } = useContext(TransactionContext);
@@ -100,6 +100,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           value={amount}
           onChange={e => setAmount(e.target.value)}
           placeholder="Entrez un montant"
+          className={type ? `amount-${type}` : ''}
         />
       </div>
       
