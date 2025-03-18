@@ -71,15 +71,15 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-summary">
-        <div className="dashboard-card">
+        <div className={`dashboard-card ${savings >= 0 ? 'income' : 'expense'}`}>
           <h3>Solde actuel</h3>
           <p>{savings >= 0 ? `${savings.toFixed(2)} €` : `-${Math.abs(savings).toFixed(2)} €`}</p>
         </div>
-        <div className="dashboard-card">
+        <div className="dashboard-card income">
           <h3>Revenus du mois</h3>
           <p>{totalIncome.toFixed(2)} €</p>
         </div>
-        <div className="dashboard-card">
+        <div className="dashboard-card expense">
           <h3>Dépenses du mois</h3>
           <p>{totalExpenses.toFixed(2)} €</p>
         </div>
