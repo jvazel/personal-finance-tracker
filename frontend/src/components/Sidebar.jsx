@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/sidebar.css';
+// Import des icônes
+import { FaChartPie, FaExchangeAlt, FaChartLine, FaHistory, FaBalanceScale } from 'react-icons/fa';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -19,22 +21,22 @@ const Sidebar = () => {
       <nav>
         <ul className="sidebar-nav">
           <li className={location.pathname === "/" ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
-            <Link to="/">Tableau de bord</Link>
+            <Link to="/"><FaChartPie className="sidebar-icon" /> Tableau de bord</Link>
           </li>
           <li className={location.pathname === "/transactions" ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
-            <Link to="/transactions">Transactions</Link>
+            <Link to="/transactions"><FaExchangeAlt className="sidebar-icon" /> Transactions</Link>
           </li>
           <li className={location.pathname.startsWith("/reports") ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
-            <Link to="/reports" onClick={toggleReportsSubmenu}>Rapports</Link>
+            <Link to="/reports" onClick={toggleReportsSubmenu}><FaChartLine className="sidebar-icon" /> Rapports</Link>
           </li>
           
           {showReportsSubmenu && (
             <>
               <li className={location.pathname === "/reports/transactions" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
-                <Link to="/reports/transactions">Historique des transactions</Link>
+                <Link to="/reports/transactions"><FaHistory className="sidebar-icon" /> Historique des transactions</Link>
               </li>
               <li className={location.pathname === "/reports/savings" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
-                <Link to="/reports/savings">Evolution du solde</Link>
+                <Link to="/reports/savings"><FaBalanceScale className="sidebar-icon" /> Evolution du solde</Link>
               </li>
             </>
           )}

@@ -31,3 +31,15 @@
   content: "•"; /* Add a bullet or other indicator */
   margin-right: 8px;
 }
+
+/* Style pour les icônes */
+.sidebar-icon {
+  margin-right: 10px;
+  font-size: 1.2em;
+  vertical-align: middle;
+}
+
+.sidebar-nav-item > a {
+  display: flex;
+  align-items: center;
+}
