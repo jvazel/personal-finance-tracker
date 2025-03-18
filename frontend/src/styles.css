@@ -658,6 +658,620 @@ div[class*="chart-card"] {
   margin-right: 5px;
   color: #e2e8f0;
   font-weight: 500;
+  margin-top: 0; /* Removed top margin to align properly */
+  white-space: nowrap;
+}
+
+/* Add these new styles for the month selector custom elements */
+.month-selector-custom {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.month-nav-button {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.month-nav-button:hover {
+  color: #3b82f6;
+  transform: scale(1.1);
+}
+
+.month-display-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.month-display-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Ensure the datepicker input container doesn't break the layout */
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background-color: #1e1e2e; /* Dark input background */
+  color: #e2e8f0; /* Light text color */
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Transaction form background */
+.transaction-form {
+  display: grid;
+  gap: 16px;
+  max-width: 500px;
+  margin-top: 20px;
+  background-color: #353549; /* Darker background */
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Remplacer cette définition qui utilise un fond blanc et texte sombre */
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #e2e8f0; /* Couleur claire pour les labels sur fond sombre */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563; /* Bordure plus visible */
+  background-color: #1e1e2e; /* Fond sombre pour les inputs */
+  color: #e2e8f0; /* Texte clair */
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Assurer que les inputs du datepicker ont aussi le bon style */
+.react-datepicker__input-container input {
+  background-color: #1e1e2e !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #4b5563 !important;
+  padding: 10px 12px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* Style pour les boutons radio et leurs labels */
+.form-group input[type="radio"] + label {
+  color: #e2e8f0;
+}
+
+.form-group input[type="radio"] {
+  width: auto;
+  margin-right: 5px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.form-actions button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.form-actions button:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.form-actions button.cancel {
+  background-color: #ef4444;
+}
+
+.form-actions button.cancel:hover {
+  background-color: #dc2626;
+}
+
+/* Transaction List Styles */
+.transaction-list-container {
+  margin-top: 24px;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Remove this duplicate definition that has the light background */
+.transaction-table th,
+.transaction-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #4b5563; /* Updated border color for dark theme */
+}
+
+.transaction-table th {
+  background-color: #353549; /* Dark header background */
+  font-weight: 500;
+  color: #e2e8f0; /* Light color for header text */
+  font-size: 14px;
+}
+
+/* Remove these styles or update them to match the dark theme */
+.transaction-table tbody tr {
+  background-color: #2a2a3c; /* Dark background for rows */
+  transition: background-color 0.2s ease;
+}
+
+.transaction-table tbody tr:hover {
+  background-color: #3f3f5f; /* Lighter on hover */
+}
+
+.transaction-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.transaction-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.transaction-actions button:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.transaction-actions button.delete {
+  background-color: #ef4444;
+}
+
+.transaction-actions button.delete:hover {
+  background-color: #dc2626;
+}
+
+/* Reports Styles - removing the white background definition */
+.reports-container {
+  background-color: #2a2a3c; /* Dark background */
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.report-section {
+  margin-bottom: 32px;
+}
+
+.report-section h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #ffffff; /* White text for headings */
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Datepicker Styles */
+.react-datepicker-wrapper {
+  width: 100%; /* Ensure datepicker input takes full width */
+}
+
+.react-datepicker__input-container {
+  width: 100%; /* Ensure input container takes full width */
+}
+
+.react-datepicker__input {
+  width: 100%; /* Ensure input inside container takes full width */
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.dashboard-chart-section {
+  margin-top: 24px;
+}
+
+.chart-card {
+  width: 100%;
+  padding: 24px;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.chart-container {
+  width: 100%;
+  height: 400px;
+}
+
+/* Transaction Controls */
+.transactions-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; /* Alignement à gauche plutôt que space-between */
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: nowrap; /* Empêche le retour à la ligne */
+  width: 100%;
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+/* Style spécifique pour le label "Mois" */
+.month-label {
+  display: inline-block;
+  margin-right: 5px;
+  color: #e2e8f0;
+  font-weight: 500;
+  margin-top: 0; /* Removed top margin to align properly */
+  white-space: nowrap;
+}
+
+/* Add these new styles for the month selector custom elements */
+.month-selector-custom {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.month-nav-button {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.month-nav-button:hover {
+  color: #3b82f6;
+  transform: scale(1.1);
+}
+
+.month-display-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.month-display-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Ensure the datepicker input container doesn't break the layout */
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background-color: #1e1e2e; /* Dark input background */
+  color: #e2e8f0; /* Light text color */
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Transaction form background */
+.transaction-form {
+  display: grid;
+  gap: 16px;
+  max-width: 500px;
+  margin-top: 20px;
+  background-color: #353549; /* Darker background */
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Remplacer cette définition qui utilise un fond blanc et texte sombre */
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #e2e8f0; /* Couleur claire pour les labels sur fond sombre */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563; /* Bordure plus visible */
+  background-color: #1e1e2e; /* Fond sombre pour les inputs */
+  color: #e2e8f0; /* Texte clair */
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Assurer que les inputs du datepicker ont aussi le bon style */
+.react-datepicker__input-container input {
+  background-color: #1e1e2e !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #4b5563 !important;
+  padding: 10px 12px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* Style pour les boutons radio et leurs labels */
+.form-group input[type="radio"] + label {
+  color: #e2e8f0;
+}
+
+.form-group input[type="radio"] {
+  width: auto;
+  margin-right: 5px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.form-actions button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.form-actions button:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.form-actions button.cancel {
+  background-color: #ef4444;
+}
+
+.form-actions button.cancel:hover {
+  background-color: #dc2626;
+}
+
+/* Transaction List Styles */
+.transaction-list-container {
+  margin-top: 24px;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Remove this duplicate definition that has the light background */
+.transaction-table th,
+.transaction-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #4b5563; /* Updated border color for dark theme */
+}
+
+.transaction-table th {
+  background-color: #353549; /* Dark header background */
+  font-weight: 500;
+  color: #e2e8f0; /* Light color for header text */
+  font-size: 14px;
+}
+
+/* Remove these styles or update them to match the dark theme */
+.transaction-table tbody tr {
+  background-color: #2a2a3c; /* Dark background for rows */
+  transition: background-color 0.2s ease;
+}
+
+.transaction-table tbody tr:hover {
+  background-color: #3f3f5f; /* Lighter on hover */
+}
+
+.transaction-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.transaction-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.transaction-actions button:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.transaction-actions button.delete {
+  background-color: #ef4444;
+}
+
+.transaction-actions button.delete:hover {
+  background-color: #dc2626;
+}
+
+/* Reports Styles - removing the white background definition */
+.reports-container {
+  background-color: #2a2a3c; /* Dark background */
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.report-section {
+  margin-bottom: 32px;
+}
+
+.report-section h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #ffffff; /* White text for headings */
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Datepicker Styles */
+.react-datepicker-wrapper {
+  width: 100%; /* Ensure datepicker input takes full width */
+}
+
+.react-datepicker__input-container {
+  width: 100%; /* Ensure input container takes full width */
+}
+
+.react-datepicker__input {
+  width: 100%; /* Ensure input inside container takes full width */
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.dashboard-chart-section {
+  margin-top: 24px;
+}
+
+.chart-card {
+  width: 100%;
+  padding: 24px;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.chart-container {
+  width: 100%;
+  height: 400px;
+}
+
+/* Transaction Controls */
+.transactions-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; /* Alignement à gauche plutôt que space-between */
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: nowrap; /* Empêche le retour à la ligne */
+  width: 100%;
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+/* Style spécifique pour le label "Mois" */
+.month-label {
+  display: inline-block;
+  margin-right: 5px;
+  color: #e2e8f0;
+  font-weight: 500;
   margin-top: 10px;
   white-space: nowrap;
 }

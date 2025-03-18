@@ -5,6 +5,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { TransactionContext } from '../contexts/TransactionContext';
 import Modal from './Modal';
+import { format, addMonths, subMonths } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
@@ -18,11 +20,28 @@ const Transactions = () => {
     refreshTransactions(startOfMonth, endOfMonth);
   }, [selectedMonth, refreshTransactions]);
 
+  // Navigation functions for month selector
+  const goToPreviousMonth = () => {
+    setSelectedMonth(prevDate => subMonths(prevDate, 1));
+  };
+
+  const goToNextMonth = () => {
+    setSelectedMonth(prevDate => addMonths(prevDate, 1));
+  };
+
   // Custom renderer for the month picker to only show month/year
   const CustomMonthInput = ({ value, onClick }) => (
-    <button className="month-selector-button" onClick={onClick}>
-      {value}
-    </button>
+    <div className="month-selector-custom">
+      <button className="month-nav-button" onClick={goToPreviousMonth}>
+        <span>&#9664;</span>
+      </button>
+      <button className="month-display-button" onClick={onClick}>
+        {value}
+      </button>
+      <button className="month-nav-button" onClick={goToNextMonth}>
+        <span>&#9654;</span>
+      </button>
+    </div>
   );
 
   // Fonction pour gérer la fermeture du formulaire et rafraîchir les données
@@ -43,7 +62,6 @@ const Transactions = () => {
             <span className="month-label">Mois : </span>
             <DatePicker
               selected={selectedMonth}
-              className="month-selector-button"
               onChange={date => setSelectedMonth(date)}
               dateFormat="MMMM yyyy"
               showMonthYearPicker
