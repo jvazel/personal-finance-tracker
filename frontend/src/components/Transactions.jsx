@@ -5,8 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { TransactionContext } from '../contexts/TransactionContext';
 import Modal from './Modal';
-import { format, addMonths, subMonths } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { addMonths, subMonths } from 'date-fns';
 
 const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
@@ -59,7 +58,6 @@ const Transactions = () => {
         <h2>Transactions</h2>
         <div className="transactions-controls">
           <div className="month-selector">
-            <span className="month-label">Mois : </span>
             <DatePicker
               selected={selectedMonth}
               onChange={date => setSelectedMonth(date)}
