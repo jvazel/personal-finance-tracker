@@ -5,7 +5,7 @@
 }
 
 .sidebar-nav-item.submenu-item::before {
-  content: "•"; /* Add a bullet or other indicator */
+  content: ""; /* Remove the bullet point */
   margin-right: 8px;
 }
 
@@ -28,7 +28,7 @@
 }
 
 .sidebar-nav-item.submenu-item::before {
-  content: "•"; /* Add a bullet or other indicator */
+  content: ""; /* Remove the bullet point */
   margin-right: 8px;
 }
 
