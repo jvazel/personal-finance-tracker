@@ -9,7 +9,9 @@ const ReportTransactionHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
-  const [selectedPeriod, setSelectedPeriod] = useState('1year'); // Période par défaut: 1 an
+  const [selectedPeriod, setSelectedPeriod] = useState('1year');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [transactionsPerPage] = useState(15);
 
   // Définition des périodes disponibles
   const periods = [
@@ -92,6 +94,8 @@ const ReportTransactionHistory = () => {
     };
 
     fetchReportTransactions();
+    // Réinitialiser la page courante à 1 quand la période change
+    setCurrentPage(1);
   }, [selectedPeriod]); // Recharger les données quand la période change
 
   // Fonction pour gérer le changement de période
@@ -146,6 +150,41 @@ const ReportTransactionHistory = () => {
     return sortConfig.direction === 'asc' ? ' ▲' : ' ▼';
   };
 
+  // Calcul des transactions pour la page courante
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = sortedTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+
+  // Calcul du nombre total de pages
+  const totalPages = Math.ceil(sortedTransactions.length / transactionsPerPage);
+
+  // Fonction pour changer de page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Fonction pour aller à la page suivante
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Fonction pour aller à la page précédente
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Fonction pour aller à la première page
+  const firstPage = () => {
+    setCurrentPage(1);
+  };
+
+  // Fonction pour aller à la dernière page
+  const lastPage = () => {
+    setCurrentPage(totalPages);
+  };
+
   if (loading) return <div>Chargement de l'historique des transactions...</div>;
   if (error) return <div>Erreur lors du chargement de l'historique des transactions : {error.message}</div>;
   if (!transactions || transactions.length === 0) return <div>Aucune transaction à afficher pour la période sélectionnée.</div>;
@@ -198,7 +237,7 @@ const ReportTransactionHistory = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedTransactions.map(transaction => (
+          {currentTransactions.map(transaction => (
             <tr key={transaction._id}>
               <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
               <td>{transaction.description}</td>
@@ -211,6 +250,43 @@ const ReportTransactionHistory = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button 
+            onClick={firstPage} 
+            disabled={currentPage === 1}
+            className="pagination-button"
+          >
+            &laquo; Première
+          </button>
+          <button 
+            onClick={prevPage} 
+            disabled={currentPage === 1}
+            className="pagination-button"
+          >
+            &lt; Précédente
+          </button>
+          <span className="pagination-info">
+            Page {currentPage} sur {totalPages}
+          </span>
+          <button 
+            onClick={nextPage} 
+            disabled={currentPage === totalPages}
+            className="pagination-button"
+          >
+            Suivante &gt;
+          </button>
+          <button 
+            onClick={lastPage} 
+            disabled={currentPage === totalPages}
+            className="pagination-button"
+          >
+            Dernière &raquo;
+          </button>
+        </div>
+      )}
     </div>
   );
 };
