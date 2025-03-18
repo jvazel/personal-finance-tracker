@@ -869,3 +869,33 @@ label[for="limit"],
     padding-right: 0;
   }
 }
+
+/* Styles pour le filtre de période */
+.period-filter {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.period-filter label {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.period-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #4b5563;
+  background-color: #1e1e2e;
+  color: #e2e8f0;
+  font-size: 14px;
+  min-width: 120px;
+  cursor: pointer;
+}
+
+.period-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}

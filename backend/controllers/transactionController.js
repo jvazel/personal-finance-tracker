@@ -21,17 +21,29 @@ exports.getAllTransactions = async (req, res) => {
   }
 };
 
-// Get transactions for reports (last year)
+// Get transactions for reports (with date range)
 exports.getReportTransactions = async (req, res) => {
   try {
-    // Calculer la date d'il y a un an
-    const now = new Date();
-    const oneYearAgo = new Date(now);
-    oneYearAgo.setFullYear(now.getFullYear() - 1);
+    let query = {};
+    
+    // Utiliser les dates fournies ou par défaut utiliser la dernière année
+    if (req.query.startDate && req.query.endDate) {
+      const startDate = new Date(req.query.startDate);
+      const endDate = new Date(req.query.endDate);
+      // Définir endDate à la fin de la journée
+      endDate.setHours(23, 59, 59, 999);
+      
+      query.date = { $gte: startDate, $lte: endDate };
+    } else {
+      // Comportement par défaut: dernière année
+      const now = new Date();
+      const oneYearAgo = new Date(now);
+      oneYearAgo.setFullYear(now.getFullYear() - 1);
+      
+      query.date = { $gte: oneYearAgo };
+    }
 
-    const transactions = await Transaction.find({
-      date: { $gte: oneYearAgo }
-    }).sort({ date: -1 }); // Tri par date décroissante
+    const transactions = await Transaction.find(query).sort({ date: -1 }); // Tri par date décroissante
 
     res.json(transactions);
   } catch (error) {
