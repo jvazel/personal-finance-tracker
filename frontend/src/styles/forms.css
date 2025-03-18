@@ -1,0 +1,111 @@
+/* Form Styles */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #e2e8f0; /* Light color for better visibility on dark background */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563; /* Bordure plus visible */
+  background-color: #1e1e2e; /* Fond sombre pour les inputs */
+  color: #e2e8f0; /* Texte clair */
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Style pour les boutons radio et leurs labels */
+.form-group input[type="radio"] + label {
+  color: #e2e8f0;
+}
+
+.form-group input[type="radio"] {
+  width: auto;
+  margin-right: 5px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.form-actions button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.form-actions button:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.form-actions button.cancel {
+  background-color: #ef4444;
+}
+
+.form-actions button.cancel:hover {
+  background-color: #dc2626;
+}
+
+/* Transaction form background */
+.transaction-form {
+  display: grid;
+  gap: 16px;
+  max-width: 500px;
+  margin-top: 20px;
+  background-color: #353549; /* Darker background */
+  padding: 20px;
+  border-radius: 8px;
+}
+
+/* Assurer que les inputs du datepicker ont aussi le bon style */
+.react-datepicker__input-container input {
+  background-color: #1e1e2e !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #4b5563 !important;
+  padding: 10px 12px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* Styles pour les champs désactivés */
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background-color: #374151;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Styles pour les messages d'erreur */
+.form-error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}

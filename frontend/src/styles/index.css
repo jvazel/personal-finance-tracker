@@ -1,0 +1,11 @@
+@import './base.css';
+@import './sidebar-main.css';
+@import './dashboard.css';
+@import './forms.css';
+@import './tables.css';
+@import './transactions.css';
+@import './charts.css';
+@import './modal.css';
+@import './controls.css';
+@import './reports.css';
+@import './utilities.css';

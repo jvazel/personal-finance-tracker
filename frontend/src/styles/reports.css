@@ -1,6 +1,149 @@
+/* Reports Styles */
 .reports-container {
+  background-color: #2a2a3c; /* Dark background */
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   display: flex;
   height: 100%;
+}
+
+.reports-content {
+  width: 100%;
+}
+
+.report-section {
+  margin-bottom: 32px;
+}
+
+.report-section h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #ffffff; /* White text for headings */
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Ensuring table headers in reports have dark backgrounds */
+.report-section .transaction-table th {
+  background-color: #353549; /* Darker header background */
+  color: #e2e8f0; /* Light text color */
+  border-bottom: 1px solid #4b5563;
+}
+
+/* Ensuring all report text is visible on dark background */
+.report-section p,
+.report-section span:not(.amount-income):not(.amount-expense):not(.arrow-up):not(.arrow-down) {
+  color: #e2e8f0;
+}
+
+/* Make sure these have higher specificity to override the general rule */
+.report-section .amount-expense,
+.report-section span.amount-expense,
+.transaction-table .amount-expense {
+  color: #ef4444 !important; /* Rouge pour les dépenses */
+  font-weight: 500;
+}
+
+.report-section .amount-income,
+.report-section span.amount-income,
+.transaction-table .amount-income {
+  color: #10b981 !important; /* Vert pour les recettes */
+  font-weight: 500;
+}
+
+/* Report summary cards */
+.report-summary-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.report-card {
+  background-color: #353549;
+  padding: 16px;
+  border-radius: 8px;
+  flex: 1 1 200px;
+  min-width: 200px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.report-card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.report-card p {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.report-card.income p {
+  color: #10b981;
+}
+
+.report-card.expense p {
+  color: #ef4444;
+}
+
+/* Report filters */
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  background-color: #353549;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.report-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.report-filter-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+/* Report charts */
+.report-chart-container {
+  background-color: #353549;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.report-chart-title {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .report-filters {
+    flex-direction: column;
+  }
+  
+  .report-summary-cards {
+    flex-direction: column;
+  }
+  
+  .report-card {
+    width: 100%;
+  }
 }
 
 .reports-sidebar {

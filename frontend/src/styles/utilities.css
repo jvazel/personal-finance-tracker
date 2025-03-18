@@ -1,0 +1,222 @@
+/* Utility Classes */
+
+/* Text colors */
+.text-white {
+  color: #ffffff;
+}
+
+.text-light {
+  color: #e2e8f0;
+}
+
+.text-primary {
+  color: #3b82f6;
+}
+
+.text-success {
+  color: #10b981;
+}
+
+.text-danger {
+  color: #ef4444;
+}
+
+.text-warning {
+  color: #f59e0b;
+}
+
+/* Background colors */
+.bg-dark {
+  background-color: #1e1e2e;
+}
+
+.bg-darker {
+  background-color: #111827;
+}
+
+.bg-card {
+  background-color: #2a2a3c;
+}
+
+.bg-card-alt {
+  background-color: #353549;
+}
+
+.bg-primary {
+  background-color: #3b82f6;
+}
+
+.bg-success {
+  background-color: #10b981;
+}
+
+.bg-danger {
+  background-color: #ef4444;
+}
+
+/* Spacing utilities */
+.mt-0 {
+  margin-top: 0;
+}
+
+.mt-1 {
+  margin-top: 4px;
+}
+
+.mt-2 {
+  margin-top: 8px;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+.mt-6 {
+  margin-top: 24px;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.mb-1 {
+  margin-bottom: 4px;
+}
+
+.mb-2 {
+  margin-bottom: 8px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.mb-6 {
+  margin-bottom: 24px;
+}
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-1 {
+  gap: 4px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.gap-4 {
+  gap: 16px;
+}
+
+/* Width utilities */
+.w-full {
+  width: 100%;
+}
+
+.w-auto {
+  width: auto;
+}
+
+/* Amount and arrow indicators */
+.amount-expense {
+  color: #ef4444; /* Rouge pour les dépenses */
+  font-weight: 500;
+}
+
+.amount-income {
+  color: #10b981; /* Vert pour les recettes */
+  font-weight: 500;
+}
+
+.arrow-down {
+  color: #ef4444; /* Rouge pour les dépenses */
+  font-size: 0.8em;
+  margin-right: 4px;
+}
+
+.arrow-up {
+  color: #10b981; /* Vert pour les recettes */
+  font-size: 0.8em;
+  margin-right: 4px;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.loading {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  
+  .flex-col-mobile {
+    flex-direction: column !important;
+  }
+  
+  .w-full-mobile {
+    width: 100% !important;
+  }
+}
+
+/* Cursor utilities */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* Border utilities */
+.rounded {
+  border-radius: 8px;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Shadow utilities */
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}

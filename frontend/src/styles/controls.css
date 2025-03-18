@@ -1,0 +1,147 @@
+/* Controls Styles */
+
+/* Datepicker Styles */
+.react-datepicker-wrapper {
+  width: 100%; /* Ensure datepicker input takes full width */
+}
+
+.react-datepicker__input-container {
+  width: 100%; /* Ensure input container takes full width */
+  display: inline-flex;
+  align-items: center;
+}
+
+.react-datepicker__input {
+  width: 100%; /* Ensure input inside container takes full width */
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background-color: #1e1e2e;
+  color: #e2e8f0;
+}
+
+/* Month selector styles */
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap; /* Empêche le texte de se couper */
+}
+
+/* Style spécifique pour le label "Mois" */
+.month-label {
+  display: inline-block;
+  margin-right: 5px;
+  color: #e2e8f0;
+  font-weight: 500;
+  margin-top: 0; /* Removed top margin to align properly */
+  white-space: nowrap;
+}
+
+/* Month selector custom elements */
+.month-selector-custom {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.month-nav-button {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.month-nav-button:hover {
+  color: #3b82f6;
+  transform: scale(1.1);
+}
+
+.month-display-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.month-display-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Select controls */
+.custom-select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background-color: #1e1e2e;
+  color: #e2e8f0;
+  font-size: 14px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Button controls */
+.control-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #3b82f6;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.control-button:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.control-button.secondary {
+  background-color: transparent;
+  border: 1px solid #4b5563;
+  color: #e2e8f0;
+}
+
+.control-button.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive controls */
+@media (max-width: 768px) {
+  .month-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .month-selector-custom {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
