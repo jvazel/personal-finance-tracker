@@ -1,0 +1,33 @@
+/* Add this to your existing sidebar CSS */
+.sidebar-nav-item.submenu-item {
+  padding-left: 30px; /* Indent submenu items */
+  font-size: 0.9em; /* Slightly smaller font */
+}
+
+.sidebar-nav-item.submenu-item::before {
+  content: "•"; /* Add a bullet or other indicator */
+  margin-right: 8px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  flex-direction: row;
+}
+
+.sidebar-nav-item > a {
+  flex: 1;
+}
+
+.sidebar-nav-item.active {
+  color: #000;
+}
+
+.sidebar-nav-item.submenu-item {
+  padding-left: 30px; /* Indent submenu items */
+  font-size: 0.9em; /* Slightly smaller font */
+}
+
+.sidebar-nav-item.submenu-item::before {
+  content: "•"; /* Add a bullet or other indicator */
+  margin-right: 8px;
+}

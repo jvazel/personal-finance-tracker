@@ -1,0 +1,54 @@
+.reports-container {
+  display: flex;
+  height: 100%;
+}
+
+.reports-sidebar {
+  width: 250px;
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.reports-sidebar h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.reports-menu {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Add these styles to make the links more clickable */
+.reports-menu li a {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.reports-menu li a:hover {
+  background-color: #e9e9e9;
+}
+
+.reports-menu li a.active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Remove padding from li since it's now on the anchor */
+.reports-menu li {
+  padding: 0;
+  margin-bottom: 5px;
+}
+
+.reports-content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* You might want to add styles for the submenu in your sidebar CSS file */
