@@ -772,3 +772,81 @@ div[class*="chart-card"] {
   font-size: 0.8em;
   margin-right: 4px;
 }
+
+/* Add these styles at the end of your CSS file */
+
+/* Modifier les styles existants pour les graphiques côte à côte */
+.dashboard-charts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px; /* Espace entre les graphiques */
+  margin-bottom: 30px;
+}
+
+/* Suppression plus agressive du sélecteur de limite */
+.limit-selector,
+div[class*="limit-selector"],
+[class*="limit-selector"],
+select[name="limit"],
+label[for="limit"],
+.dashboard-chart-section select,
+.dashboard-chart-section label + select {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+.dashboard-charts-row .dashboard-chart-section {
+  flex: 1;
+  min-width: 300px;
+  margin-top: 0;
+  display: flex; /* Ajout de flexbox pour contrôler la hauteur */
+  flex-direction: column; /* Empiler les éléments verticalement */
+}
+
+/* Ajuster la taille relative des deux graphiques */
+.dashboard-charts-row .dashboard-chart-section:first-child {
+  flex: 0.8;
+  padding-right: 10px;
+}
+
+.dashboard-charts-row .dashboard-chart-section:last-child {
+  flex: 1.2;
+  padding-left: 10px;
+}
+
+/* Faire en sorte que les chart-card prennent toute la hauteur disponible */
+.dashboard-charts-row .chart-card {
+  flex-grow: 1; /* Prendre tout l'espace vertical disponible */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Assurer que la carte prend toute la hauteur */
+}
+
+/* S'assurer que le contenu des graphiques s'adapte correctement */
+.dashboard-charts-row .chart-card > div {
+  flex-grow: 1; /* Faire grandir le contenu pour remplir l'espace */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-charts-row {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .dashboard-charts-row .dashboard-chart-section {
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SavingsChart from './SavingsChart';
 import ExpensePieChart from './ExpensePieChart';
-import IncomeExpenseTrend from './IncomeExpenseTrend'; // Import the new component
+import IncomeExpenseTrend from './IncomeExpenseTrend';
+import TopExpenses from './TopExpenses'; // Import the new component
 
 // Set axios default base URL
 axios.defaults.baseURL = 'http://localhost:5000'; // Adjust this to match your backend URL
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [expensesByCategory, setExpensesByCategory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [topExpensesLimit, setTopExpensesLimit] = useState(5); // Nombre de dépenses principales à afficher
   
   // Charger les données financières au chargement du composant
   useEffect(() => {
@@ -85,17 +87,38 @@ const Dashboard = () => {
         </div>
       </div>
       
-      <div className="dashboard-chart-section">
-        <div className="chart-card">
-          <h3>Aperçu des dépenses par catégorie</h3>
-          <ExpensePieChart expensesByCategory={expensesByCategory} />
+      <div className="dashboard-charts-row">
+        <div className="dashboard-chart-section">
+          <div className="chart-card">
+            <h3>Aperçu des dépenses par catégorie</h3>
+            <ExpensePieChart expensesByCategory={expensesByCategory} />
+          </div>
+        </div>
+        
+        <div className="dashboard-chart-section">
+          <div className="chart-card">
+            <h3>Top {topExpensesLimit} des dépenses du mois</h3>
+            <div className="limit-selector">
+              <label htmlFor="topExpensesLimit">Nombre à afficher: </label>
+              <select 
+                id="topExpensesLimit" 
+                value={topExpensesLimit} 
+                onChange={(e) => setTopExpensesLimit(Number(e.target.value))}
+              >
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+            <TopExpenses limit={topExpensesLimit} />
+          </div>
         </div>
       </div>
       
       <div className="dashboard-chart-section">
         <div className="chart-card">
           <h3>Tendance des revenus et dépenses</h3>
-          <IncomeExpenseTrend /> {/* Add the IncomeExpenseTrend component here */}
+          <IncomeExpenseTrend />
         </div>
       </div>
     </div>

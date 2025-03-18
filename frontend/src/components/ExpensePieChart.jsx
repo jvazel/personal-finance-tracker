@@ -52,7 +52,8 @@ const ExpensePieChart = ({ expensesByCategory }) => {
   };
 
   return (
-    <div style={{ height: '300px' }}>
+    // Réduire la hauteur du graphique de 300px à 250px
+    <div style={{ height: '250px' }}>
       {expensesByCategory.length > 0 ? (
         <Pie data={data} options={options} />
       ) : (
