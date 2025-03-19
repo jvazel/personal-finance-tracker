@@ -20,63 +20,112 @@
   color: #e2e8f0;
 }
 
-/* Month selector styles */
+/* Month selector styles - Material Design */
 .month-selector {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: nowrap;
-  white-space: nowrap; /* Empêche le texte de se couper */
-}
-
-/* Style spécifique pour le label "Mois" */
-.month-label {
-  display: inline-block;
-  margin-right: 5px;
-  color: #e2e8f0;
-  font-weight: 500;
-  margin-top: 0; /* Removed top margin to align properly */
   white-space: nowrap;
 }
 
-/* Month selector custom elements */
 .month-selector-custom {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  background-color: #353549;
+  border-radius: 8px;
+  padding: 4px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.month-selector-custom:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .month-nav-button {
   background: none;
   border: none;
-  color: #e2e8f0;
+  color: #a0aec0;
   cursor: pointer;
-  font-size: 14px;
-  padding: 5px;
+  font-size: 16px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s, transform 0.2s;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  transition: all 0.2s ease;
 }
 
 .month-nav-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
   color: #3b82f6;
-  transform: scale(1.1);
 }
 
-.month-display-button {
+/* Material Design Month Selector */
+.month-display-button.material {
   background: none;
   border: none;
-  color: #3b82f6;
+  color: #e2e8f0;
   font-weight: 500;
+  font-size: 16px;
+  padding: 10px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 160px;
+  background-color: #353549;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.month-display-button.material:hover {
+  background-color: #3f3f5f;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.month-text {
+  position: relative;
+}
+
+.month-text::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #3b82f6;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: left;
+}
+
+.month-display-button.material:hover .month-text::after {
+  transform: scaleX(1);
 }
 
 .month-display-button:hover {
   background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Add a small indicator icon */
+.month-display-button::after {
+  content: "▾";
+  font-size: 12px;
+  margin-left: 4px;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.month-display-button:hover::after {
+  opacity: 1;
+  transform: translateY(2px);
 }
 
 /* Select controls */
@@ -144,4 +193,67 @@
     width: 100%;
     justify-content: space-between;
   }
+}
+
+
+/* DatePicker dropdown animation */
+.react-datepicker-popper {
+  animation: datepickerFadeIn 0.3s ease;
+  z-index: 1000;
+}
+
+@keyframes datepickerFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Enhance the month year picker */
+.react-datepicker__month-year-read-view {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #2a2a3c;
+}
+
+.react-datepicker__month-year-dropdown {
+  background-color: #353549;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  padding: 8px 0;
+}
+
+.react-datepicker__month-year-option {
+  padding: 8px 16px;
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__month-year-option:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Floating label month selector */
+.month-selector-floating {
+  position: relative;
+  margin-top: 16px;
+}
+
+.month-selector-floating label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background-color: #2a2a3c;
+  padding: 0 6px;
+  font-size: 12px;
+  color: #a0aec0;
+  z-index: 1;
+}
+
+.month-selector-custom-floating {
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

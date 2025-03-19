@@ -29,16 +29,26 @@ const Transactions = () => {
   };
 
   // Custom renderer for the month picker to only show month/year
+  // Update the CustomMonthInput component
+  // Material Design inspired month selector
+  const MaterialMonthInput = ({ value, onClick }) => (
+    <div className="month-picker-container">
+      <button className="month-display-button material" onClick={onClick}>
+        <span className="month-text">{value}</span>
+        <span className="dropdown-icon">▾</span>
+      </button>
+    </div>
+  );
   const CustomMonthInput = ({ value, onClick }) => (
     <div className="month-selector-custom">
-      <button className="month-nav-button" onClick={goToPreviousMonth}>
-        <span>&#9664;</span>
+      <button className="month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
+        <span>&#10094;</span>
       </button>
       <button className="month-display-button" onClick={onClick}>
         {value}
       </button>
-      <button className="month-nav-button" onClick={goToNextMonth}>
-        <span>&#9654;</span>
+      <button className="month-nav-button" onClick={goToNextMonth} title="Mois suivant">
+        <span>&#10095;</span>
       </button>
     </div>
   );
