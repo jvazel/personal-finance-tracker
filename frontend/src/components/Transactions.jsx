@@ -7,6 +7,7 @@ import { TransactionContext } from '../contexts/TransactionContext';
 import Modal from './Modal';
 import { addMonths, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { FaPlus } from 'react-icons/fa'; // Import the plus icon
 
 const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
@@ -84,7 +85,9 @@ const Transactions = () => {
               customInput={<CustomMonthInput />}
             />
           </div>
-          <button onClick={() => setShowForm(true)}>Ajouter une transaction</button>
+          <button onClick={() => setShowForm(true)}>
+            <FaPlus style={{ marginRight: '8px' }} /> Ajouter une transaction
+          </button>
         </div>
       </div>
 
