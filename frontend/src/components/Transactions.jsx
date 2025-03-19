@@ -41,15 +41,15 @@ const Transactions = () => {
   );
   const CustomMonthInput = ({ value, onClick }) => (
     <div className="month-selector-custom">
-      <button className="month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
+      <div className="month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
         <span>&#10094;</span>
-      </button>
-      <button className="month-display-button" onClick={onClick}>
+      </div>
+      <div className="month-display-button" onClick={onClick}>
         {value}
-      </button>
-      <button className="month-nav-button" onClick={goToNextMonth} title="Mois suivant">
+      </div>
+      <div className="month-nav-button" onClick={goToNextMonth} title="Mois suivant">
         <span>&#10095;</span>
-      </button>
+      </div>
     </div>
   );
 

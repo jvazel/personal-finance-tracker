@@ -59,11 +59,30 @@
   width: 32px;
   height: 32px;
   transition: all 0.2s ease;
+  user-select: none; /* Empêche la sélection du texte */
 }
 
 .month-nav-button:hover {
   background-color: rgba(59, 130, 246, 0.1);
   color: #3b82f6;
+}
+
+.month-display-button {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none; /* Empêche la sélection du texte */
+  display: flex;
+  align-items: center;
+}
+
+.month-display-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 /* Material Design Month Selector */
