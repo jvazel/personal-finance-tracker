@@ -10,10 +10,10 @@ const TransactionList = ({ selectedMonth }) => {
   const { transactions, loading, error, deleteTransaction, refreshTransactions } = useContext(TransactionContext);
   const [transactionToEdit, setTransactionToEdit] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
-  // Ajout des états pour le tri et la pagination
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
   const [currentPage, setCurrentPage] = useState(1);
-  const [transactionsPerPage] = useState(10); // Nombre de transactions par page
+  const [transactionsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) {
@@ -59,11 +59,24 @@ const TransactionList = ({ selectedMonth }) => {
     return sortConfig.direction === 'asc' ? ' ▲' : ' ▼';
   };
 
-  // Trier les transactions en fonction de la configuration de tri actuelle
-  const sortedTransactions = useMemo(() => {
+  // Filtrer les transactions en fonction du terme de recherche
+  const filteredTransactions = useMemo(() => {
     if (!transactions) return [];
     
-    let sortableTransactions = [...transactions];
+    return transactions.filter(transaction => {
+      const searchTermLower = searchTerm.toLowerCase();
+      return (
+        transaction.description.toLowerCase().includes(searchTermLower) ||
+        transaction.category.toLowerCase().includes(searchTermLower)
+      );
+    });
+  }, [transactions, searchTerm]);
+
+  // Trier les transactions en fonction de la configuration de tri actuelle
+  const sortedTransactions = useMemo(() => {
+    if (!filteredTransactions) return [];
+    
+    let sortableTransactions = [...filteredTransactions];
     if (sortConfig.key) {
       sortableTransactions.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -91,7 +104,7 @@ const TransactionList = ({ selectedMonth }) => {
       });
     }
     return sortableTransactions;
-  }, [transactions, sortConfig]);
+  }, [filteredTransactions, sortConfig]);
 
   // Calcul des transactions pour la page courante
   const indexOfLastTransaction = currentPage * transactionsPerPage;
@@ -120,6 +133,11 @@ const TransactionList = ({ selectedMonth }) => {
     setCurrentPage(totalPages);
   };
 
+  // Réinitialiser la page courante lorsque le terme de recherche change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   if (loading) return <div>Chargement des transactions...</div>;
   if (error) return <div>Erreur lors du chargement des transactions : {error.message}</div>;
   if (!transactions || transactions.length === 0) {
@@ -140,6 +158,28 @@ const TransactionList = ({ selectedMonth }) => {
           selectedMonth={selectedMonth}
         />
       </Modal>
+
+      {/* Barre de recherche */}
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Rechercher par description ou catégorie..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+        {searchTerm && (
+          <button 
+            className="search-clear-button"
+            onClick={() => setSearchTerm('')}
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {/* Separator between search bar and transaction table */}
+      <div className="search-table-separator"></div>
 
       <table className="transaction-table">
         <thead>
@@ -163,24 +203,32 @@ const TransactionList = ({ selectedMonth }) => {
           </tr>
         </thead>
         <tbody>
-          {currentTransactions.map(transaction => (
-            <tr key={transaction._id}>
-              <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
-              <td>{transaction.description}</td>
-              <td>
-                <AmountDisplay 
-                  amount={transaction.amount} 
-                  type={transaction.type} 
-                />
-              </td>
-              <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
-              <td>{transaction.category}</td>
-              <td className="transaction-actions">
-                <button onClick={() => handleEdit(transaction)}>Modifier</button>
-                <button className="delete" onClick={() => handleDelete(transaction._id)}>Supprimer</button>
+          {currentTransactions.length > 0 ? (
+            currentTransactions.map(transaction => (
+              <tr key={transaction._id}>
+                <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
+                <td>{transaction.description}</td>
+                <td>
+                  <AmountDisplay 
+                    amount={transaction.amount} 
+                    type={transaction.type} 
+                  />
+                </td>
+                <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
+                <td>{transaction.category}</td>
+                <td className="transaction-actions">
+                  <button onClick={() => handleEdit(transaction)}>Modifier</button>
+                  <button className="delete" onClick={() => handleDelete(transaction._id)}>Supprimer</button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" style={{ textAlign: 'center' }}>
+                Aucune transaction ne correspond à votre recherche
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 

@@ -55,7 +55,6 @@ const Transactions = () => {
   return (
     <div className="transactions-container">
       <div className="transactions-header">
-        <h2>Transactions</h2>
         <div className="transactions-controls">
           <div className="month-selector">
             <DatePicker
