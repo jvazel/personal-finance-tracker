@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { TransactionContext } from '../contexts/TransactionContext';
 import Modal from './Modal';
 import { addMonths, subMonths } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
@@ -39,19 +40,26 @@ const Transactions = () => {
       </button>
     </div>
   );
-  const CustomMonthInput = ({ value, onClick }) => (
-    <div className="month-selector-custom">
-      <div className="month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
-        <span>&#10094;</span>
+  
+  // Custom input component that capitalizes the first letter of the month
+  const CustomMonthInput = ({ value, onClick }) => {
+    // Capitalize the first letter of the month
+    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    
+    return (
+      <div className="month-selector-custom">
+        <div className="month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
+          <span>&#10094;</span>
+        </div>
+        <div className="month-display-button" onClick={onClick}>
+          {capitalizedValue}
+        </div>
+        <div className="month-nav-button" onClick={goToNextMonth} title="Mois suivant">
+          <span>&#10095;</span>
+        </div>
       </div>
-      <div className="month-display-button" onClick={onClick}>
-        {value}
-      </div>
-      <div className="month-nav-button" onClick={goToNextMonth} title="Mois suivant">
-        <span>&#10095;</span>
-      </div>
-    </div>
-  );
+    );
+  };
 
   // Fonction pour gérer la fermeture du formulaire et rafraîchir les données
   const handleFormClose = () => {
