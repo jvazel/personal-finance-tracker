@@ -38,6 +38,7 @@
   padding: 4px 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
+  border: none; /* Remove border */
 }
 
 .month-selector-custom:hover {
@@ -68,7 +69,7 @@
 /* Material Design Month Selector */
 .month-display-button.material {
   background: none;
-  border: none;
+  border: none; /* Remove border */
   color: #e2e8f0;
   font-weight: 500;
   font-size: 16px;
@@ -250,10 +251,17 @@
 }
 
 .month-selector-custom-floating {
-  border: 1px solid #4b5563;
+  border: none; /* Remove border to match Material Design style */
   border-radius: 8px;
   padding: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  background-color: #353549;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.month-selector-custom-floating:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }

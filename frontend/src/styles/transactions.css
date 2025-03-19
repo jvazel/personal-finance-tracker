@@ -195,7 +195,6 @@
   background-position: center;
   background-size: contain;
   pointer-events: none;
-  z-index: 1;
 }
 
 .search-input:focus {
