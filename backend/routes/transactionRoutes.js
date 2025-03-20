@@ -9,6 +9,7 @@ router.get('/dashboard', transactionController.getDashboardData);
 router.post('/', transactionController.createTransaction);
 router.get('/expenses-by-category', transactionController.getExpensesByCategory);
 router.get('/top-expenses', transactionController.getTopExpenses);
+router.get('/monthly-summary', transactionController.getMonthlySummary);
 router.get('/trends', transactionController.getIncomeExpenseTrends); // New route for trends
 router.get('/:id', transactionController.getTransactionById);
 router.put('/:id', transactionController.updateTransaction);

@@ -330,3 +330,58 @@ exports.getTopExpenses = async (req, res) => {
     });
   }
 };
+
+// Vérifiez que cette fonction est bien ajoutée à votre contrôleur
+
+// Get Monthly Summary (for Transactions page)
+exports.getMonthlySummary = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ 
+        message: 'Start date and end date are required' 
+      });
+    }
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Set to end of day
+    
+    console.log('Fetching monthly summary for period:', { startDate, endDate });
+    
+    const transactions = await Transaction.find({
+      date: { $gte: start, $lte: end }
+    });
+    
+    console.log(`Found ${transactions.length} transactions for the period`);
+    
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    
+    transactions.forEach(transaction => {
+      if (transaction.type === 'income') {
+        totalIncome += transaction.amount;
+      } else if (transaction.type === 'expense') {
+        totalExpenses += transaction.amount;
+      }
+    });
+    
+    const savings = totalIncome - totalExpenses;
+    
+    console.log('Monthly summary calculated:', { totalIncome, totalExpenses, savings });
+    
+    res.json({
+      totalIncome,
+      totalExpenses,
+      savings
+    });
+    
+  } catch (error) {
+    console.error('Error fetching monthly summary:', error);
+    res.status(500).json({ 
+      message: 'Error fetching monthly summary', 
+      error: error.message 
+    });
+  }
+};

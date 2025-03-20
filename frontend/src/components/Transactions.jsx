@@ -8,18 +8,64 @@ import Modal from './Modal';
 import { addMonths, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { FaPlus } from 'react-icons/fa'; // Import the plus icon
+import axios from 'axios'; // Add axios import
 
 const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const { refreshTransactions } = useContext(TransactionContext);
+  // Add new state variables for financial summary
+  const [financialSummary, setFinancialSummary] = useState({
+    savings: 0,
+    totalIncome: 0,
+    totalExpenses: 0
+  });
+  const [summaryLoading, setSummaryLoading] = useState(true);
 
   // When month changes, refresh transactions for that month
   useEffect(() => {
     const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
     const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
     refreshTransactions(startOfMonth, endOfMonth);
+    
+    // Fetch financial summary for the selected month
+    fetchFinancialSummary(startOfMonth, endOfMonth);
   }, [selectedMonth, refreshTransactions]);
+
+  // Function to fetch financial summary for the selected month
+  const fetchFinancialSummary = async (startDate, endDate) => {
+    setSummaryLoading(true);
+    try {
+      // Format dates for API (YYYY-MM-DD)
+      const formattedStartDate = startDate.toISOString().split('T')[0];
+      const formattedEndDate = endDate.toISOString().split('T')[0];
+      
+      console.log('Fetching summary for:', { formattedStartDate, formattedEndDate });
+      
+      // Utilisez l'URL complète avec le protocole et le domaine
+      const response = await axios.get('/api/transactions/monthly-summary', {
+        params: { startDate: formattedStartDate, endDate: formattedEndDate }
+      });
+      
+      console.log('Summary response:', response.data);
+      
+      setFinancialSummary({
+        savings: response.data.savings || 0,
+        totalIncome: response.data.totalIncome || 0,
+        totalExpenses: response.data.totalExpenses || 0
+      });
+    } catch (error) {
+      console.error('Error fetching financial summary:', error);
+      // En cas d'erreur, définir des valeurs par défaut
+      setFinancialSummary({
+        savings: 0,
+        totalIncome: 0,
+        totalExpenses: 0
+      });
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
 
   // Navigation functions for month selector
   const goToPreviousMonth = () => {
@@ -69,6 +115,7 @@ const Transactions = () => {
     const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
     const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
     refreshTransactions(startOfMonth, endOfMonth);
+    fetchFinancialSummary(startOfMonth, endOfMonth);
   };
 
   return (
@@ -85,9 +132,39 @@ const Transactions = () => {
               customInput={<CustomMonthInput />}
             />
           </div>
-          <button onClick={() => setShowForm(true)}>
-            <FaPlus style={{ marginRight: '8px' }} /> Ajouter une transaction
-          </button>
+          
+          {/* Add financial summary section */}
+          <div className="transactions-summary">
+            <div className={`summary-item ${financialSummary.savings >= 0 ? 'income' : 'expense'}`}>
+              <span className="summary-label">Solde</span>
+              <span className="summary-value">
+                {summaryLoading ? '...' : 
+                  `${financialSummary.savings >= 0 ? 
+                    financialSummary.savings.toFixed(2) : 
+                    `-${Math.abs(financialSummary.savings).toFixed(2)}`} €`}
+              </span>
+            </div>
+            <div className="summary-item income">
+              <span className="summary-label">Revenus</span>
+              <span className="summary-value">
+                {summaryLoading ? '...' : `${financialSummary.totalIncome.toFixed(2)} €`}
+              </span>
+            </div>
+            <div className="summary-item expense">
+              <span className="summary-label">Dépenses</span>
+              <span className="summary-value">
+                {summaryLoading ? '...' : `${financialSummary.totalExpenses.toFixed(2)} €`}
+              </span>
+            </div>
+          </div>
+          
+          <div 
+            className="add-transaction-button" 
+            onClick={() => setShowForm(true)}
+            title="Ajouter une transaction"
+          >
+            <FaPlus />
+          </div>
         </div>
       </div>
 
