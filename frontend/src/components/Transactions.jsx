@@ -42,7 +42,7 @@ const Transactions = () => {
       
       console.log('Fetching summary for:', { formattedStartDate, formattedEndDate });
       
-      // Utilisez l'URL complète avec le protocole et le domaine
+      // Get the monthly KPIs
       const response = await axios.get('/api/transactions/monthly-summary', {
         params: { startDate: formattedStartDate, endDate: formattedEndDate }
       });
