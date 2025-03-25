@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AmountDisplay from './AmountDisplay';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const ReportSavings = () => {
   const [monthlySavings, setMonthlySavings] = useState([]);
@@ -29,7 +31,8 @@ const ReportSavings = () => {
 
         const savingsArray = Array.from(savingsMap.entries()).map(([monthYear, savings]) => ({
           monthYear,
-          savings: savings.income - Math.abs(savings.expense) // expense is positive in our calculation
+          savings: savings.income - Math.abs(savings.expense), // expense is positive in our calculation
+          displayDate: formatDisplayDate(new Date(monthYear)) // Ajouter le format d'affichage
         }));
         savingsArray.sort((a, b) => new Date(b.monthYear) - new Date(a.monthYear)); // Sort by date descending
         setMonthlySavings(savingsArray);
@@ -50,6 +53,11 @@ const ReportSavings = () => {
     return `${year}-${month.toString().padStart(2, '0')}-01`; // Format for date comparison
   };
 
+  // Nouvelle fonction pour formater la date d'affichage
+  const formatDisplayDate = (date) => {
+    return format(date, 'MMMM yyyy', { locale: fr });
+  };
+
   if (loading) return <div>Chargement du rapport...</div>;
   if (error) return <div>Erreur lors du chargement du rapport: {error.message}</div>;
   if (!monthlySavings || monthlySavings.length === 0) return <div>Aucune donnée disponible.</div>;
@@ -67,7 +75,7 @@ const ReportSavings = () => {
         <tbody>
           {monthlySavings.map(item => (
             <tr key={item.monthYear}>
-              <td>{item.monthYear.substring(0, 7)}</td> {/* Display YYYY-MM */}
+              <td>{item.displayDate ? (item.displayDate.charAt(0).toUpperCase() + item.displayDate.slice(1)) : ''}</td>
               <td className={item.savings >= 0 ? 'amount-income' : 'amount-expense'}>
                 <AmountDisplay 
                   amount={item.savings} 
