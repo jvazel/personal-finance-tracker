@@ -213,7 +213,7 @@ const ReportTransactionHistory = () => {
       <div className="report-controls">
         {/* Filtre de période */}
         <div className="period-filter">
-          <label htmlFor="period-select">Afficher les transactions des derniers : </label>
+          <label htmlFor="period-select">Période : </label>
           <select 
             id="period-select" 
             value={selectedPeriod} 
