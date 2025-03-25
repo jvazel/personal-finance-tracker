@@ -71,13 +71,13 @@ const TopExpenses = () => {
   }));
 
   return (
-    <div style={{ height: '350px' }}>
+    <div style={{ height: '350px', width: '100%', overflow: 'hidden' }}>
       {topExpenses.length > 0 ? (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="99%" height="100%">
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+            margin={{ top: 5, right: 20, left: 80, bottom: 5 }} // Reduced margins
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
             <XAxis type="number" stroke="#aaa" />
@@ -85,8 +85,8 @@ const TopExpenses = () => {
               dataKey="description" 
               type="category" 
               stroke="#aaa" 
-              width={100}
-              tick={{ fontSize: 12 }}
+              width={80} // Reduced from 100 to save space
+              tick={{ fontSize: 11 }} // Smaller font size
             />
             <Tooltip 
               formatter={(value) => [`${value.toFixed(2)} €`, 'Montant']}

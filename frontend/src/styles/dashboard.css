@@ -52,10 +52,6 @@
   color: #ef4444 !important; /* Red for expenses */
 }
 
-.dashboard-chart-section {
-  margin-top: 24px;
-}
-
 /* Modifier les styles existants pour les graphiques côte à côte */
 .dashboard-charts-row {
   display: flex;
