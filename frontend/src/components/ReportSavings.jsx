@@ -8,6 +8,7 @@ const ReportSavings = () => {
   const [monthlySavings, setMonthlySavings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortOrder, setSortOrder] = useState('desc'); // 'desc' pour descendant (plus récent d'abord)
 
   useEffect(() => {
     const fetchReportTransactions = async () => {
@@ -34,7 +35,9 @@ const ReportSavings = () => {
           savings: savings.income - Math.abs(savings.expense), // expense is positive in our calculation
           displayDate: formatDisplayDate(new Date(monthYear)) // Ajouter le format d'affichage
         }));
-        savingsArray.sort((a, b) => new Date(b.monthYear) - new Date(a.monthYear)); // Sort by date descending
+        
+        // Tri initial par date (plus récent d'abord)
+        sortSavingsArray(savingsArray, 'desc');
         setMonthlySavings(savingsArray);
       } catch (err) {
         setError(err);
@@ -46,6 +49,26 @@ const ReportSavings = () => {
 
     fetchReportTransactions();
   }, []);
+
+  // Fonction pour trier le tableau des économies
+  const sortSavingsArray = (array, order) => {
+    return array.sort((a, b) => {
+      const dateA = new Date(a.monthYear);
+      const dateB = new Date(b.monthYear);
+      return order === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+  };
+
+  // Fonction pour inverser l'ordre de tri
+  const toggleSortOrder = () => {
+    const newOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+    setSortOrder(newOrder);
+    
+    // Créer une copie du tableau pour éviter de modifier l'état directement
+    const sortedSavings = [...monthlySavings];
+    sortSavingsArray(sortedSavings, newOrder);
+    setMonthlySavings(sortedSavings);
+  };
 
   const formatMonthYear = (date) => {
     const month = date.getMonth() + 1; // getMonth() is 0-indexed
@@ -68,7 +91,9 @@ const ReportSavings = () => {
       <table className="transaction-table">
         <thead>
           <tr>
-            <th>Mois</th>
+            <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
+              Mois {sortOrder === 'desc' ? '▼' : '▲'}
+            </th>
             <th>Solde</th>
           </tr>
         </thead>
