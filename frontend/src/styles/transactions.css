@@ -348,3 +348,11 @@
   transform: translateY(0);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
+.report-divider {
+  margin: 20px 0;
+  border: 0;
+  height: 1px;
+  background-color: #3a3a4c;
+  width: 100%;
+}

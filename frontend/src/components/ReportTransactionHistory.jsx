@@ -12,17 +12,15 @@ const ReportTransactionHistory = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('1year');
   const [currentPage, setCurrentPage] = useState(1);
   const [transactionsPerPage] = useState(15);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Définition des périodes disponibles
   const periods = [
     { value: '1month', label: '1 mois' },
-    { value: '2months', label: '2 mois' },
     { value: '3months', label: '3 mois' },
     { value: '6months', label: '6 mois' },
     { value: '1year', label: '1 an' },
-    { value: '2years', label: '2 ans' },
     { value: '3years', label: '3 ans' },
-    { value: '5years', label: '5 ans' },
     { value: '10years', label: '10 ans' },
   ];
 
@@ -35,9 +33,6 @@ const ReportTransactionHistory = () => {
       case '1month':
         startDate.setMonth(now.getMonth() - 1);
         break;
-      case '2months':
-        startDate.setMonth(now.getMonth() - 2);
-        break;
       case '3months':
         startDate.setMonth(now.getMonth() - 3);
         break;
@@ -47,14 +42,8 @@ const ReportTransactionHistory = () => {
       case '1year':
         startDate.setFullYear(now.getFullYear() - 1);
         break;
-      case '2years':
-        startDate.setFullYear(now.getFullYear() - 2);
-        break;
       case '3years':
         startDate.setFullYear(now.getFullYear() - 3);
-        break;
-      case '5years':
-        startDate.setFullYear(now.getFullYear() - 5);
         break;
       case '10years':
         startDate.setFullYear(now.getFullYear() - 10);
@@ -103,9 +92,31 @@ const ReportTransactionHistory = () => {
     setSelectedPeriod(e.target.value);
   };
 
+  // Fonction pour gérer le changement dans la barre de recherche
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Réinitialiser à la première page lors d'une recherche
+  };
+
+  // Filtrer les transactions en fonction du terme de recherche
+  const filteredTransactions = React.useMemo(() => {
+    if (!searchTerm.trim()) return transactions;
+    
+    return transactions.filter(transaction => {
+      const searchTermLower = searchTerm.toLowerCase();
+      const descriptionMatch = transaction.description.toLowerCase().includes(searchTermLower);
+      const typeMatch = 
+        (transaction.type === 'income' && 'revenu'.includes(searchTermLower)) || 
+        (transaction.type === 'expense' && 'dépense'.includes(searchTermLower));
+      const categoryMatch = transaction.category.toLowerCase().includes(searchTermLower);
+      
+      return descriptionMatch || typeMatch || categoryMatch;
+    });
+  }, [transactions, searchTerm]);
+
   // Sort transactions based on current sortConfig
   const sortedTransactions = React.useMemo(() => {
-    let sortableTransactions = [...transactions];
+    let sortableTransactions = [...filteredTransactions];
     if (sortConfig.key) {
       sortableTransactions.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -133,7 +144,7 @@ const ReportTransactionHistory = () => {
       });
     }
     return sortableTransactions;
-  }, [transactions, sortConfig]);
+  }, [filteredTransactions, sortConfig]);
 
   // Request sort on column
   const requestSort = (key) => {
@@ -199,93 +210,124 @@ const ReportTransactionHistory = () => {
     <div>
       <h2>Rapport d'historique des transactions</h2>
       
-      {/* Filtre de période */}
-      <div className="period-filter">
-        <label htmlFor="period-select">Afficher les transactions des derniers : </label>
-        <select 
-          id="period-select" 
-          value={selectedPeriod} 
-          onChange={handlePeriodChange}
-          className="period-select"
-        >
-          {periods.map(period => (
-            <option key={period.value} value={period.value}>
-              {period.label}
-            </option>
-          ))}
-        </select>
+      <div className="report-controls">
+        {/* Filtre de période */}
+        <div className="period-filter">
+          <label htmlFor="period-select">Afficher les transactions des derniers : </label>
+          <select 
+            id="period-select" 
+            value={selectedPeriod} 
+            onChange={handlePeriodChange}
+            className="period-select"
+          >
+            {periods.map(period => (
+              <option key={period.value} value={period.value}>
+                {period.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        {/* Barre de recherche */}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Rechercher par description, type ou catégorie..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="search-input"
+          />
+          {searchTerm && (
+            <button 
+              className="clear-search" 
+              onClick={() => setSearchTerm('')}
+              title="Effacer la recherche"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
       
-      <table className="transaction-table">
-        <thead>
-          <tr>
-            <th onClick={() => requestSort('date')} style={{ cursor: 'pointer' }}>
-              Date{getSortDirectionIndicator('date')}
-            </th>
-            <th onClick={() => requestSort('description')} style={{ cursor: 'pointer' }}>
-              Description{getSortDirectionIndicator('description')}
-            </th>
-            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }}>
-              Montant{getSortDirectionIndicator('amount')}
-            </th>
-            <th onClick={() => requestSort('type')} style={{ cursor: 'pointer' }}>
-              Type{getSortDirectionIndicator('type')}
-            </th>
-            <th onClick={() => requestSort('category')} style={{ cursor: 'pointer' }}>
-              Catégorie{getSortDirectionIndicator('category')}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentTransactions.map(transaction => (
-            <tr key={transaction._id}>
-              <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
-              <td>{transaction.description}</td>
-              <td className={transaction.type === 'income' ? 'amount-income' : 'amount-expense'}>
-                <AmountDisplay amount={transaction.amount} type={transaction.type} />
-              </td>
-              <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
-              <td>{transaction.category}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Séparateur horizontal */}
+      <hr className="report-divider" />
+      
+      {sortedTransactions.length === 0 ? (
+        <div>Aucune transaction ne correspond à votre recherche.</div>
+      ) : (
+        <>
+          <table className="transaction-table">
+            <thead>
+              <tr>
+                <th onClick={() => requestSort('date')} style={{ cursor: 'pointer' }}>
+                  Date{getSortDirectionIndicator('date')}
+                </th>
+                <th onClick={() => requestSort('description')} style={{ cursor: 'pointer' }}>
+                  Description{getSortDirectionIndicator('description')}
+                </th>
+                <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }}>
+                  Montant{getSortDirectionIndicator('amount')}
+                </th>
+                <th onClick={() => requestSort('type')} style={{ cursor: 'pointer' }}>
+                  Type{getSortDirectionIndicator('type')}
+                </th>
+                <th onClick={() => requestSort('category')} style={{ cursor: 'pointer' }}>
+                  Catégorie{getSortDirectionIndicator('category')}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentTransactions.map(transaction => (
+                <tr key={transaction._id}>
+                  <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
+                  <td>{transaction.description}</td>
+                  <td className={transaction.type === 'income' ? 'amount-income' : 'amount-expense'}>
+                    <AmountDisplay amount={transaction.amount} type={transaction.type} />
+                  </td>
+                  <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
+                  <td>{transaction.category}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button 
-            onClick={firstPage} 
-            disabled={currentPage === 1}
-            className="pagination-button"
-          >
-            &laquo; Première
-          </button>
-          <button 
-            onClick={prevPage} 
-            disabled={currentPage === 1}
-            className="pagination-button"
-          >
-            &lt; Précédente
-          </button>
-          <span className="pagination-info">
-            Page {currentPage} sur {totalPages}
-          </span>
-          <button 
-            onClick={nextPage} 
-            disabled={currentPage === totalPages}
-            className="pagination-button"
-          >
-            Suivante &gt;
-          </button>
-          <button 
-            onClick={lastPage} 
-            disabled={currentPage === totalPages}
-            className="pagination-button"
-          >
-            Dernière &raquo;
-          </button>
-        </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button 
+                onClick={firstPage} 
+                disabled={currentPage === 1}
+                className="pagination-button"
+              >
+                &laquo; Première
+              </button>
+              <button 
+                onClick={prevPage} 
+                disabled={currentPage === 1}
+                className="pagination-button"
+              >
+                &lt; Précédente
+              </button>
+              <span className="pagination-info">
+                Page {currentPage} sur {totalPages}
+              </span>
+              <button 
+                onClick={nextPage} 
+                disabled={currentPage === totalPages}
+                className="pagination-button"
+              >
+                Suivante &gt;
+              </button>
+              <button 
+                onClick={lastPage} 
+                disabled={currentPage === totalPages}
+                className="pagination-button"
+              >
+                Dernière &raquo;
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
