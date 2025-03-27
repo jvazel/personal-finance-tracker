@@ -1,8 +1,8 @@
 import React from 'react';
-import { Routes, Route, Navigate, NavLink } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import ReportTransactionHistory from './ReportTransactionHistory';
 import ReportSavings from './ReportSavings';
-import '../styles/reports.css';
+import ReportRecurringBills from './ReportRecurringBills'; // Importer le nouveau composant
 
 const Reports = () => {
   return (
@@ -11,6 +11,7 @@ const Reports = () => {
         <Routes>
           <Route path="transactions" element={<ReportTransactionHistory />} />
           <Route path="savings" element={<ReportSavings />} />
+          <Route path="recurring-bills" element={<ReportRecurringBills />} /> {/* Ajouter la nouvelle route */}
           <Route path="/" element={<Navigate to="transactions" replace />} />
         </Routes>
       </div>

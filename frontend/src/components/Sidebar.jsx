@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/sidebar.css';
 // Import des icônes
-import { FaChartPie, FaExchangeAlt, FaChartLine, FaHistory, FaBalanceScale } from 'react-icons/fa';
+import { FaChartPie, FaExchangeAlt, FaChartLine, FaHistory, FaBalanceScale, FaFileInvoiceDollar } from 'react-icons/fa';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -37,6 +37,9 @@ const Sidebar = () => {
               </li>
               <li className={location.pathname === "/reports/savings" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
                 <Link to="/reports/savings"><FaBalanceScale className="sidebar-icon" /> Evolution du solde</Link>
+              </li>
+              <li className={location.pathname === "/reports/recurring-bills" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
+                <Link to="/reports/recurring-bills"><FaFileInvoiceDollar className="sidebar-icon" /> Factures récurrentes</Link>
               </li>
             </>
           )}

@@ -331,7 +331,85 @@ exports.getTopExpenses = async (req, res) => {
   }
 };
 
-// Vérifiez que cette fonction est bien ajoutée à votre contrôleur
+// Ajouter cette fonction au fichier existant
+
+// Fonction pour obtenir les factures récurrentes
+exports.getRecurringBills = async (req, res) => {
+  try {
+    const { period = '12' } = req.query; // Période en mois (par défaut 12 mois)
+    
+    // Calculer la date de début en fonction de la période
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - parseInt(period));
+    
+    // Récupérer toutes les transactions de type dépense dans la période
+    const transactions = await Transaction.find({
+      type: 'expense',
+      date: { $gte: startDate, $lte: endDate }
+    }).sort({ date: 1 });
+    
+    // Algorithme pour détecter les factures récurrentes
+    // Une facture est considérée comme récurrente si:
+    // 1. Elle a la même description (ou similaire)
+    // 2. Elle apparaît régulièrement (mensuellement, trimestriellement, etc.)
+    
+    const potentialRecurringBills = {};
+    
+    transactions.forEach(transaction => {
+      // Normaliser la description pour la comparaison
+      const normalizedDesc = transaction.description.toLowerCase().trim();
+      
+      if (!potentialRecurringBills[normalizedDesc]) {
+        potentialRecurringBills[normalizedDesc] = [];
+      }
+      
+      potentialRecurringBills[normalizedDesc].push({
+        id: transaction._id,
+        date: transaction.date,
+        amount: transaction.amount,
+        category: transaction.category
+      });
+    });
+    
+    // Filtrer pour ne garder que les transactions qui apparaissent au moins 2 fois
+    const recurringBills = Object.entries(potentialRecurringBills)
+      .filter(([_, occurrences]) => occurrences.length >= 2)
+      .map(([description, occurrences]) => {
+        // Trier par date
+        occurrences.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        // Calculer les statistiques
+        const amounts = occurrences.map(o => o.amount);
+        const average = amounts.reduce((sum, amount) => sum + amount, 0) / amounts.length;
+        const min = Math.min(...amounts);
+        const max = Math.max(...amounts);
+        const trend = occurrences.length > 1 
+          ? ((occurrences[occurrences.length - 1].amount - occurrences[0].amount) / occurrences[0].amount) * 100 
+          : 0;
+        
+        return {
+          description,
+          occurrences,
+          statistics: {
+            count: occurrences.length,
+            average,
+            min,
+            max,
+            trend // Pourcentage d'évolution entre la première et la dernière occurrence
+          },
+          category: occurrences[0].category // Utiliser la catégorie de la première occurrence
+        };
+      })
+      // Trier par nombre d'occurrences (décroissant)
+      .sort((a, b) => b.statistics.count - a.statistics.count);
+    
+    res.json(recurringBills);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des factures récurrentes:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des factures récurrentes' });
+  }
+};
 
 // Get Monthly Summary (for Transactions page)
 exports.getMonthlySummary = async (req, res) => {

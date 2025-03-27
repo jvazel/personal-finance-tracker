@@ -195,3 +195,75 @@
 }
 
 /* You might want to add styles for the submenu in your sidebar CSS file */
+
+/* Ajouter ces styles à la fin du fichier reports.css */
+
+/* Styles pour les factures récurrentes */
+.recurring-bills-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.recurring-bills-list {
+  background-color: #353549;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.recurring-bills-list h3,
+.recurring-bill-details h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.recurring-bill-details {
+  background-color: #353549;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bill-statistics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.bill-statistics .report-card {
+  flex: 1 1 200px;
+  min-width: 150px;
+}
+
+.selected-row {
+  background-color: #3b82f6 !important;
+  cursor: pointer;
+}
+
+.transaction-table tbody tr {
+  cursor: pointer;
+}
+
+.transaction-table tbody tr:hover {
+  background-color: #3f3f5f;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .recurring-bills-container {
+    flex-direction: column;
+  }
+  
+  .bill-statistics {
+    flex-direction: column;
+  }
+  
+  .bill-statistics .report-card {
+    width: 100%;
+  }
+}
