@@ -1,16 +1,17 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { TransactionContext } from '../contexts/TransactionContext';
 import { registerLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
+import axios from 'axios';
 
 registerLocale('fr', fr);
 
-const categories = ["Alimentation", "Assurance", "Cadeau", "Culture", "Divertissement", "Don", "Éducation", "Électricité", "Épargne", "Gaz", "Internet et téléphone", "Loyer", "Salaire", "Santé", "Services", "Transport", "Autre"];
-
 const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const { addTransaction, updateTransaction } = useContext(TransactionContext);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   
   // Calculate the limits of the selected month
   const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
@@ -27,8 +28,56 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const [description, setDescription] = useState(transactionToEdit ? transactionToEdit.description : '');
   const [amount, setAmount] = useState(transactionToEdit ? transactionToEdit.amount : '');
   const [type, setType] = useState(transactionToEdit ? transactionToEdit.type : 'expense');
-  const [category, setCategory] = useState(transactionToEdit ? transactionToEdit.category : categories[0]);
+  const [category, setCategory] = useState(transactionToEdit ? transactionToEdit.category : '');
   const [formError, setFormError] = useState('');
+
+  // Fetch categories from the database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await axios.get('/api/categories');
+        setCategories(response.data);
+        
+        // Set default category if none is selected yet
+        if (!category && response.data.length > 0) {
+          // Filter categories based on transaction type
+          const filteredCategories = response.data.filter(
+            cat => cat.type === type || cat.type === 'both'
+          );
+          
+          if (filteredCategories.length > 0) {
+            setCategory(filteredCategories[0].name);
+          } else if (response.data.length > 0) {
+            setCategory(response.data[0].name);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setFormError('Erreur lors du chargement des catégories');
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Filter categories based on transaction type
+  const filteredCategories = categories.filter(
+    cat => cat.type === type || cat.type === 'both'
+  );
+
+  // Update category when type changes
+  useEffect(() => {
+    if (filteredCategories.length > 0) {
+      // Check if current category is valid for the selected type
+      const categoryExists = filteredCategories.some(cat => cat.name === category);
+      if (!categoryExists) {
+        setCategory(filteredCategories[0].name);
+      }
+    }
+  }, [type]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -132,15 +181,23 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       
       <div className="form-group">
         <label htmlFor="category">Catégorie</label>
-        <select
-          id="category"
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-        >
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+        {loadingCategories ? (
+          <div className="loading-categories">Chargement des catégories...</div>
+        ) : (
+          <select
+            id="category"
+            value={category}
+            onChange={e => setCategory(e.target.value)}
+          >
+            {filteredCategories.length > 0 ? (
+              filteredCategories.map(cat => (
+                <option key={cat._id} value={cat.name}>{cat.name}</option>
+              ))
+            ) : (
+              <option value="">Aucune catégorie disponible</option>
+            )}
+          </select>
+        )}
       </div>
       
       <div className="form-actions">
