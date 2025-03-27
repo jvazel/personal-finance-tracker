@@ -14,6 +14,7 @@ const ReportRecurringBills = () => {
   const [error, setError] = useState(null);
   const [period, setPeriod] = useState('12'); // Par défaut 12 mois
   const [selectedBill, setSelectedBill] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'statistics.count', direction: 'desc' });
 
   useEffect(() => {
     const fetchRecurringBills = async () => {
@@ -47,6 +48,52 @@ const ReportRecurringBills = () => {
   const handleBillSelect = (bill) => {
     setSelectedBill(bill);
   };
+
+  // Fonction pour trier les factures récurrentes
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Obtenir l'indicateur de direction du tri
+  const getSortDirectionIndicator = (key) => {
+    if (sortConfig.key !== key) return '';
+    return sortConfig.direction === 'asc' ? ' ▲' : ' ▼';
+  };
+
+  // Trier les factures récurrentes
+  const sortedBills = React.useMemo(() => {
+    if (!recurringBills || recurringBills.length === 0) return [];
+    
+    let sortableBills = [...recurringBills];
+    if (sortConfig.key) {
+      sortableBills.sort((a, b) => {
+        // Gestion des clés imbriquées (comme statistics.count)
+        const keys = sortConfig.key.split('.');
+        let aValue = a;
+        let bValue = b;
+        
+        // Parcourir les clés imbriquées
+        for (const key of keys) {
+          aValue = aValue[key];
+          bValue = bValue[key];
+        }
+        
+        // Comparaison des valeurs
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableBills;
+  }, [recurringBills, sortConfig]);
 
   // Préparer les données pour le graphique
   const prepareChartData = (bill) => {
@@ -88,22 +135,32 @@ const ReportRecurringBills = () => {
         </div>
       </div>
       
-      {recurringBills.length > 0 ? (
+      {sortedBills.length > 0 ? (
         <div className="recurring-bills-container">
           <div className="recurring-bills-list">
             <h3>Liste des factures récurrentes</h3>
             <table className="transaction-table">
               <thead>
                 <tr>
-                  <th>Description</th>
-                  <th>Catégorie</th>
-                  <th>Occurrences</th>
-                  <th>Montant moyen</th>
-                  <th>Évolution</th>
+                  <th onClick={() => requestSort('description')} style={{ cursor: 'pointer' }}>
+                    Description{getSortDirectionIndicator('description')}
+                  </th>
+                  <th onClick={() => requestSort('category')} style={{ cursor: 'pointer' }}>
+                    Catégorie{getSortDirectionIndicator('category')}
+                  </th>
+                  <th onClick={() => requestSort('statistics.count')} style={{ cursor: 'pointer' }}>
+                    Occurrences{getSortDirectionIndicator('statistics.count')}
+                  </th>
+                  <th onClick={() => requestSort('statistics.average')} style={{ cursor: 'pointer' }}>
+                    Montant moyen{getSortDirectionIndicator('statistics.average')}
+                  </th>
+                  <th onClick={() => requestSort('statistics.trend')} style={{ cursor: 'pointer' }}>
+                    Évolution{getSortDirectionIndicator('statistics.trend')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {recurringBills.map((bill, index) => (
+                {sortedBills.map((bill, index) => (
                   <tr 
                     key={index} 
                     onClick={() => handleBillSelect(bill)}

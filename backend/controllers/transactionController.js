@@ -331,8 +331,6 @@ exports.getTopExpenses = async (req, res) => {
   }
 };
 
-// Ajouter cette fonction au fichier existant
-
 // Fonction pour obtenir les factures récurrentes
 exports.getRecurringBills = async (req, res) => {
   try {
