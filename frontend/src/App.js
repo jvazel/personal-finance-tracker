@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Transactions from './components/Transactions';
 import Reports from './components/Reports';
+import Settings from './components/Settings';
 import Sidebar from './components/Sidebar';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/reports/*" element={<Reports />} />
+          <Route path="/settings/*" element={<Settings />} />
         </Routes>
       </div>
     </div>

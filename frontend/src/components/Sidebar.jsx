@@ -1,16 +1,22 @@
+// frontend/src/components/Sidebar.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { FaChartPie, FaExchangeAlt, FaChartLine, FaHistory, FaBalanceScale, FaFileInvoiceDollar, FaCog, FaTags } from 'react-icons/fa';
 import '../styles/sidebar.css';
-// Import des icônes
-import { FaChartPie, FaExchangeAlt, FaChartLine, FaHistory, FaBalanceScale, FaFileInvoiceDollar } from 'react-icons/fa';
 
 const Sidebar = () => {
   const location = useLocation();
   const [showReportsSubmenu, setShowReportsSubmenu] = useState(false);
+  const [showSettingsSubmenu, setShowSettingsSubmenu] = useState(false);
 
   const toggleReportsSubmenu = (e) => {
     e.preventDefault();
     setShowReportsSubmenu(!showReportsSubmenu);
+  };
+
+  const toggleSettingsSubmenu = (e) => {
+    e.preventDefault();
+    setShowSettingsSubmenu(!showSettingsSubmenu);
   };
 
   return (
@@ -40,6 +46,19 @@ const Sidebar = () => {
               </li>
               <li className={location.pathname === "/reports/recurring-bills" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
                 <Link to="/reports/recurring-bills"><FaFileInvoiceDollar className="sidebar-icon" /> Factures récurrentes</Link>
+              </li>
+            </>
+          )}
+          
+          {/* New Settings Menu */}
+          <li className={location.pathname.startsWith("/settings") ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
+            <Link to="/settings" onClick={toggleSettingsSubmenu}><FaCog className="sidebar-icon" /> Paramètres</Link>
+          </li>
+          
+          {showSettingsSubmenu && (
+            <>
+              <li className={location.pathname === "/settings/categories" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
+                <Link to="/settings/categories"><FaTags className="sidebar-icon" /> Liste des catégories</Link>
               </li>
             </>
           )}
