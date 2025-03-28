@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const transactionRoutes = require('./routes/transactionRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const categoryController = require('./controllers/categoryController');
+const predictionRoutes = require('./routes/predictionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,6 +30,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Routes
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/predictions', predictionRoutes);
 app.get('/api/dashboard-data', require('./controllers/transactionController').getDashboardData); // Dashboard data route
 
 app.listen(PORT, () => {

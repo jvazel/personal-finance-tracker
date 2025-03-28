@@ -47,10 +47,12 @@ const Sidebar = () => {
               <li className={location.pathname === "/reports/recurring-bills" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
                 <Link to="/reports/recurring-bills"><FaFileInvoiceDollar className="sidebar-icon" /> Factures récurrentes</Link>
               </li>
+              <li className={location.pathname === "/reports/cash-flow-prediction" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
+                <Link to="/reports/cash-flow-prediction"><FaChartLine className="sidebar-icon" /> Prédiction de flux de trésorerie</Link>
+              </li>
             </>
           )}
           
-          {/* New Settings Menu */}
           <li className={location.pathname.startsWith("/settings") ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
             <Link to="/settings" onClick={toggleSettingsSubmenu}><FaCog className="sidebar-icon" /> Paramètres</Link>
           </li>
