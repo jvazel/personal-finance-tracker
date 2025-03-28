@@ -60,7 +60,7 @@ const ReportCashFlowPrediction = () => {
             id="predictionPeriod" 
             value={predictionPeriod} 
             onChange={handlePeriodChange}
-            className="form-select"
+            className="period-select" // Utiliser la même classe que pour les autres sélecteurs
           >
             <option value="1">1 mois</option>
             <option value="3">3 mois</option>
