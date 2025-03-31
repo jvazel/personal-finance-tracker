@@ -346,3 +346,12 @@
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-header:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

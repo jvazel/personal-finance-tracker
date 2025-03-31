@@ -13,10 +13,23 @@ const ReportCashFlowPrediction = () => {
   const [predictionPeriod, setPredictionPeriod] = useState('3'); // Default: 3 months
   const [overdraftRisk, setOverdraftRisk] = useState(null);
   const { refreshTransactions } = useContext(TransactionContext);
+  
+  // Ajout des états pour la pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [transactionsPerPage, setTransactionsPerPage] = useState(15);
+  
+  // Ajout des états pour le tri
+  const [sortField, setSortField] = useState('date');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     fetchPredictionData(predictionPeriod);
   }, [predictionPeriod]);
+
+  // Réinitialiser la page courante lorsque les données changent
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [predictionData]);
 
   const fetchPredictionData = async (months) => {
     setLoading(true);
@@ -48,6 +61,69 @@ const ReportCashFlowPrediction = () => {
   const allValues = chartData.flatMap(item => [item.solde, item.revenus, item.dépenses]);
   const minValue = Math.min(...allValues) * 0.9;
   const maxValue = Math.max(...allValues) * 1.1;
+
+  // Récupérer toutes les transactions prévues
+  const allPredictedTransactions = predictionData.flatMap(day => 
+    day.transactions.map(transaction => ({
+      ...transaction,
+      date: day.date // Ajouter la date du jour à chaque transaction
+    }))
+  );
+
+  // Calculer les indices pour la pagination
+  // Fonction pour gérer le tri
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // Si on clique sur la même colonne, on inverse la direction
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Sinon, on trie par la nouvelle colonne en ordre ascendant
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  // Trier les transactions
+  const sortedTransactions = [...allPredictedTransactions].sort((a, b) => {
+    let comparison = 0;
+    
+    // Comparer selon le champ sélectionné
+    switch (sortField) {
+      case 'date':
+        comparison = new Date(a.date) - new Date(b.date);
+        break;
+      case 'description':
+        comparison = a.description.localeCompare(b.description);
+        break;
+      case 'category':
+        comparison = a.category.localeCompare(b.category);
+        break;
+      case 'amount':
+        comparison = Math.abs(a.amount) - Math.abs(b.amount);
+        break;
+      case 'type':
+        const typeA = a.type.toLowerCase();
+        const typeB = b.type.toLowerCase();
+        comparison = typeA.localeCompare(typeB);
+        break;
+      case 'confidence':
+        comparison = a.confidence - b.confidence;
+        break;
+      default:
+        comparison = 0;
+    }
+    
+    // Inverser si l'ordre est descendant
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
+  // Calculer les indices pour la pagination sur les transactions triées
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = sortedTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  
+  // Changer de page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="report-section">
@@ -155,12 +231,24 @@ const ReportCashFlowPrediction = () => {
         <table className="transaction-table">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Description</th>
-              <th>Catégorie</th>
-              <th>Montant</th>
-              <th>Type</th>
-              <th>Confiance</th>
+              <th onClick={() => handleSort('date')} className="sortable-header">
+                Date {sortField === 'date' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th onClick={() => handleSort('description')} className="sortable-header">
+                Description {sortField === 'description' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th onClick={() => handleSort('category')} className="sortable-header">
+                Catégorie {sortField === 'category' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th onClick={() => handleSort('amount')} className="sortable-header">
+                Montant {sortField === 'amount' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th onClick={() => handleSort('type')} className="sortable-header">
+                Type {sortField === 'type' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th onClick={() => handleSort('confidence')} className="sortable-header">
+                Confiance {sortField === 'confidence' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -168,52 +256,90 @@ const ReportCashFlowPrediction = () => {
               <tr>
                 <td colSpan="6" className="loading-cell">Chargement...</td>
               </tr>
-            ) : predictionData.flatMap(day => day.transactions).length === 0 ? (
+            ) : allPredictedTransactions.length === 0 ? (
               <tr>
                 <td colSpan="6" className="empty-cell">Aucune transaction récurrente prévue</td>
               </tr>
             ) : (
-              predictionData.flatMap(day => 
-                day.transactions.map((transaction, index) => {
-                  // Traduire le type de transaction ou le déterminer à partir du montant
-                  let transactionType;
-                  if (transaction.type) {
-                    // Traduire le type s'il existe
-                    transactionType = transaction.type.toLowerCase() === 'income' ? 'Revenu' : 
-                                     transaction.type.toLowerCase() === 'expense' ? 'Dépense' : 
-                                     transaction.type;
-                  } else {
-                    // Déterminer le type à partir du montant
-                    transactionType = transaction.amount > 0 ? 'Revenu' : 'Dépense';
-                  }
-                  
-                  return (
-                    <tr key={`${day.date}-${index}`}>
-                      <td>{format(new Date(day.date), 'dd/MM/yyyy')}</td>
-                      <td>{transaction.description}</td>
-                      <td>{transaction.category}</td>
-                      <td className={transaction.type.toLowerCase() === 'income' ? 'amount-income' : 'amount-expense'}>
-                        {Math.abs(transaction.amount).toFixed(2)} €
-                      </td>
-                      <td>
-                        {transactionType}
-                      </td>
-                      <td>
-                        <div className="confidence-bar">
-                          <div 
-                            className="confidence-level" 
-                            style={{ width: `${transaction.confidence}%`, backgroundColor: getConfidenceColor(transaction.confidence) }}
-                          ></div>
-                        </div>
-                        {transaction.confidence}%
-                      </td>
-                    </tr>
-                  );
-                })
-              )
+              currentTransactions.map((transaction, index) => {
+                // Traduire le type de transaction ou le déterminer à partir du montant
+                let transactionType;
+                if (transaction.type) {
+                  // Traduire le type s'il existe
+                  transactionType = transaction.type.toLowerCase() === 'income' ? 'Revenu' : 
+                                   transaction.type.toLowerCase() === 'expense' ? 'Dépense' : 
+                                   transaction.type;
+                } else {
+                  // Déterminer le type à partir du montant
+                  transactionType = transaction.amount > 0 ? 'Revenu' : 'Dépense';
+                }
+                
+                return (
+                  <tr key={`transaction-${index}`}>
+                    <td>{format(new Date(transaction.date), 'dd/MM/yyyy')}</td>
+                    <td>{transaction.description}</td>
+                    <td>{transaction.category}</td>
+                    <td className={transaction.type.toLowerCase() === 'income' ? 'amount-income' : 'amount-expense'}>
+                      {Math.abs(transaction.amount).toFixed(2)} €
+                    </td>
+                    <td>
+                      {transactionType}
+                    </td>
+                    <td>
+                      <div className="confidence-bar">
+                        <div 
+                          className="confidence-level" 
+                          style={{ width: `${transaction.confidence}%`, backgroundColor: getConfidenceColor(transaction.confidence) }}
+                        ></div>
+                      </div>
+                      {transaction.confidence}%
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
+        
+        {/* Pagination */}
+        {!loading && allPredictedTransactions.length > 0 && (
+          <div className="pagination">
+            <button 
+              onClick={() => paginate(1)} 
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              &laquo; Première
+            </button>
+            <button 
+              onClick={() => paginate(currentPage - 1)} 
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              &laquo; Précédent
+            </button>
+            
+            <span className="pagination-info">
+              Page {currentPage} sur {Math.ceil(allPredictedTransactions.length / transactionsPerPage)} 
+              ({indexOfFirstTransaction + 1}-{Math.min(indexOfLastTransaction, allPredictedTransactions.length)} sur {allPredictedTransactions.length})
+            </span>
+            
+            <button 
+              onClick={() => paginate(currentPage + 1)} 
+              disabled={currentPage >= Math.ceil(allPredictedTransactions.length / transactionsPerPage)}
+              className="pagination-button"
+            >
+              Suivant &raquo;
+            </button>
+            <button 
+              onClick={() => paginate(Math.ceil(allPredictedTransactions.length / transactionsPerPage))} 
+              disabled={currentPage >= Math.ceil(allPredictedTransactions.length / transactionsPerPage)}
+              className="pagination-button"
+            >
+              Dernière &raquo;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
