@@ -174,26 +174,42 @@ const ReportCashFlowPrediction = () => {
               </tr>
             ) : (
               predictionData.flatMap(day => 
-                day.transactions.map((transaction, index) => (
-                  <tr key={`${day.date}-${index}`}>
-                    <td>{format(new Date(day.date), 'dd/MM/yyyy')}</td>
-                    <td>{transaction.description}</td>
-                    <td>{transaction.category}</td>
-                    <td className={transaction.amount > 0 ? 'amount-income' : 'amount-expense'}>
-                      {transaction.amount.toFixed(2)} €
-                    </td>
-                    <td>{transaction.amount > 0 ? 'Revenu' : 'Dépense'}</td>
-                    <td>
-                      <div className="confidence-bar">
-                        <div 
-                          className="confidence-level" 
-                          style={{ width: `${transaction.confidence}%`, backgroundColor: getConfidenceColor(transaction.confidence) }}
-                        ></div>
-                      </div>
-                      {transaction.confidence}%
-                    </td>
-                  </tr>
-                ))
+                day.transactions.map((transaction, index) => {
+                  // Traduire le type de transaction ou le déterminer à partir du montant
+                  let transactionType;
+                  if (transaction.type) {
+                    // Traduire le type s'il existe
+                    transactionType = transaction.type.toLowerCase() === 'income' ? 'Revenu' : 
+                                     transaction.type.toLowerCase() === 'expense' ? 'Dépense' : 
+                                     transaction.type;
+                  } else {
+                    // Déterminer le type à partir du montant
+                    transactionType = transaction.amount > 0 ? 'Revenu' : 'Dépense';
+                  }
+                  
+                  return (
+                    <tr key={`${day.date}-${index}`}>
+                      <td>{format(new Date(day.date), 'dd/MM/yyyy')}</td>
+                      <td>{transaction.description}</td>
+                      <td>{transaction.category}</td>
+                      <td className={transaction.type.toLowerCase() === 'income' ? 'amount-income' : 'amount-expense'}>
+                        {Math.abs(transaction.amount).toFixed(2)} €
+                      </td>
+                      <td>
+                        {transactionType}
+                      </td>
+                      <td>
+                        <div className="confidence-bar">
+                          <div 
+                            className="confidence-level" 
+                            style={{ width: `${transaction.confidence}%`, backgroundColor: getConfidenceColor(transaction.confidence) }}
+                          ></div>
+                        </div>
+                        {transaction.confidence}%
+                      </td>
+                    </tr>
+                  );
+                })
               )
             )}
           </tbody>
