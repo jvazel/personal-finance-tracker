@@ -38,6 +38,18 @@ const Sidebar = () => {
           <li className={location.pathname === "/transactions" ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
             <Link to="/transactions"><FaExchangeAlt className="sidebar-icon" /> Transactions</Link>
           </li>
+          <li className={location.pathname.startsWith("/goals") ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
+            <Link to="/goals" onClick={toggleGoalsSubmenu}><FaFlag className="sidebar-icon" /> Objectifs</Link>
+          </li>
+          
+          {showGoalsSubmenu && (
+            <>
+              <li className={location.pathname === "/goals/savings" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
+                <Link to="/goals/savings"><FaPiggyBank className="sidebar-icon" /> Epargne et suivi des progrès</Link>
+              </li>
+            </>
+          )}
+          
           <li className={location.pathname.startsWith("/reports") ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
             <Link to="/reports" onClick={toggleReportsSubmenu}><FaChartLine className="sidebar-icon" /> Rapports</Link>
           </li>
@@ -55,18 +67,6 @@ const Sidebar = () => {
               </li>
               <li className={location.pathname === "/reports/cash-flow-prediction" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
                 <Link to="/reports/cash-flow-prediction"><FaChartLine className="sidebar-icon" /> Prédiction de flux de trésorerie</Link>
-              </li>
-            </>
-          )}
-          
-          <li className={location.pathname.startsWith("/goals") ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
-            <Link to="/goals" onClick={toggleGoalsSubmenu}><FaFlag className="sidebar-icon" /> Objectifs</Link>
-          </li>
-          
-          {showGoalsSubmenu && (
-            <>
-              <li className={location.pathname === "/goals/savings" ? 'sidebar-nav-item submenu-item active' : 'sidebar-nav-item submenu-item'}>
-                <Link to="/goals/savings"><FaPiggyBank className="sidebar-icon" /> Epargne et suivi des progrès</Link>
               </li>
             </>
           )}

@@ -167,12 +167,13 @@ const GoalsSavings = () => {
       <h2>Objectifs d'Épargne et Suivi des Progrès</h2>
       
       <div className="goals-actions">
-        <button 
-          className="btn btn-primary add-goal-btn" 
+        <div 
+          className="add-transaction-button" 
           onClick={handleAddGoalClick}
+          title="Ajouter un nouvel objectif"
         >
-          <i className="fas fa-plus-circle"></i> Ajouter un nouvel objectif
-        </button>
+          <i className="fas fa-plus"></i>
+        </div>
       </div>
       
       {/* Le reste du code reste inchangé */}
