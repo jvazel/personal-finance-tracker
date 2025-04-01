@@ -12,6 +12,7 @@ router.get('/top-expenses', transactionController.getTopExpenses);
 router.get('/monthly-summary', transactionController.getMonthlySummary);
 router.get('/trends', transactionController.getIncomeExpenseTrends);
 router.get('/recurring-bills', transactionController.getRecurringBills); // Nouvelle route pour les factures récurrentes
+router.get('/categories', transactionController.getCategories);
 router.get('/:id', transactionController.getTransactionById);
 router.put('/:id', transactionController.updateTransaction);
 router.delete('/:id', transactionController.deleteTransaction);

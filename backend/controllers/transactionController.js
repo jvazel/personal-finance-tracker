@@ -461,3 +461,15 @@ exports.getMonthlySummary = async (req, res) => {
     });
   }
 };
+
+// Ajouter cette fonction à votre contrôleur de transactions
+exports.getCategories = async (req, res) => {
+  try {
+    // Récupérer toutes les catégories uniques des transactions
+    const categories = await Transaction.distinct('category');
+    res.json(categories);
+  } catch (err) {
+    console.error('Erreur lors de la récupération des catégories:', err);
+    res.status(500).json({ message: 'Erreur lors de la récupération des catégories' });
+  }
+};
