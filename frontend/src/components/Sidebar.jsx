@@ -1,7 +1,7 @@
 // frontend/src/components/Sidebar.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaChartPie, FaExchangeAlt, FaChartLine, FaHistory, FaBalanceScale, FaFileInvoiceDollar, FaCog, FaTags, FaFlag, FaPiggyBank } from 'react-icons/fa';
+import { FaChartPie, FaExchangeAlt, FaChartLine, FaHistory, FaBalanceScale, FaFileInvoiceDollar, FaCog, FaTags, FaFlag, FaPiggyBank, FaLightbulb } from 'react-icons/fa';
 import '../styles/sidebar.css';
 
 const Sidebar = () => {
@@ -49,6 +49,10 @@ const Sidebar = () => {
               </li>
             </>
           )}
+          
+          <li className={location.pathname === "/financial-advisor" ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
+            <Link to="/financial-advisor"><FaLightbulb className="sidebar-icon" /> Conseiller financier</Link>
+          </li>
           
           <li className={location.pathname.startsWith("/reports") ? 'sidebar-nav-item active' : 'sidebar-nav-item'}>
             <Link to="/reports" onClick={toggleReportsSubmenu}><FaChartLine className="sidebar-icon" /> Rapports</Link>
