@@ -166,7 +166,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
             />
             Dépense
           </label>
-          <label style={{ marginLeft: '15px' }}>
+          <label>
             <input
               type="radio"
               name="type"
