@@ -371,6 +371,7 @@ const GoalsSavings = () => {
               value={formData.title} 
               onChange={handleFormChange}
               placeholder="Ex: Vacances d'été, Achat immobilier..."
+              maxLength="50"
               required
             />
           </div>
@@ -384,6 +385,7 @@ const GoalsSavings = () => {
               onChange={handleFormChange}
               placeholder="Décrivez votre objectif..."
               rows="3"
+              maxLength="200"
             />
           </div>
           
@@ -418,6 +420,7 @@ const GoalsSavings = () => {
               placeholder="Montant en euros"
               min="0"
               step="0.01"
+              max="1000000"
               required
             />
           </div>
@@ -430,6 +433,8 @@ const GoalsSavings = () => {
               name="targetDate" 
               value={formData.targetDate} 
               onChange={handleFormChange}
+              min={new Date().toISOString().split('T')[0]}
+              max={new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString().split('T')[0]}
               required
             />
           </div>

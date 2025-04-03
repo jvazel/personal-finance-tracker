@@ -404,3 +404,32 @@
 .add-transaction-button i {
   font-size: 1.2rem;
 }
+
+/* Form styling improvements */
+.goal-form {
+  padding: 0 15px 15px 15px;
+}
+
+.progress-form {
+  padding: 0 15px 15px 15px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.form-actions {
+  margin-top: 25px;
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
