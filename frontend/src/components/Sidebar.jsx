@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { FaChartPie } from 'react-icons/fa'; // Add this import
 import '../styles/sidebar.css';
 
 const Sidebar = () => {
@@ -58,6 +59,10 @@ const Sidebar = () => {
               <NavLink to="/reports/savings" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
                 <span className="submenu-icon">💹</span>
                 <span className="submenu-text">Evolution du solde</span>
+              </NavLink>
+              <NavLink to="/reports/expenses" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
+                <span className="submenu-icon"><FaChartPie /></span>
+                <span className="submenu-text">Evolution des dépenses</span>
               </NavLink>
               <NavLink to="/reports/recurring-bills" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
                 <span className="submenu-icon">🔄</span>

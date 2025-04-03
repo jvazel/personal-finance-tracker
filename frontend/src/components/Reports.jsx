@@ -4,6 +4,7 @@ import ReportTransactionHistory from './ReportTransactionHistory';
 import ReportSavings from './ReportSavings';
 import ReportRecurringBills from './ReportRecurringBills'; 
 import ReportCashFlowPrediction from './ReportCashFlowPrediction';
+import ReportExpenses from './ReportExpenses'; // Import the new component
 
 const Reports = () => {
   return (
@@ -14,6 +15,7 @@ const Reports = () => {
           <Route path="savings" element={<ReportSavings />} />
           <Route path="recurring-bills" element={<ReportRecurringBills />} />
           <Route path="cash-flow-prediction" element={<ReportCashFlowPrediction />} />
+          <Route path="expenses" element={<ReportExpenses />} /> {/* Add the new route */}
           <Route path="/" element={<Navigate to="transactions" replace />} />
         </Routes>
       </div>

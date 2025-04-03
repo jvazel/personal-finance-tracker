@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const ExpenseLimits = () => {
   const [expenseLimits, setExpenseLimits] = useState([]);
@@ -21,49 +21,41 @@ const ExpenseLimits = () => {
         const endDate = lastDayOfMonth.toISOString().split('T')[0];
         
         // Fetch active expense limits
-        const limitsResponse = await axios.get('/api/goals', {
+        const limitsResponse = await api.get('/api/goals', {
           params: { type: 'expense_limit', isActive: true }
         });
         
-        // For each limit, fetch the current month's expenses for that category
-        const limitsWithProgress = await Promise.all(
-          limitsResponse.data.map(async (limit) => {
-            try {
-              const expensesResponse = await axios.get('/api/transactions/expenses-by-category', {
-                params: { 
-                  startDate, 
-                  endDate,
-                  category: limit.category 
-                }
-              });
-              
-              // Find the matching category in the response
-              const categoryExpense = expensesResponse.data.find(
-                item => item.category === limit.category
-              );
-              
-              const currentAmount = categoryExpense ? categoryExpense.amount : 0;
-              const percentage = limit.targetAmount > 0 
-                ? Math.min(100, (currentAmount / limit.targetAmount) * 100) 
-                : 0;
-                
-              return {
-                ...limit,
-                currentAmount,
-                percentage,
-                isExceeded: currentAmount > limit.targetAmount
-              };
-            } catch (err) {
-              console.error(`Error fetching expenses for category ${limit.category}:`, err);
-              return {
-                ...limit,
-                currentAmount: 0,
-                percentage: 0,
-                isExceeded: false
-              };
-            }
-          })
-        );
+        console.log('Expense limits from API:', limitsResponse.data);
+        
+        // Fetch all expenses by category for the current month in a single request
+        const allExpensesResponse = await api.get('/api/transactions/expenses-by-category', {
+          params: { startDate, endDate }
+        });
+        
+        console.log('All expenses by category:', allExpensesResponse.data);
+        
+        // Map expenses by category for easier lookup
+        const expensesByCategory = {};
+        allExpensesResponse.data.forEach(item => {
+          expensesByCategory[item.category] = item.amount;
+        });
+        
+        // For each limit, find the corresponding expense amount
+        const limitsWithProgress = limitsResponse.data.map(limit => {
+          const currentAmount = expensesByCategory[limit.category] || 0;
+          const percentage = limit.targetAmount > 0 
+            ? Math.min(100, (currentAmount / limit.targetAmount) * 100) 
+            : 0;
+            
+          return {
+            ...limit,
+            currentAmount,
+            percentage,
+            isExceeded: currentAmount > limit.targetAmount
+          };
+        });
+        
+        console.log('Processed limits with progress:', limitsWithProgress);
         
         setExpenseLimits(limitsWithProgress);
         setLoading(false);

@@ -486,6 +486,135 @@ exports.getMonthlySummary = async (req, res) => {
   }
 };
 
+// Get expense report data
+exports.getExpenseReport = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    // Validate dates
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'Les dates de début et de fin sont requises' });
+    }
+    
+    // Parse dates
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Set to end of day
+    
+    // Convert user ID string to ObjectId for aggregation
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+    
+    console.log('Expense report request:', { startDate, endDate, userId });
+    
+    // Get expenses by category - use ObjectId for user field
+    const expensesByCategory = await Transaction.aggregate([
+      {
+        $match: {
+          user: userId, // Use converted ObjectId
+          type: 'expense',
+          date: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $group: {
+          _id: '$category',
+          amount: { $sum: { $abs: '$amount' } },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          category: '$_id',
+          amount: 1,
+          count: 1,
+          _id: 0
+        }
+      },
+      {
+        $sort: { amount: -1 }
+      }
+    ]);
+    
+    console.log(`Found ${expensesByCategory.length} expense categories`);
+    
+    // Get top expenses - add this query
+    const topExpenses = await Transaction.find({
+      user: req.user.id,
+      type: 'expense',
+      date: { $gte: start, $lte: end }
+    })
+    .sort({ amount: 1 })
+    .limit(5);
+    
+    console.log(`Found ${topExpenses.length} top expenses`);
+    
+    // Get daily expense trend - use ObjectId for user field
+    const dailyExpenseTrend = await Transaction.aggregate([
+      {
+        $match: {
+          user: userId, // Use converted ObjectId
+          type: 'expense',
+          date: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+          amount: { $sum: { $abs: '$amount' } }
+        }
+      },
+      {
+        $project: {
+          date: '$_id',
+          amount: 1,
+          _id: 0
+        }
+      },
+      {
+        $sort: { date: 1 }
+      }
+    ]);
+    
+    console.log(`Found ${dailyExpenseTrend.length} daily expense entries`);
+    
+    // Get total expenses - use ObjectId for user field
+    const totalExpenses = await Transaction.aggregate([
+      {
+        $match: {
+          user: userId, // Use converted ObjectId
+          type: 'expense',
+          date: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $abs: '$amount' } }
+        }
+      }
+    ]);
+    
+    console.log('Total expenses result:', totalExpenses);
+    
+    // Get average expense per day
+    const daysDiff = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+    const averageDailyExpense = totalExpenses.length > 0 ? totalExpenses[0].total / daysDiff : 0;
+    
+    // Return all data
+    res.json({
+      expensesByCategory,
+      topExpenses,
+      dailyExpenseTrend,
+      totalExpenses: totalExpenses.length > 0 ? totalExpenses[0].total : 0,
+      averageDailyExpense
+    });
+    
+  } catch (err) {
+    console.error('Erreur lors de la récupération des données du rapport de dépenses:', err);
+    res.status(500).json({ message: 'Erreur lors de la récupération des données du rapport de dépenses' });
+  }
+};
+
 // Ajouter cette fonction à votre contrôleur de transactions
 exports.getCategories = async (req, res) => {
   try {
