@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Modal from './Modal';
 import AmountDisplay from './AmountDisplay';
+import { FaEdit, FaTrash } from 'react-icons/fa'; // Add this import at the top with other imports
 
 const TransactionList = ({ selectedMonth }) => {
   const { transactions, loading, error, deleteTransaction, refreshTransactions } = useContext(TransactionContext);
@@ -217,8 +218,18 @@ const TransactionList = ({ selectedMonth }) => {
                 <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
                 <td>{transaction.category}</td>
                 <td className="transaction-actions">
-                  <button onClick={() => handleEdit(transaction)}>Modifier</button>
-                  <button className="delete" onClick={() => handleDelete(transaction._id)}>Supprimer</button>
+                  <button 
+                    className="edit-button" 
+                    onClick={() => handleEdit(transaction)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button 
+                    className="delete-button" 
+                    onClick={() => handleDelete(transaction._id)}
+                  >
+                    <FaTrash />
+                  </button>
                 </td>
               </tr>
             ))

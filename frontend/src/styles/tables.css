@@ -97,3 +97,52 @@
     white-space: nowrap;
   }
 }
+
+.transaction-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.transaction-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  outline: none; /* Remove the outline when focused */
+}
+
+/* Add a style for focus state that doesn't use the default outline */
+.transaction-actions button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Add these additional properties to completely remove any browser focus styles */
+.transaction-actions button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.transaction-actions button::-moz-focus-inner {
+  border: 0;
+}
+
+.transaction-actions .edit-button {
+  color: #3b82f6;
+  background: none;
+}
+
+.transaction-actions .edit-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.transaction-actions .delete-button {
+  color: #ef4444;
+  background: none;
+}
+
+.transaction-actions .delete-button:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
