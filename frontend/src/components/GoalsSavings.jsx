@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import Modal from './Modal';
 import '../styles/goals.css';
+import { FaEdit, FaTrash } from 'react-icons/fa'; // Add this import at the top with other imports
 
 const GoalsSavings = () => {
   const [goals, setGoals] = useState([]);
@@ -19,7 +22,7 @@ const GoalsSavings = () => {
     type: 'savings',
     category: '',
     targetAmount: '',
-    targetDate: '',
+    targetDate: new Date(), // Initialiser avec la date actuelle
   });
   const [progressData, setProgressData] = useState({
     amount: '',
@@ -62,6 +65,11 @@ const GoalsSavings = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Ajouter cette fonction pour gérer le changement de date
+  const handleDateChange = (date) => {
+    setFormData(prev => ({ ...prev, targetDate: date }));
+  };
+
   // Gérer les changements dans le formulaire de mise à jour de progression
   const handleProgressChange = (e) => {
     const { name, value } = e.target;
@@ -72,20 +80,38 @@ const GoalsSavings = () => {
   const handleSubmitGoal = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/goals', {
-        ...formData,
-        targetAmount: parseFloat(formData.targetAmount)
-      });
+      let response;
       
-      setGoals(prev => [response.data, ...prev]);
+      if (selectedGoal) {
+        // Mode édition
+        response = await axios.put(`/api/goals/${selectedGoal._id}`, {
+          ...formData,
+          targetAmount: parseFloat(formData.targetAmount)
+        });
+        
+        // Mettre à jour l'objectif dans la liste
+        setGoals(prev => prev.map(goal => 
+          goal._id === response.data._id ? response.data : goal
+        ));
+      } else {
+        // Mode ajout
+        response = await axios.post('/api/goals', {
+          ...formData,
+          targetAmount: parseFloat(formData.targetAmount)
+        });
+        
+        setGoals(prev => [response.data, ...prev]);
+      }
+      
       setShowAddGoalForm(false);
+      setSelectedGoal(null);
       setFormData({
         title: '',
         description: '',
         type: 'savings',
         category: '',
         targetAmount: '',
-        targetDate: ''
+        targetDate: new Date()
       });
       
       // Rafraîchir les statistiques de limite de dépenses si nécessaire
@@ -94,8 +120,8 @@ const GoalsSavings = () => {
         setExpenseLimits(expenseLimitsResponse.data);
       }
     } catch (err) {
-      console.error('Erreur lors de la création de l\'objectif:', err);
-      alert('Erreur lors de la création de l\'objectif. Veuillez réessayer.');
+      console.error('Erreur lors de la création/modification de l\'objectif:', err);
+      alert('Erreur lors de la création/modification de l\'objectif. Veuillez réessayer.');
     }
   };
 
@@ -140,6 +166,20 @@ const GoalsSavings = () => {
         alert('Erreur lors de la suppression de l\'objectif. Veuillez réessayer.');
       }
     }
+  };
+
+  // Ajouter cette fonction pour gérer l'édition d'un objectif
+  const handleEditGoal = (goal) => {
+    setSelectedGoal(goal);
+    setFormData({
+      title: goal.title,
+      description: goal.description || '',
+      type: goal.type,
+      category: goal.category || '',
+      targetAmount: goal.targetAmount,
+      targetDate: new Date(goal.targetDate)
+    });
+    setShowAddGoalForm(true);
   };
 
   // Ouvrir le formulaire de mise à jour de progression
@@ -188,19 +228,21 @@ const GoalsSavings = () => {
               <div key={goal._id} className={`goal-card ${goal.isCompleted ? 'completed' : ''}`}>
                 <div className="goal-header">
                   <h4>{goal.title}</h4>
-                  <div className="goal-actions">
+                  <div className="transaction-actions">
                     <button 
-                      className="btn btn-sm btn-primary goal-action-btn update-btn"
-                      onClick={() => openUpdateProgressForm(goal)}
+                      className="edit-button"
+                      onClick={() => handleEditGoal(goal)}
                       disabled={goal.isCompleted}
+                      title="Modifier l'objectif"
                     >
-                      <i className="fas fa-chart-line"></i> Mettre à jour
+                      <FaEdit />
                     </button>
                     <button 
-                      className="btn btn-sm btn-danger goal-action-btn delete-btn"
+                      className="delete-button"
                       onClick={() => handleDeleteGoal(goal._id)}
+                      title="Supprimer l'objectif"
                     >
-                      <i className="fas fa-trash-alt"></i> Supprimer
+                      <FaTrash />
                     </button>
                   </div>
                 </div>
@@ -344,8 +386,11 @@ const GoalsSavings = () => {
       {/* Modal pour ajouter un nouvel objectif */}
       <Modal 
         isOpen={showAddGoalForm} 
-        onClose={() => setShowAddGoalForm(false)}
-        title="Ajouter un nouvel objectif"
+        onClose={() => {
+          setShowAddGoalForm(false);
+          setSelectedGoal(null);
+        }}
+        title={selectedGoal ? "Modifier l'objectif" : "Ajouter un nouvel objectif"}
       >
         <form onSubmit={handleSubmitGoal} className="goal-form">
           <div className="form-group">
@@ -427,14 +472,14 @@ const GoalsSavings = () => {
           
           <div className="form-group">
             <label htmlFor="targetDate">Date cible</label>
-            <input 
-              type="date" 
-              id="targetDate" 
-              name="targetDate" 
-              value={formData.targetDate} 
-              onChange={handleFormChange}
-              min={new Date().toISOString().split('T')[0]}
-              max={new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString().split('T')[0]}
+            <DatePicker
+              id="targetDate"
+              selected={formData.targetDate}
+              onChange={handleDateChange}
+              dateFormat="dd/MM/yyyy"
+              locale="fr"
+              minDate={new Date()}
+              maxDate={new Date(new Date().setFullYear(new Date().getFullYear() + 10))}
               required
             />
           </div>

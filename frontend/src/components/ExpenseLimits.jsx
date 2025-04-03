@@ -25,23 +25,27 @@ const ExpenseLimits = () => {
           params: { type: 'expense_limit', isActive: true }
         });
         
-        console.log('Expense limits from API:', limitsResponse.data);
+        // Check if the response has data property or is an array directly
+        const limitsData = limitsResponse.data.data || limitsResponse.data;
+        console.log('Expense limits from API:', limitsData);
         
         // Fetch all expenses by category for the current month in a single request
         const allExpensesResponse = await api.get('/api/transactions/expenses-by-category', {
           params: { startDate, endDate }
         });
         
-        console.log('All expenses by category:', allExpensesResponse.data);
+        // Check if the response has data property or is an array directly
+        const expensesData = allExpensesResponse.data.data || allExpensesResponse.data;
+        console.log('All expenses by category:', expensesData);
         
         // Map expenses by category for easier lookup
         const expensesByCategory = {};
-        allExpensesResponse.data.forEach(item => {
+        expensesData.forEach(item => {
           expensesByCategory[item.category] = item.amount;
         });
         
         // For each limit, find the corresponding expense amount
-        const limitsWithProgress = limitsResponse.data.map(limit => {
+        const limitsWithProgress = limitsData.map(limit => {
           const currentAmount = expensesByCategory[limit.category] || 0;
           const percentage = limit.targetAmount > 0 
             ? Math.min(100, (currentAmount / limit.targetAmount) * 100) 

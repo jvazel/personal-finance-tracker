@@ -433,3 +433,52 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* Add these styles if they don't already exist */
+.transaction-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.transaction-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  outline: none;
+}
+
+.transaction-actions button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.transaction-actions button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.transaction-actions .edit-button {
+  color: #3b82f6;
+  background: none;
+}
+
+.transaction-actions .edit-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.transaction-actions .delete-button {
+  color: #ef4444;
+  background: none;
+}
+
+.transaction-actions .delete-button:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.transaction-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
