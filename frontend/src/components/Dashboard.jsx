@@ -3,7 +3,8 @@ import axios from 'axios';
 import SavingsChart from './SavingsChart';
 import ExpensePieChart from './ExpensePieChart';
 import IncomeExpenseTrend from './IncomeExpenseTrend';
-import TopExpenses from './TopExpenses'; // Import the new component
+import TopExpenses from './TopExpenses'; 
+import ExpenseLimits from './ExpenseLimits';
 
 // Set axios default base URL
 axios.defaults.baseURL = 'http://localhost:5000'; // Adjust this to match your backend URL
@@ -112,6 +113,14 @@ const Dashboard = () => {
             </div>
             <TopExpenses limit={topExpensesLimit} />
           </div>
+        </div>
+      </div>
+      
+      {/* Nouvelle section pour les limites de dépenses */}
+      <div className="dashboard-chart-section">
+        <div className="chart-card">
+          <h3>Limites de dépenses par catégorie</h3>
+          <ExpenseLimits />
         </div>
       </div>
       
