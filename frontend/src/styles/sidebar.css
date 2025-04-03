@@ -18,13 +18,6 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sidebar-header h1 {
-  font-size: 1.5rem;
-  margin: 0;
-  color: #e2e8f0;
-  font-weight: 600;
-}
-
 .sidebar-nav {
   flex: 1;
   padding: 20px 0;
@@ -280,4 +273,26 @@
   .submenu-icon {
     margin-right: 0;
   }
+}
+
+/* Ajoutez ces styles après les styles existants pour .sidebar-header */
+
+.app-title {
+  font-size: 1.8rem;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: #3b82f6; /* Solid blue color */
+}
+
+/* Ajoutez un effet de survol pour le titre */
+.sidebar-header:hover .app-title {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* Assurez-vous que la transition est fluide */
+.app-title {
+  transition: transform 0.3s ease;
 }

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { FaChartPie } from 'react-icons/fa'; // Add this import
+import { FaChartPie } from 'react-icons/fa';
 import '../styles/sidebar.css';
 
 const Sidebar = () => {
@@ -15,7 +15,9 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h1>Finatrack</h1>
+        <h1 className="app-title">
+          FinaTrack
+        </h1>
       </div>
       
       {currentUser && (
