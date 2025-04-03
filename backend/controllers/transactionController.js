@@ -1,10 +1,11 @@
 // backend/controllers/transactionController.js
 const Transaction = require('../models/Transaction');
+const mongoose = require('mongoose');
 
 // Get all transactions
 exports.getAllTransactions = async (req, res) => {
   try {
-    let query = {};
+    let query = { user: req.user.id }; // Filter by authenticated user
 
     // Filtrer par date si les paramètres sont fournis
     if (req.query.startDate && req.query.endDate) {
@@ -24,7 +25,7 @@ exports.getAllTransactions = async (req, res) => {
 // Get transactions for reports (with date range)
 exports.getReportTransactions = async (req, res) => {
   try {
-    let query = {};
+    let query = { user: req.user.id }; // Filter by authenticated user
     
     // Utiliser les dates fournies ou par défaut utiliser la dernière année
     if (req.query.startDate && req.query.endDate) {
@@ -54,7 +55,10 @@ exports.getReportTransactions = async (req, res) => {
 // Create a new transaction
 exports.createTransaction = async (req, res) => {
   try {
-    const newTransaction = new Transaction(req.body);
+    const newTransaction = new Transaction({
+      ...req.body,
+      user: req.user.id // Add user ID to transaction
+    });
     const savedTransaction = await newTransaction.save();
     res.status(201).json(savedTransaction);
   } catch (error) {
@@ -65,7 +69,10 @@ exports.createTransaction = async (req, res) => {
 // Get transaction by ID
 exports.getTransactionById = async (req, res) => {
   try {
-    const transaction = await Transaction.findById(req.params.id);
+    const transaction = await Transaction.findOne({
+      _id: req.params.id,
+      user: req.user.id // Ensure user can only access their own transactions
+    });
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
@@ -78,7 +85,11 @@ exports.getTransactionById = async (req, res) => {
 // Update transaction by ID
 exports.updateTransaction = async (req, res) => {
   try {
-    const updatedTransaction = await Transaction.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const updatedTransaction = await Transaction.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id }, // Only update user's own transaction
+      req.body,
+      { new: true, runValidators: true }
+    );
     if (!updatedTransaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
@@ -91,7 +102,10 @@ exports.updateTransaction = async (req, res) => {
 // Delete transaction by ID
 exports.deleteTransaction = async (req, res) => {
   try {
-    const deletedTransaction = await Transaction.findByIdAndDelete(req.params.id);
+    const deletedTransaction = await Transaction.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id // Only delete user's own transaction
+    });
     if (!deletedTransaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
@@ -115,6 +129,7 @@ exports.getDashboardData = async (req, res) => {
     });
 
     const transactions = await Transaction.find({
+      user: req.user.id, // Filter by authenticated user
       date: { $gte: startOfMonth, $lte: endOfMonth }
     });
 
@@ -158,8 +173,9 @@ exports.getDashboardData = async (req, res) => {
 exports.getExpensesByCategory = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-
+    
     console.log('Expenses by category request received:', { startDate, endDate });
+    console.log('User ID:', req.user.id);
 
     // Validate date parameters
     if (!startDate || !endDate) {
@@ -184,10 +200,14 @@ exports.getExpensesByCategory = async (req, res) => {
 
     console.log('Date range for query:', { start, end });
 
+    // Convert user ID string to ObjectId - use 'new' keyword with the constructor
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+
     // Aggregate expenses by category
     const expensesByCategory = await Transaction.aggregate([
       {
         $match: {
+          user: userId, // Use converted ObjectId
           type: 'expense',
           date: { $gte: start, $lte: end }
         }
@@ -234,6 +254,7 @@ exports.getIncomeExpenseTrends = async (req, res) => {
     sixMonthsAgo.setHours(0, 0, 0, 0);
 
     const transactions = await Transaction.find({
+      user: req.user.id, // Filter by authenticated user
       date: { $gte: sixMonthsAgo }
     }).sort({ date: 1 });
 
@@ -313,6 +334,7 @@ exports.getTopExpenses = async (req, res) => {
 
     // Get top expenses sorted by amount (highest first)
     const topExpenses = await Transaction.find({
+      user: req.user.id, // Filter by authenticated user
       type: 'expense',
       date: { $gte: start, $lte: end }
     })
@@ -343,6 +365,7 @@ exports.getRecurringBills = async (req, res) => {
     
     // Récupérer toutes les transactions de type dépense dans la période
     const transactions = await Transaction.find({
+      user: req.user.id, // Filter by authenticated user
       type: 'expense',
       date: { $gte: startDate, $lte: endDate }
     }).sort({ date: 1 });
@@ -427,6 +450,7 @@ exports.getMonthlySummary = async (req, res) => {
     console.log('Fetching monthly summary for period:', { startDate, endDate });
     
     const transactions = await Transaction.find({
+      user: req.user.id, // Filter by authenticated user
       date: { $gte: start, $lte: end }
     });
     
@@ -465,8 +489,8 @@ exports.getMonthlySummary = async (req, res) => {
 // Ajouter cette fonction à votre contrôleur de transactions
 exports.getCategories = async (req, res) => {
   try {
-    // Récupérer toutes les catégories uniques des transactions
-    const categories = await Transaction.distinct('category');
+    // Récupérer toutes les catégories uniques des transactions de l'utilisateur
+    const categories = await Transaction.distinct('category', { user: req.user.id });
     res.json(categories);
   } catch (err) {
     console.error('Erreur lors de la récupération des catégories:', err);

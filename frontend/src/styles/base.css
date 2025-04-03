@@ -15,7 +15,6 @@ body {
 /* Main Content Styles */
 .main-content {
   padding: 32px;
-  margin-left: 250px; /* Match sidebar width */
   width: calc(100% - 250px); /* Adjust width to account for sidebar */
   background-color: #1e1e2e; /* Dark background for main content */
   min-height: 100vh; /* Ensure it covers the full height */

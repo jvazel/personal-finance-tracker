@@ -5,10 +5,11 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const transactionRoutes = require('./routes/transactionRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
-const categoryController = require('./controllers/categoryController');
 const predictionRoutes = require('./routes/predictionRoutes');
 const goalRoutes = require('./routes/goalRoutes');
 const financialAdvisorRoutes = require('./routes/financialAdvisorRoutes');
+const authRoutes = require('./routes/authRoutes');
+const { protect } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,18 +25,19 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => {
     console.log('MongoDB Connected');
-    // Initialize default categories after successful connection
-    categoryController.initializeDefaultCategories();
 })
 .catch(err => console.error('MongoDB Connection Error:', err));
 
-// Routes
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/predictions', predictionRoutes);
-app.use('/api/goals', goalRoutes);
-app.get('/api/dashboard-data', require('./controllers/transactionController').getDashboardData);
-app.use('/api/financial-advisor', financialAdvisorRoutes);
+// Routes publiques
+app.use('/api/auth', authRoutes);
+
+// Routes protégées
+app.use('/api/transactions', protect, transactionRoutes);
+app.use('/api/categories', protect, categoryRoutes);
+app.use('/api/predictions', protect, predictionRoutes);
+app.use('/api/goals', protect, goalRoutes);
+app.use('/api/financial-advisor', protect, financialAdvisorRoutes);
+app.get('/api/dashboard-data', protect, require('./controllers/transactionController').getDashboardData);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -1,45 +1,283 @@
-/* Add this to your existing sidebar CSS */
-.sidebar-nav-item.submenu-item {
-  padding-left: 30px; /* Indent submenu items */
-  font-size: 0.9em; /* Slightly smaller font */
-}
-
-.sidebar-nav-item.submenu-item::before {
-  content: ""; /* Remove the bullet point */
-  margin-right: 8px;
-}
-
-.sidebar-nav-item {
+/* Styles de base pour la sidebar */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #1a1a2e;
+  color: #e2e8f0;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  left: 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 100;
 }
 
-.sidebar-nav-item > a {
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.sidebar-nav {
   flex: 1;
+  padding: 20px 0;
+  overflow-y: auto;
 }
 
-.sidebar-nav-item.active {
-  color: #000;
-}
-
-.sidebar-nav-item.submenu-item {
-  padding-left: 30px; /* Indent submenu items */
-  font-size: 0.9em; /* Slightly smaller font */
-}
-
-.sidebar-nav-item.submenu-item::before {
-  content: ""; /* Remove the bullet point */
-  margin-right: 8px;
-}
-
-/* Style pour les icônes */
-.sidebar-icon {
-  margin-right: 10px;
-  font-size: 1.2em;
-  vertical-align: middle;
-}
-
-.sidebar-nav-item > a {
+.nav-link {
   display: flex;
   align-items: center;
+  padding: 12px 20px;
+  color: #a0aec0;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-bottom: 5px;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.nav-link.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border-left: 3px solid #3b82f6;
+}
+
+.nav-icon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.nav-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Styles pour les informations utilisateur */
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.user-details {
+  overflow: hidden;
+}
+
+.user-name {
+  color: #e2e8f0;
+  font-weight: 500;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+}
+
+.user-email {
+  color: #a0aec0;
+  font-size: 12px;
+  margin: 2px 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Styles pour le footer de la sidebar */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logout-button .nav-icon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    overflow: hidden;
+  }
+  
+  .sidebar-header h1,
+  .user-details,
+  .nav-text {
+    display: none;
+  }
+  
+  .user-avatar {
+    margin-right: 0;
+  }
+  
+  .user-info,
+  .nav-link {
+    justify-content: center;
+    padding: 12px;
+  }
+  
+  .nav-icon {
+    margin-right: 0;
+    font-size: 20px;
+  }
+  
+  .sidebar-footer {
+    padding: 10px;
+  }
+  
+  .logout-button {
+    justify-content: center;
+  }
+  
+  .logout-button .nav-icon {
+    margin-right: 0;
+  }
+}
+
+/* Add these styles for the submenu functionality */
+
+.nav-item-with-submenu {
+  margin-bottom: 5px;
+}
+
+.nav-link-with-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  color: #a0aec0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-link-with-arrow:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.nav-item-with-submenu.open .nav-link-with-arrow {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #e2e8f0;
+}
+
+.nav-link-content {
+  display: flex;
+  align-items: center;
+}
+
+.submenu-arrow {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+}
+
+.submenu-arrow.open {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  padding-left: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  margin-left: 30px;
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 15px;
+  color: #a0aec0;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  margin-bottom: 3px;
+  border-radius: 4px;
+}
+
+.submenu-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.submenu-link.active {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.submenu-icon {
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.submenu-text {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Responsive styles for submenu */
+@media (max-width: 768px) {
+  .submenu {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+  }
+  
+  .submenu-text {
+    display: none;
+  }
+  
+  .submenu-link {
+    justify-content: center;
+    padding: 8px;
+  }
+  
+  .submenu-icon {
+    margin-right: 0;
+  }
 }

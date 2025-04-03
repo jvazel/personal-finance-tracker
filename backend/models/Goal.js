@@ -45,6 +45,11 @@ const GoalSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   milestones: [{
     amount: Number,
     date: Date,

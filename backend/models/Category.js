@@ -5,8 +5,7 @@ const CategorySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true,
-    unique: true
+    trim: true
   },
   type: {
     type: String,
@@ -21,6 +20,11 @@ const CategorySchema = new mongoose.Schema({
     type: String,
     default: 'tag' // Default icon name
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -30,6 +34,9 @@ const CategorySchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+// Clé composée pour garantir l'unicité du nom de catégorie par utilisateur
+CategorySchema.index({ name: 1, user: 1 }, { unique: true });
 
 // Update the updatedAt timestamp before saving
 CategorySchema.pre('save', function(next) {

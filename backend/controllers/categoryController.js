@@ -66,28 +66,72 @@ exports.deleteCategory = async (req, res) => {
   }
 };
 
-// Initialize default categories if none exist
+// Example update for the category controller
+// This should replace your existing initializeDefaultCategories method
+
+// Initialize default categories
 exports.initializeDefaultCategories = async () => {
   try {
-    const count = await Category.countDocuments();
-    if (count === 0) {
-      const defaultCategories = [
-        { name: 'Alimentation', type: 'expense', color: '#4CAF50', icon: 'shopping-cart' },
-        { name: 'Logement', type: 'expense', color: '#2196F3', icon: 'home' },
-        { name: 'Transport', type: 'expense', color: '#FF9800', icon: 'car' },
-        { name: 'Loisirs', type: 'expense', color: '#9C27B0', icon: 'film' },
-        { name: 'Santé', type: 'expense', color: '#F44336', icon: 'heartbeat' },
-        { name: 'Éducation', type: 'expense', color: '#3F51B5', icon: 'book' },
-        { name: 'Salaire', type: 'income', color: '#4CAF50', icon: 'money-bill' },
-        { name: 'Investissements', type: 'income', color: '#673AB7', icon: 'chart-line' },
-        { name: 'Cadeaux', type: 'income', color: '#E91E63', icon: 'gift' },
-        { name: 'Autres', type: 'both', color: '#607D8B', icon: 'ellipsis-h' }
-      ];
-      
-      await Category.insertMany(defaultCategories);
-      console.log('Default categories initialized');
-    }
+    // We'll no longer initialize categories on server start
+    // Instead, we'll create them when a user registers (see authController.js)
+    console.log('Category initialization moved to user registration');
   } catch (error) {
-    console.error('Error initializing default categories:', error);
+    console.error('Error initializing categories:', error);
+  }
+};
+
+// Get all categories
+exports.getCategories = async (req, res) => {
+  try {
+    // Filter categories by the authenticated user
+    const categories = await Category.find({ user: req.user.id });
+    
+    res.status(200).json({
+      success: true,
+      count: categories.length,
+      data: categories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  }
+};
+
+// Create a new category
+exports.createCategory = async (req, res) => {
+  try {
+    // Add the user ID to the category data
+    const category = await Category.create({
+      ...req.body,
+      user: req.user.id
+    });
+    
+    res.status(201).json({
+      success: true,
+      data: category
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: 'Une catégorie avec ce nom existe déjà pour cet utilisateur'
+      });
+    }
+    
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(val => val.message);
+      
+      return res.status(400).json({
+        success: false,
+        error: messages
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        error: 'Server Error'
+      });
+    }
   }
 };
