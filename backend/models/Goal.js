@@ -1,6 +1,20 @@
 const mongoose = require('mongoose');
 
-const GoalSchema = new mongoose.Schema({
+const milestoneSchema = new mongoose.Schema({
+  amount: {
+    type: Number,
+    required: true
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  description: {
+    type: String
+  }
+});
+
+const goalSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -17,63 +31,58 @@ const GoalSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: function() { return this.type === 'expense_limit'; }
+    required: function() {
+      return this.type === 'expense_limit';
+    }
   },
   targetAmount: {
     type: Number,
-    required: true,
-    min: 0
+    required: true
   },
   currentAmount: {
     type: Number,
-    default: 0,
-    min: 0
-  },
-  startDate: {
-    type: Date,
-    default: Date.now
+    default: 0
   },
   targetDate: {
     type: Date,
     required: true
   },
-  isCompleted: {
-    type: Boolean,
-    default: false
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
+  milestones: [milestoneSchema],
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  milestones: [{
-    amount: Number,
-    date: Date,
-    description: String
-  }]
-}, { timestamps: true });
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
 
-// Méthode pour calculer le pourcentage de progression
-GoalSchema.methods.getProgressPercentage = function() {
-  if (this.targetAmount === 0) return 0;
-  return Math.min(100, (this.currentAmount / this.targetAmount) * 100);
-};
-
-// Méthode pour calculer le montant restant
-GoalSchema.methods.getRemainingAmount = function() {
+// Méthodes virtuelles pour calculer les propriétés dérivées
+goalSchema.virtual('remainingAmount').get(function() {
   return Math.max(0, this.targetAmount - this.currentAmount);
-};
+});
 
-// Méthode pour calculer le nombre de jours restants
-GoalSchema.methods.getRemainingDays = function() {
+goalSchema.virtual('progressPercentage').get(function() {
+  return Math.min(100, (this.currentAmount / this.targetAmount) * 100);
+});
+
+goalSchema.virtual('isCompleted').get(function() {
+  return this.currentAmount >= this.targetAmount;
+});
+
+goalSchema.virtual('remainingDays').get(function() {
   const today = new Date();
   const targetDate = new Date(this.targetDate);
   const diffTime = targetDate - today;
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-};
+});
 
-module.exports = mongoose.model('Goal', GoalSchema);
+// Configurer pour inclure les virtuels lors de la conversion en JSON
+goalSchema.set('toJSON', { virtuals: true });
+goalSchema.set('toObject', { virtuals: true });
+
+const Goal = mongoose.model('Goal', goalSchema);
+
+module.exports = Goal;

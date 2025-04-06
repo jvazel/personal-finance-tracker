@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Modal from './Modal';
 import '../styles/goals.css';
-import { FaEdit, FaTrash } from 'react-icons/fa'; // Add this import at the top with other imports
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import api from '../services/api';
 
 const GoalsSavings = () => {
+  // Ajoutez cet état pour déclencher le rafraîchissement
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { currentUser } = useContext(AuthContext);
   const [goals, setGoals] = useState([]);
   const [expenseLimits, setExpenseLimits] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,15 +39,50 @@ const GoalsSavings = () => {
     const fetchGoals = async () => {
       try {
         setLoading(true);
+        
+        if (!currentUser) {
+          setError('Vous devez être connecté pour voir vos objectifs.');
+          setLoading(false);
+          return;
+        }
+        
+        const userId = currentUser._id || currentUser.id || currentUser.uid;
+        
+        if (!userId) {
+          setError('Impossible de déterminer votre identifiant utilisateur.');
+          setLoading(false);
+          return;
+        }
+        
         const [goalsResponse, categoriesResponse, expenseLimitsResponse] = await Promise.all([
-          axios.get('/api/goals'),
-          axios.get('/api/transactions/categories'),
-          axios.get('/api/goals/expense-limits')
+          api.get('/api/goals'),
+          api.get('/api/transactions/categories'),
+          api.get('/api/goals/expense-limits')
         ]);
         
-        setGoals(goalsResponse.data);
+        const userGoals = Array.isArray(goalsResponse.data) 
+          ? goalsResponse.data.filter(goal => {
+              if (!goal.user) {
+                return false;
+              }
+              
+              let goalUserId = null;
+
+              if (typeof goal.user === 'string') {
+                goalUserId = goal.user;
+              }
+              
+              const goalUserIdStr = String(goalUserId);
+              const userIdStr = String(userId);
+              
+              return goalUserIdStr === userIdStr;
+            })
+          : [];
+          
+        setGoals(userGoals);
         setCategories(categoriesResponse.data);
-        setExpenseLimits(expenseLimitsResponse.data);
+        setExpenseLimits(expenseLimitsResponse.data || []);
+        
         setLoading(false);
       } catch (err) {
         console.error('Erreur lors du chargement des objectifs:', err);
@@ -53,8 +92,8 @@ const GoalsSavings = () => {
     };
 
     fetchGoals();
-  }, []);
-
+  }, [refreshTrigger, currentUser]); // Ajout de currentUser comme dépendance
+  
   // Filtrer les objectifs par type
   const savingsGoals = goals.filter(goal => goal.type === 'savings');
   const expenseLimitGoals = goals.filter(goal => goal.type === 'expense_limit');
@@ -82,11 +121,21 @@ const GoalsSavings = () => {
     try {
       let response;
       
+      // Déterminer l'ID de l'utilisateur
+      const userId = currentUser._id || currentUser.id || currentUser.uid;
+      
+      if (!userId) {
+        console.error('ID utilisateur manquant lors de la création de l\'objectif');
+        alert('Erreur: Impossible de déterminer votre identifiant utilisateur.');
+        return;
+      }
+      
       if (selectedGoal) {
         // Mode édition
-        response = await axios.put(`/api/goals/${selectedGoal._id}`, {
+        response = await api.put(`/api/goals/${selectedGoal._id}`, {
           ...formData,
-          targetAmount: parseFloat(formData.targetAmount)
+          targetAmount: parseFloat(formData.targetAmount),
+          user: userId // Utiliser 'user' au lieu de 'userId'
         });
         
         // Mettre à jour l'objectif dans la liste
@@ -95,13 +144,18 @@ const GoalsSavings = () => {
         ));
       } else {
         // Mode ajout
-        response = await axios.post('/api/goals', {
+        response = await api.post('/api/goals', {
           ...formData,
-          targetAmount: parseFloat(formData.targetAmount)
+          targetAmount: parseFloat(formData.targetAmount),
+          currentAmount: 0, // Assurez-vous que currentAmount est initialisé
+          user: userId // Utiliser 'user' au lieu de 'userId'
         });
         
         setGoals(prev => [response.data, ...prev]);
       }
+      
+      // Déclencher un rafraîchissement des données
+      setRefreshTrigger(prev => prev + 1);
       
       setShowAddGoalForm(false);
       setSelectedGoal(null);
@@ -116,7 +170,7 @@ const GoalsSavings = () => {
       
       // Rafraîchir les statistiques de limite de dépenses si nécessaire
       if (formData.type === 'expense_limit') {
-        const expenseLimitsResponse = await axios.get('/api/goals/expense-limits');
+        const expenseLimitsResponse = await api.get('/api/goals/expense-limits');
         setExpenseLimits(expenseLimitsResponse.data);
       }
     } catch (err) {
@@ -129,7 +183,7 @@ const GoalsSavings = () => {
   const handleSubmitProgress = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`/api/goals/${selectedGoal._id}/progress`, {
+      const response = await api.post(`/api/goals/${selectedGoal._id}/progress`, {
         amount: parseFloat(progressData.amount),
         description: progressData.description
       });
@@ -155,11 +209,11 @@ const GoalsSavings = () => {
   const handleDeleteGoal = async (goalId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet objectif ?')) {
       try {
-        await axios.delete(`/api/goals/${goalId}`);
+        await api.delete(`/api/goals/${goalId}`);
         setGoals(prev => prev.filter(goal => goal._id !== goalId));
         
         // Rafraîchir les statistiques de limite de dépenses
-        const expenseLimitsResponse = await axios.get('/api/goals/expense-limits');
+        const expenseLimitsResponse = await api.get('/api/goals/expense-limits');
         setExpenseLimits(expenseLimitsResponse.data);
       } catch (err) {
         console.error('Erreur lors de la suppression de l\'objectif:', err);
@@ -192,13 +246,53 @@ const GoalsSavings = () => {
   if (loading) return <div className="loading-indicator">Chargement des objectifs...</div>;
   if (error) return <div className="error-message">{error}</div>;
   
-  // Ajoutons un test simple pour le modal
-  console.log("État actuel du modal:", showAddGoalForm);
-  
   // Ajouter cette fonction avant le return
   const handleAddGoalClick = () => {
-    console.log("Fonction handleAddGoalClick appelée");
     setShowAddGoalForm(true);
+  };
+  
+  // Fonction de débogage pour afficher tous les objectifs sans filtrage
+  const renderDebugSection = () => {
+    return (
+      <div className="goals-section" style={{border: '2px solid red', marginTop: '20px'}}>
+        <h3>Débogage - Tous les objectifs (non filtrés)</h3>
+        <p>Nombre total d'objectifs: {goals.length}</p>
+        <div style={{overflowX: 'auto'}}>
+          <table style={{width: '100%', color: 'white', borderCollapse: 'collapse'}}>
+            <thead>
+              <tr>
+                <th style={{border: '1px solid #444', padding: '8px'}}>ID</th>
+                <th style={{border: '1px solid #444', padding: '8px'}}>Titre</th>
+                <th style={{border: '1px solid #444', padding: '8px'}}>Type</th>
+                <th style={{border: '1px solid #444', padding: '8px'}}>Catégorie</th>
+                <th style={{border: '1px solid #444', padding: '8px'}}>Montant cible</th>
+                <th style={{border: '1px solid #444', padding: '8px'}}>Montant actuel</th>
+                <th style={{border: '1px solid #444', padding: '8px'}}>Date cible</th>
+                <th style={{border: '1px solid #444', padding: '8px'}}>Utilisateur</th>
+              </tr>
+            </thead>
+            <tbody>
+              {goals.map(goal => (
+                <tr key={goal._id}>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>{goal._id}</td>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>{goal.title}</td>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>{goal.type}</td>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>{goal.category || 'N/A'}</td>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>{goal.targetAmount}</td>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>{goal.currentAmount}</td>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>{goal.targetDate ? new Date(goal.targetDate).toLocaleDateString() : 'N/A'}</td>
+                  <td style={{border: '1px solid #444', padding: '8px'}}>
+                    {typeof goal.user === 'object' 
+                      ? JSON.stringify(goal.user) 
+                      : goal.user || 'Non spécifié'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   };
   
   // Puis dans le JSX
@@ -324,61 +418,80 @@ const GoalsSavings = () => {
           <p className="no-goals-message">Aucune limite de dépense définie. Créez votre première limite !</p>
         ) : (
           <div className="expense-limits-container">
-            {expenseLimits.map(limit => (
-              <div key={limit.goalId} className={`expense-limit-card ${limit.isExceeded ? 'exceeded' : ''}`}>
-                <div className="expense-limit-header">
-                  <h4>{limit.title}</h4>
-                  <button 
-                    className="btn btn-sm btn-danger goal-action-btn delete-btn"
-                    onClick={() => handleDeleteGoal(limit.goalId)}
-                  >
-                    <i className="fas fa-trash-alt"></i> Supprimer
-                  </button>
+            {expenseLimitGoals.map(limit => {
+              // Calculate values needed for display
+              const currentAmount = limit.currentAmount || 0;
+              const targetAmount = limit.targetAmount || 0;
+              const percentage = targetAmount > 0 ? Math.min(100, (currentAmount / targetAmount) * 100) : 0;
+              const isExceeded = currentAmount > targetAmount;
+              const remainingAmount = Math.max(0, targetAmount - currentAmount);
+              
+              return (
+                <div key={limit._id} className={`expense-limit-card ${isExceeded ? 'exceeded' : ''}`}>
+                  <div className="expense-limit-header">
+                    <h4>{limit.title}</h4>
+                    <div className="transaction-actions">
+                      <button 
+                        className="edit-button"
+                        onClick={() => handleEditGoal(limit)}
+                        title="Modifier la limite"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button 
+                        className="delete-button"
+                        onClick={() => handleDeleteGoal(limit._id)}
+                        title="Supprimer la limite"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="expense-limit-category">
+                    Catégorie: {limit.category}
+                  </div>
+                  
+                  <div className="expense-limit-progress-container">
+                    <div className="progress-bar-container">
+                      <div 
+                        className={`progress-bar ${percentage > 80 ? 'warning' : ''} ${isExceeded ? 'danger' : ''}`}
+                        style={{ width: `${percentage || 0}%` }}
+                      ></div>
+                    </div>
+                    <div className="progress-text">
+                      {(percentage || 0).toFixed(1)}%
+                    </div>
+                  </div>
+                  
+                  <div className="expense-limit-details">
+                    <div className="expense-limit-detail">
+                      <span className="detail-label">Limite:</span>
+                      <span className="detail-value">{(targetAmount || 0).toFixed(2)} €</span>
+                    </div>
+                    <div className="expense-limit-detail">
+                      <span className="detail-label">Dépensé:</span>
+                      <span className={`detail-value ${isExceeded ? 'text-danger' : ''}`}>
+                        {(currentAmount || 0).toFixed(2)} €
+                      </span>
+                    </div>
+                    <div className="expense-limit-detail">
+                      <span className="detail-label">Restant:</span>
+                      <span className="detail-value">
+                        {isExceeded ? '0.00' : (remainingAmount || 0).toFixed(2)} €
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {isExceeded && (
+                    <div className="expense-limit-alert">
+                      <span className="alert-icon">⚠️</span>
+                      <span>Limite dépassée de {((currentAmount || 0) - (targetAmount || 0)).toFixed(2)} €</span>
+                    </div>
+                  )}
                 </div>
-                
-                <div className="expense-limit-category">
-                  Catégorie: {limit.category}
-                </div>
-                
-                <div className="expense-limit-progress-container">
-                  <div className="progress-bar-container">
-                    <div 
-                      className={`progress-bar ${limit.percentage > 80 ? 'warning' : ''} ${limit.isExceeded ? 'danger' : ''}`}
-                      style={{ width: `${limit.percentage || 0}%` }}
-                    ></div>
-                  </div>
-                  <div className="progress-text">
-                    {(limit.percentage || 0).toFixed(1)}%
-                  </div>
-                </div>
-                
-                <div className="expense-limit-details">
-                  <div className="expense-limit-detail">
-                    <span className="detail-label">Limite:</span>
-                    <span className="detail-value">{(limit.targetAmount || 0).toFixed(2)} €</span>
-                  </div>
-                  <div className="expense-limit-detail">
-                    <span className="detail-label">Dépensé:</span>
-                    <span className={`detail-value ${limit.isExceeded ? 'text-danger' : ''}`}>
-                      {(limit.currentExpense || 0).toFixed(2)} €
-                    </span>
-                  </div>
-                  <div className="expense-limit-detail">
-                    <span className="detail-label">Restant:</span>
-                    <span className="detail-value">
-                      {limit.isExceeded ? '0.00' : (limit.remainingAmount || 0).toFixed(2)} €
-                    </span>
-                  </div>
-                </div>
-                
-                {limit.isExceeded && (
-                  <div className="expense-limit-alert">
-                    <span className="alert-icon">⚠️</span>
-                    <span>Limite dépassée de {((limit.currentExpense || 0) - (limit.targetAmount || 0)).toFixed(2)} €</span>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

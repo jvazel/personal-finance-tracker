@@ -5,20 +5,28 @@ const { startOfMonth, endOfMonth } = require('date-fns');
 // Récupérer tous les objectifs
 exports.getAllGoals = async (req, res) => {
   try {
-    const goals = await Goal.find().sort({ createdAt: -1 });
+    // Get all goals for the current user
+    const goals = await Goal.find({ user: req.user.id });
     
-    // Ajouter des propriétés calculées pour chaque objectif
-    const goalsWithProgress = goals.map(goal => {
-      const goalObj = goal.toObject();
-      goalObj.progressPercentage = goal.getProgressPercentage();
-      goalObj.remainingAmount = goal.getRemainingAmount();
-      goalObj.remainingDays = goal.getRemainingDays();
-      return goalObj;
+    // Map goals to include calculated properties
+    const formattedGoals = goals.map(goal => {
+      // Convert to object to include virtuals
+      const goalObj = goal.toObject({ virtuals: true });
+      
+      // Return the goal with all properties
+      return {
+        ...goalObj,
+        // Access progressPercentage as a property, not a method
+        progressPercentage: goalObj.progressPercentage || 0,
+        remainingAmount: goalObj.remainingAmount || 0,
+        isCompleted: goalObj.isCompleted || false,
+        remainingDays: goalObj.remainingDays || 0
+      };
     });
     
-    res.json(goalsWithProgress);
-  } catch (err) {
-    console.error('Erreur lors de la récupération des objectifs:', err);
+    res.json(formattedGoals);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des objectifs:', error);
     res.status(500).json({ message: 'Erreur lors de la récupération des objectifs' });
   }
 };
@@ -26,16 +34,17 @@ exports.getAllGoals = async (req, res) => {
 // Récupérer un objectif par son ID
 exports.getGoalById = async (req, res) => {
   try {
-    const goal = await Goal.findById(req.params.id);
+    const goal = await Goal.findOne({
+      _id: req.params.id,
+      user: req.user.id
+    });
     
     if (!goal) {
-      return res.status(404).json({ message: 'Objectif non trouvé' });
+      return res.status(404).json({ message: 'Objectif non trouvé ou non autorisé' });
     }
     
-    const goalObj = goal.toObject();
-    goalObj.progressPercentage = goal.getProgressPercentage();
-    goalObj.remainingAmount = goal.getRemainingAmount();
-    goalObj.remainingDays = goal.getRemainingDays();
+    // Convert to object to include virtuals
+    const goalObj = goal.toObject({ virtuals: true });
     
     res.json(goalObj);
   } catch (err) {
@@ -47,7 +56,12 @@ exports.getGoalById = async (req, res) => {
 // Créer un nouvel objectif
 exports.createGoal = async (req, res) => {
   try {
-    const newGoal = new Goal(req.body);
+    // Create a new goal object with the request body
+    const newGoal = new Goal({
+      ...req.body,
+      user: req.user.id // Add the user ID from the authenticated request
+    });
+    
     const savedGoal = await newGoal.save();
     res.status(201).json(savedGoal);
   } catch (err) {
@@ -59,6 +73,16 @@ exports.createGoal = async (req, res) => {
 // Mettre à jour un objectif
 exports.updateGoal = async (req, res) => {
   try {
+    // Vérifier d'abord que l'objectif appartient à l'utilisateur
+    const goal = await Goal.findOne({ 
+      _id: req.params.id,
+      user: req.user.id
+    });
+    
+    if (!goal) {
+      return res.status(404).json({ message: 'Objectif non trouvé ou non autorisé' });
+    }
+    
     const updatedGoal = await Goal.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -69,10 +93,8 @@ exports.updateGoal = async (req, res) => {
       return res.status(404).json({ message: 'Objectif non trouvé' });
     }
     
-    const goalObj = updatedGoal.toObject();
-    goalObj.progressPercentage = updatedGoal.getProgressPercentage();
-    goalObj.remainingAmount = updatedGoal.getRemainingAmount();
-    goalObj.remainingDays = updatedGoal.getRemainingDays();
+    // Convert to object to include virtuals
+    const goalObj = updatedGoal.toObject({ virtuals: true });
     
     res.json(goalObj);
   } catch (err) {
@@ -84,11 +106,17 @@ exports.updateGoal = async (req, res) => {
 // Supprimer un objectif
 exports.deleteGoal = async (req, res) => {
   try {
-    const deletedGoal = await Goal.findByIdAndDelete(req.params.id);
+    // Vérifier d'abord que l'objectif appartient à l'utilisateur
+    const goal = await Goal.findOne({ 
+      _id: req.params.id,
+      user: req.user.id
+    });
     
-    if (!deletedGoal) {
-      return res.status(404).json({ message: 'Objectif non trouvé' });
+    if (!goal) {
+      return res.status(404).json({ message: 'Objectif non trouvé ou non autorisé' });
     }
+    
+    const deletedGoal = await Goal.findByIdAndDelete(req.params.id);
     
     res.json({ message: 'Objectif supprimé avec succès' });
   } catch (err) {
@@ -103,10 +131,14 @@ exports.updateGoalProgress = async (req, res) => {
     const { id } = req.params;
     const { amount, description } = req.body;
     
-    const goal = await Goal.findById(id);
+    // Vérifier que l'objectif appartient à l'utilisateur
+    const goal = await Goal.findOne({
+      _id: id,
+      user: req.user.id
+    });
     
     if (!goal) {
-      return res.status(404).json({ message: 'Objectif non trouvé' });
+      return res.status(404).json({ message: 'Objectif non trouvé ou non autorisé' });
     }
     
     // Ajouter le montant à la progression actuelle
@@ -128,10 +160,8 @@ exports.updateGoalProgress = async (req, res) => {
     
     await goal.save();
     
-    const goalObj = goal.toObject();
-    goalObj.progressPercentage = goal.getProgressPercentage();
-    goalObj.remainingAmount = goal.getRemainingAmount();
-    goalObj.remainingDays = goal.getRemainingDays();
+    // Convert to object to include virtuals
+    const goalObj = goal.toObject({ virtuals: true });
     
     res.json(goalObj);
   } catch (err) {
@@ -143,10 +173,11 @@ exports.updateGoalProgress = async (req, res) => {
 // Obtenir les statistiques pour les objectifs de limite de dépenses
 exports.getExpenseLimitStats = async (req, res) => {
   try {
-    // Récupérer tous les objectifs de type limite de dépenses
+    // Récupérer tous les objectifs de type limite de dépenses pour l'utilisateur courant
     const expenseLimitGoals = await Goal.find({ 
       type: 'expense_limit',
-      isActive: true 
+      isActive: true,
+      user: req.user.id // Ajouter le filtre utilisateur
     });
     
     // Obtenir le premier jour du mois en cours
@@ -154,9 +185,10 @@ exports.getExpenseLimitStats = async (req, res) => {
     const firstDayOfMonth = startOfMonth(today);
     const lastDayOfMonth = endOfMonth(today);
     
-    // Récupérer toutes les transactions de dépenses du mois en cours
+    // Récupérer toutes les transactions de dépenses du mois en cours pour l'utilisateur courant
     const expenses = await Transaction.find({
       type: 'expense',
+      user: req.user.id,
       date: { 
         $gte: firstDayOfMonth,
         $lte: lastDayOfMonth
