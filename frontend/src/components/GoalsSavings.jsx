@@ -502,10 +502,20 @@ const GoalsSavings = () => {
         onClose={() => {
           setShowAddGoalForm(false);
           setSelectedGoal(null);
+          // Réinitialiser les champs du formulaire à vide
+          setFormData({
+            title: '',
+            description: '',
+            type: 'savings',
+            category: '',
+            targetAmount: '',
+            targetDate: new Date()
+          });
         }}
         title={selectedGoal ? "Modifier l'objectif" : "Ajouter un nouvel objectif"}
       >
         <form onSubmit={handleSubmitGoal} className="goal-form">
+          {/* Le reste du formulaire reste inchangé */}
           <div className="form-group">
             <label htmlFor="type">Type d'objectif</label>
             <select 
@@ -598,7 +608,19 @@ const GoalsSavings = () => {
           </div>
           
           <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => setShowAddGoalForm(false)}>
+            <button type="button" className="btn btn-secondary" onClick={() => {
+              setShowAddGoalForm(false);
+              setSelectedGoal(null);
+              // Réinitialiser les champs du formulaire à vide
+              setFormData({
+                title: '',
+                description: '',
+                type: 'savings',
+                category: '',
+                targetAmount: '',
+                targetDate: new Date()
+              });
+            }}>
               Annuler
             </button>
             <button type="submit" className="btn btn-primary">
