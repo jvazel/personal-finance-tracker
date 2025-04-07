@@ -54,12 +54,24 @@ const GoalsSavings = () => {
           return;
         }
         
-        const [goalsResponse, categoriesResponse, expenseLimitsResponse] = await Promise.all([
+        // Obtenir les dates du mois en cours pour les dépenses
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+        // Formater les dates pour l'API (YYYY-MM-DD)
+        const startDate = firstDayOfMonth.toISOString().split('T')[0];
+        const endDate = lastDayOfMonth.toISOString().split('T')[0];
+        
+        const [goalsResponse, categoriesResponse, expensesResponse] = await Promise.all([
           api.get('/api/goals'),
           api.get('/api/transactions/categories'),
-          api.get('/api/goals/expense-limits')
+          api.get('/api/transactions/expenses-by-category', {
+            params: { startDate, endDate }
+          })
         ]);
         
+        // Traiter les objectifs de l'utilisateur
         const userGoals = Array.isArray(goalsResponse.data) 
           ? goalsResponse.data.filter(goal => {
               if (!goal.user) {
@@ -78,10 +90,40 @@ const GoalsSavings = () => {
               return goalUserIdStr === userIdStr;
             })
           : [];
-          
-        setGoals(userGoals);
+        
+        // Créer un mapping des dépenses par catégorie
+        const expensesByCategory = {};
+        const expensesData = expensesResponse.data.data || expensesResponse.data;
+        
+        if (Array.isArray(expensesData)) {
+          expensesData.forEach(item => {
+            expensesByCategory[item.category] = item.amount;
+          });
+        }
+        
+        // Mettre à jour les montants actuels pour les limites de dépenses
+        const updatedGoals = userGoals.map(goal => {
+          if (goal.type === 'expense_limit' && goal.category) {
+            const currentAmount = expensesByCategory[goal.category] || 0;
+            const targetAmount = goal.targetAmount || 0;
+            const progressPercentage = targetAmount > 0 
+              ? Math.min(100, (currentAmount / targetAmount) * 100) 
+              : 0;
+            const remainingAmount = Math.max(0, targetAmount - currentAmount);
+            
+            return {
+              ...goal,
+              currentAmount,
+              progressPercentage,
+              remainingAmount,
+              isExceeded: currentAmount > targetAmount
+            };
+          }
+          return goal;
+        });
+        
+        setGoals(updatedGoals);
         setCategories(categoriesResponse.data);
-        setExpenseLimits(expenseLimitsResponse.data || []);
         
         setLoading(false);
       } catch (err) {
@@ -92,7 +134,7 @@ const GoalsSavings = () => {
     };
 
     fetchGoals();
-  }, [refreshTrigger, currentUser]); // Ajout de currentUser comme dépendance
+  }, [refreshTrigger, currentUser]);
   
   // Filtrer les objectifs par type
   const savingsGoals = goals.filter(goal => goal.type === 'savings');
