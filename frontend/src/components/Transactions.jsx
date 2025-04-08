@@ -96,13 +96,13 @@ const Transactions = () => {
     
     return (
       <div className="month-selector-custom">
-        <div className="month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
+        <div className="transaction-month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
           <span>&#10094;</span>
         </div>
         <div className="month-display-button" onClick={onClick}>
           {capitalizedValue}
         </div>
-        <div className="month-nav-button" onClick={goToNextMonth} title="Mois suivant">
+        <div className="transaction-month-nav-button" onClick={goToNextMonth} title="Mois suivant">
           <span>&#10095;</span>
         </div>
       </div>
