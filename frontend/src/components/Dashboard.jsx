@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import SavingsChart from './SavingsChart';
 import ExpensePieChart from './ExpensePieChart';
 import IncomeExpenseTrend from './IncomeExpenseTrend';
 import TopExpenses from './TopExpenses';
 import ExpenseLimits from './ExpenseLimits';
 import api from '../services/api';
-
-// Set axios default base URL
-axios.defaults.baseURL = 'http://localhost:5000'; // Adjust this to match your backend URL
 
 const Dashboard = () => {
   // Définir les états pour stocker les données financières
@@ -26,7 +22,7 @@ const Dashboard = () => {
       setLoading(true);
       try {
         // Récupérer les données du tableau de bord depuis l'API
-        const response = await axios.get('/api/transactions/dashboard');
+        const response = await api.get('/api/transactions/dashboard');
         console.log('Dashboard data received:', response.data);
 
         // Mettre à jour les états avec les données reçues
@@ -43,11 +39,9 @@ const Dashboard = () => {
         const startDate = firstDayOfMonth.toISOString().split('T')[0];
         const endDate = lastDayOfMonth.toISOString().split('T')[0];
 
-        // In your fetchDashboardData function, add more detailed error logging:
-
         // Récupérer les dépenses par catégorie pour le mois en cours
         try {
-          const categoriesResponse = await axios.get('/api/transactions/expenses-by-category', {
+          const categoriesResponse = await api.get('/api/transactions/expenses-by-category', {
             params: { startDate, endDate }
           });
           console.log('Categories response:', categoriesResponse.data);

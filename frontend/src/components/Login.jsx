@@ -38,6 +38,11 @@ const Login = () => {
 
   return (
     <div className="auth-container">
+      <div className="app-logo-header">
+        <h1>FinaTrack</h1>
+        <p className="app-tagline">Votre assistant de finances personnelles</p>
+      </div>
+      
       <div className="auth-card">
         <h2>Connexion</h2>
         
