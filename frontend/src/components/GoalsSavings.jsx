@@ -650,7 +650,7 @@ const GoalsSavings = () => {
           </div>
           
           <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => {
+            <button type="button" className="btn btn-secondary cancel" onClick={() => {
               setShowAddGoalForm(false);
               setSelectedGoal(null);
               // Réinitialiser les champs du formulaire à vide
@@ -726,7 +726,7 @@ const GoalsSavings = () => {
             <div className="form-actions">
               <button 
                 type="button" 
-                className="btn btn-secondary" 
+                className="btn btn-secondary cancel" 
                 onClick={() => {
                   setShowUpdateProgressForm(false);
                   setSelectedGoal(null);

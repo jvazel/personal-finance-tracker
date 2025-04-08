@@ -26,48 +26,78 @@
   color: #fff;
 }
 
+/* Style pour le bouton d'ajout (style rond avec +) */
 .add-category-button {
   background-color: #3b82f6;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 24px;
 }
 
 .add-category-button:hover {
   background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
-.category-form {
-  background-color: #2a2a3c;
-  padding: 20px;
+.add-category-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Le reste des styles reste inchangé */
+.add-goal-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 16px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
 }
 
-.category-form h3 {
-  margin-top: 0;
-  color: #fff;
+.add-goal-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
-.form-group {
+.add-goal-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-goal-btn i {
+  font-size: 1.1rem;
+}
+
+/* Styles for modal form */
+.modal-body .form-group {
   margin-bottom: 15px;
 }
 
-.form-group label {
+.modal-body .form-group label {
   display: block;
   margin-bottom: 5px;
   color: #d1d5db;
 }
 
-.form-group input,
-.form-group select {
+.modal-body .form-group input,
+.modal-body .form-group select {
   width: 100%;
   padding: 10px;
   border-radius: 4px;
@@ -76,44 +106,12 @@
   color: #fff;
 }
 
-.form-group input[type="color"] {
+.modal-body .form-group input[type="color"] {
   height: 40px;
   padding: 2px;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.form-actions button {
-  padding: 8px 16px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.form-actions button.primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.form-actions button.primary:hover {
-  background-color: #2563eb;
-}
-
-.form-actions button:not(.primary) {
-  background-color: #4b5563;
-  color: white;
-}
-
-.form-actions button:not(.primary):hover {
-  background-color: #374151;
-}
-
+/* Keep the existing styles for the category list */
 .categories-list {
   display: flex;
   flex-direction: column;
