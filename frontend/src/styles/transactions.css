@@ -153,6 +153,47 @@
   flex-wrap: nowrap;
 }
 
+/* Transaction month selector - specific to transactions page */
+.transaction-month-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  height: 40px; /* Match height with summary items */
+}
+
+.transaction-month-selector .month-selector-custom {
+  height: 40px; /* Ensure consistent height */
+  display: flex;
+  align-items: center;
+}
+
+.period-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #4b5563;
+  background-color: #1e1e2e;
+  color: #e2e8f0;
+  font-size: 14px;
+  min-width: 120px;
+  cursor: pointer;
+}
+
+.period-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Transactions summary styles */
+.transactions-summary {
+  display: flex;
+  gap: 16px;
+  margin-left: 20px;
+  flex-wrap: nowrap;
+}
+
 .summary-item {
   display: flex;
   flex-direction: column;
@@ -160,6 +201,8 @@
   border-radius: 8px;
   background-color: #353549;
   min-width: 120px;
+  height: 40px; /* Set consistent height */
+  justify-content: center;
 }
 
 .summary-label {
@@ -309,6 +352,36 @@
 /* Add this to your existing CSS file */
 
 /* Circular add transaction button */
+/* Replace the existing add-transaction-button styles with these */
+.add-transaction-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.add-transaction-button:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.add-transaction-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-transaction-button svg {
+  font-size: 1.1rem;
+}
+
 .add-transaction-button {
   background-color: #3b82f6;
   color: white;

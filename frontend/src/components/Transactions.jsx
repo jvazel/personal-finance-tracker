@@ -25,7 +25,8 @@ const Transactions = () => {
   // When month changes, refresh transactions for that month
   useEffect(() => {
     const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
-    const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
+    // Set the time to 23:59:59 to include all transactions on the last day
+    const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0, 23, 59, 59);
     refreshTransactions(startOfMonth, endOfMonth);
     
     // Fetch financial summary for the selected month
@@ -113,7 +114,7 @@ const Transactions = () => {
     setShowForm(false);
     // Rafraîchir les transactions après la fermeture du formulaire
     const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
-    const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
+    const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0, 23, 59, 59);
     refreshTransactions(startOfMonth, endOfMonth);
     fetchFinancialSummary(startOfMonth, endOfMonth);
   };
@@ -122,7 +123,7 @@ const Transactions = () => {
     <div className="transactions-container">
       <div className="transactions-header">
         <div className="transactions-controls">
-          <div className="month-selector">
+          <div className="transaction-month-selector">
             <DatePicker
               selected={selectedMonth}
               onChange={date => setSelectedMonth(date)}
