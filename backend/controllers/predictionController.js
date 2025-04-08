@@ -1,7 +1,7 @@
 const Transaction = require('../models/Transaction');
 const { addDays, addMonths, format, parseISO, isAfter, isBefore, startOfMonth, endOfMonth } = require('date-fns');
 
-// Fonction utilitaire pour regrouper les transactions par jour
+// Utility function to group transactions by day
 const groupTransactionsByDay = (transactions) => {
   const grouped = {};
   
@@ -16,15 +16,16 @@ const groupTransactionsByDay = (transactions) => {
   return grouped;
 };
 
-// Fonction pour identifier les transactions récurrentes
-const identifyRecurringTransactions = async () => {
-  // Récupérer les transactions des 6 derniers mois
+// Function to identify recurring transactions
+const identifyRecurringTransactions = async (userId) => {
+  // Retrieve transactions from the last 6 months
   const sixMonthsAgo = addMonths(new Date(), -6);
   const transactions = await Transaction.find({
-    date: { $gte: sixMonthsAgo }
+    date: { $gte: sixMonthsAgo },
+    user: userId  // Add user filter here
   }).sort({ date: 1 });
   
-  console.log(`Found ${transactions.length} transactions in the last 6 months`);
+  console.log(`Found ${transactions.length} transactions in the last 6 months for user ${userId}`);
   console.log(`Negative transactions: ${transactions.filter(t => t.amount < 0).length}`);
   
   // Regrouper par description et catégorie
@@ -146,9 +147,9 @@ const predictFutureTransactions = (recurringPatterns, startDate, endDate) => {
 };
 
 // Fonction pour calculer le solde quotidien prévu
-const calculateDailyBalances = async (predictions, months) => {
+const calculateDailyBalances = async (predictions, months, userId) => {
   // Obtenir le solde actuel
-  const currentBalance = await getCurrentBalance();
+  const currentBalance = await getCurrentBalance(userId);
   
   // Trier les prédictions par date
   predictions.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -200,8 +201,8 @@ const calculateDailyBalances = async (predictions, months) => {
 };
 
 // Fonction pour obtenir le solde actuel
-const getCurrentBalance = async () => {
-  const transactions = await Transaction.find();
+const getCurrentBalance = async (userId) => {
+  const transactions = await Transaction.find({ user: userId });
   return transactions.reduce((balance, transaction) => balance + transaction.amount, 0);
 };
 
@@ -232,18 +233,23 @@ const detectOverdraftRisk = (dailyData) => {
 // Contrôleur pour obtenir les prédictions de flux de trésorerie
 exports.getCashFlowPrediction = async (req, res) => {
   try {
-    const { months = 3 } = req.query;
+    const userId = req.user.id;  // Get the current user's ID from the request
     
-    // Identifier les transactions récurrentes
-    const recurringPatterns = await identifyRecurringTransactions();
+    // Get the date range for prediction
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date();
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : addMonths(new Date(), 3);
+    
+    // Get recurring patterns for the current user
+    const recurringPatterns = await identifyRecurringTransactions(userId);
     
     // Prédire les transactions futures
     const today = new Date();
-    const endDate = addMonths(today, parseInt(months));
-    const predictedTransactions = predictFutureTransactions(recurringPatterns, today, endDate);
+    const months = req.query.months || 3; // Utiliser la valeur fournie ou 3 mois par défaut
+    const predictionEndDate = addMonths(today, parseInt(months));
+    const predictedTransactions = predictFutureTransactions(recurringPatterns, today, predictionEndDate);
     
     // Calculer les soldes quotidiens
-    const dailyPredictions = await calculateDailyBalances(predictedTransactions, months);
+    const dailyPredictions = await calculateDailyBalances(predictedTransactions, months, userId);
     
     // Détecter les risques de découvert
     const overdraftRisk = detectOverdraftRisk(dailyPredictions);
@@ -259,6 +265,10 @@ exports.getCashFlowPrediction = async (req, res) => {
     });
   } catch (error) {
     console.error('Error generating cash flow prediction:', error);
-    res.status(500).json({ message: 'Erreur lors de la génération des prédictions de flux de trésorerie' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error generating cash flow prediction',
+      error: error.message
+    });
   }
 };
