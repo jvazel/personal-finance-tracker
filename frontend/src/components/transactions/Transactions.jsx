@@ -7,8 +7,8 @@ import { TransactionContext } from '../../contexts/TransactionContext';
 import Modal from '../common/Modal';
 import { addMonths, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { FaPlus } from 'react-icons/fa'; // Import the plus icon
-import axios from 'axios'; // Add axios import
+import { FaPlus } from 'react-icons/fa';
+import api from '../../utils/api';
 
 const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
@@ -44,7 +44,7 @@ const Transactions = () => {
       console.log('Fetching summary for:', { formattedStartDate, formattedEndDate });
       
       // Get the monthly KPIs
-      const response = await axios.get('/api/transactions/monthly-summary', {
+      const response = await api.get('/transactions/monthly-summary', {
         params: { startDate: formattedStartDate, endDate: formattedEndDate }
       });
       
