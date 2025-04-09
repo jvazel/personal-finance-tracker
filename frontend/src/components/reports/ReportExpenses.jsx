@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { 
-  PieChart, Pie, Cell, 
-  BarChart, Bar, 
+import {
+  PieChart, Pie, Cell,
+  BarChart, Bar,
   LineChart, Line,
-  XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer 
+  XAxis, YAxis, CartesianGrid,
+  Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
@@ -16,30 +16,30 @@ const ReportExpenses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  
+
   // Colors for the pie chart
   const COLORS = [
     '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
     '#FF9F40', '#8AC249', '#EA5F89', '#00D8B6', '#FFB6C1'
   ];
-  
+
   useEffect(() => {
     const fetchExpenseReport = async () => {
       try {
         setLoading(true);
-        
+
         // Calculate start and end dates for the selected month
         const firstDay = startOfMonth(currentMonth);
         const lastDay = endOfMonth(currentMonth);
-        
+
         // Format dates for API (YYYY-MM-DD)
         const startDate = format(firstDay, 'yyyy-MM-dd');
         const endDate = format(lastDay, 'yyyy-MM-dd');
-        
-        const response = await axios.get('/api/transactions/expense-report', {
+
+        const response = await api.get('api/transactions/expense-report', {
           params: { startDate, endDate }
         });
-        
+
         setExpenseData(response.data);
         setLoading(false);
       } catch (err) {
@@ -48,25 +48,25 @@ const ReportExpenses = () => {
         setLoading(false);
       }
     };
-    
+
     fetchExpenseReport();
   }, [currentMonth]);
-  
+
   // Navigate to previous month
   const goToPreviousMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1));
   };
-  
+
   // Navigate to next month
   const goToNextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
-  
+
   // Format currency
   const formatCurrency = (value) => {
     return `${value.toFixed(2)} €`;
   };
-  
+
   // Custom tooltip for pie chart
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -81,15 +81,15 @@ const ReportExpenses = () => {
     }
     return null;
   };
-  
+
   if (loading) return <div>Chargement du rapport de dépenses...</div>;
   if (error) return <div>Erreur: {error}</div>;
   if (!expenseData) return <div>Aucune donnée disponible</div>;
-  
+
   return (
     <div className="report-section">
       <h2>Evolution des dépenses</h2>
-      
+
       {/* Month selector */}
       <div className="month-selector">
         <button onClick={goToPreviousMonth} className="month-nav-button">
@@ -100,7 +100,7 @@ const ReportExpenses = () => {
           <FaChevronRight />
         </button>
       </div>
-      
+
       {/* Summary cards */}
       <div className="expense-summary-cards">
         <div className="report-card">
@@ -112,7 +112,7 @@ const ReportExpenses = () => {
           <p className="amount-expense">{formatCurrency(expenseData.averageDailyExpense)}</p>
         </div>
       </div>
-      
+
       {/* Main charts section */}
       <div className="expense-charts-container">
         {/* Expenses by category pie chart */}
@@ -146,7 +146,7 @@ const ReportExpenses = () => {
             )}
           </div>
         </div>
-        
+
         {/* Top 5 expenses bar chart */}
         <div className="chart-card">
           <h3>Top 5 des dépenses</h3>
@@ -155,8 +155,8 @@ const ReportExpenses = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={expenseData.topExpenses.map(expense => ({
-                    description: expense.description.length > 20 
-                      ? expense.description.substring(0, 20) + '...' 
+                    description: expense.description.length > 20
+                      ? expense.description.substring(0, 20) + '...'
                       : expense.description,
                     amount: Math.abs(expense.amount),
                     category: expense.category,
@@ -167,16 +167,16 @@ const ReportExpenses = () => {
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#444" />
                   <XAxis type="number" stroke="#aaa" />
-                  <YAxis 
-                    dataKey="description" 
-                    type="category" 
-                    stroke="#aaa" 
+                  <YAxis
+                    dataKey="description"
+                    type="category"
+                    stroke="#aaa"
                     width={100}
                   />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value) => [formatCurrency(value), 'Montant']}
                     labelFormatter={(label) => {
-                      const item = expenseData.topExpenses.find(item => 
+                      const item = expenseData.topExpenses.find(item =>
                         item.description.includes(label) || label.includes(item.description)
                       );
                       return item ? item.description : label;
@@ -184,10 +184,10 @@ const ReportExpenses = () => {
                     contentStyle={{ backgroundColor: '#333', border: '1px solid #666', color: 'white' }}
                   />
                   <Legend />
-                  <Bar 
-                    dataKey="amount" 
-                    fill="#ef4444" 
-                    name="Montant" 
+                  <Bar
+                    dataKey="amount"
+                    fill="#ef4444"
+                    name="Montant"
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -197,7 +197,7 @@ const ReportExpenses = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Daily expense trend line chart */}
       <div className="chart-card">
         <h3>Évolution des dépenses quotidiennes</h3>
@@ -209,23 +209,23 @@ const ReportExpenses = () => {
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
                   stroke="#aaa"
                   tickFormatter={(date) => format(new Date(date), 'dd/MM')}
                 />
                 <YAxis stroke="#aaa" />
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [formatCurrency(value), 'Dépenses']}
                   labelFormatter={(date) => format(new Date(date), 'dd MMMM yyyy', { locale: fr })}
                   contentStyle={{ backgroundColor: '#333', border: '1px solid #666', color: 'white' }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="amount" 
-                  stroke="#ef4444" 
-                  name="Dépenses" 
+                <Line
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#ef4444"
+                  name="Dépenses"
                   strokeWidth={2}
                   dot={{ r: 4, fill: '#ef4444' }}
                 />
@@ -236,7 +236,7 @@ const ReportExpenses = () => {
           )}
         </div>
       </div>
-      
+
       {/* Expenses by category breakdown */}
       <div className="chart-card">
         <h3>Détail des dépenses par catégorie</h3>

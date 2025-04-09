@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { 
   LineChart, 
   Line, 
@@ -21,7 +21,7 @@ const IncomeExpenseTrend = () => {
     const fetchTrendData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/transactions/trends');
+        const response = await api.get('/api/transactions/trends');
         setTrendData(response.data);
         setLoading(false);
       } catch (err) {

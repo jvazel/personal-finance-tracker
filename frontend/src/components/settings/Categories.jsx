@@ -1,8 +1,7 @@
 // frontend/src/components/settings/Categories.jsx
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import '../../styles/settings.css';
-import Modal from '../Modal';
+import Modal from '../common/Modal';
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -26,7 +25,7 @@ const Categories = () => {
     try {
       setLoading(true);
       const response = await api.get('/api/categories');
-      setCategories(response.data);
+      setCategories(response.data.data || response.data);
       setError(null);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -52,9 +51,14 @@ const Categories = () => {
       resetForm();
       fetchCategories();
       setShowModal(false);
+      setError(null); // Clear any previous errors on success
     } catch (error) {
       console.error('Error saving category:', error);
-      setError('Erreur lors de l\'enregistrement de la catégorie');
+      // Extract the error message from the API response if available
+      const errorMessage = error.response?.data?.error || 
+                          'Erreur lors de l\'enregistrement de la catégorie';
+      setError(errorMessage);
+      // Keep the modal open to show the error
     }
   };
 
@@ -123,6 +127,12 @@ const Categories = () => {
         title={editingId ? 'Modifier la catégorie' : 'Ajouter une catégorie'}
       >
         <div className="modal-body">
+          {error && (
+            <div className="error-message-box">
+              <i className="fas fa-exclamation-circle"></i>
+              <span>{error}</span>
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name">Nom</label>

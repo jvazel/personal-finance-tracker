@@ -133,13 +133,6 @@ exports.getDashboardData = async (req, res) => {
       date: { $gte: startOfMonth, $lte: endOfMonth }
     });
 
-    console.log('Nombre de transactions trouvées:', transactions.length);
-
-    // Afficher quelques transactions pour vérification
-    if (transactions.length > 0) {
-      console.log('Exemple de transaction:', transactions[0]);
-    }
-
     let totalIncome = 0;
     let totalExpenses = 0;
 
@@ -159,8 +152,6 @@ exports.getDashboardData = async (req, res) => {
       savings,
     };
 
-    console.log('Résultat du tableau de bord:', result);
-
     res.json(result);
 
   } catch (error) {
@@ -173,9 +164,6 @@ exports.getDashboardData = async (req, res) => {
 exports.getExpensesByCategory = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    
-    console.log('Expenses by category request received:', { startDate, endDate });
-    console.log('User ID:', req.user.id);
 
     // Validate date parameters
     if (!startDate || !endDate) {
@@ -197,8 +185,6 @@ exports.getExpensesByCategory = async (req, res) => {
         message: 'Format de date invalide. Utilisez YYYY-MM-DD'
       });
     }
-
-    console.log('Date range for query:', { start, end });
 
     // Convert user ID string to ObjectId - use 'new' keyword with the constructor
     const userId = new mongoose.Types.ObjectId(req.user.id);
@@ -230,7 +216,6 @@ exports.getExpensesByCategory = async (req, res) => {
       }
     ]);
 
-    console.log('Expenses by category results:', expensesByCategory);
     res.status(200).json(expensesByCategory);
   } catch (error) {
     console.error('Error fetching expenses by category:', error);
@@ -306,8 +291,6 @@ exports.getTopExpenses = async (req, res) => {
   try {
     const { startDate, endDate, limit = 5 } = req.query;
 
-    console.log('Top expenses request received:', { startDate, endDate, limit });
-
     // Validate date parameters
     if (!startDate || !endDate) {
       return res.status(400).json({
@@ -341,7 +324,6 @@ exports.getTopExpenses = async (req, res) => {
       .sort({ amount: -1 }) // Sort by amount descending
       .limit(limitInt);
 
-    console.log(`Found ${topExpenses.length} top expenses`);
     res.status(200).json(topExpenses);
   } catch (error) {
     console.error('Error fetching top expenses:', error);
@@ -447,14 +429,10 @@ exports.getMonthlySummary = async (req, res) => {
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999); // Set to end of day
     
-    console.log('Fetching monthly summary for period:', { startDate, endDate });
-    
     const transactions = await Transaction.find({
       user: req.user.id, // Filter by authenticated user
       date: { $gte: start, $lte: end }
     });
-    
-    console.log(`Found ${transactions.length} transactions for the period`);
     
     let totalIncome = 0;
     let totalExpenses = 0;
@@ -468,8 +446,6 @@ exports.getMonthlySummary = async (req, res) => {
     });
     
     const savings = totalIncome - totalExpenses;
-    
-    console.log('Monthly summary calculated:', { totalIncome, totalExpenses, savings });
     
     res.json({
       totalIncome,
@@ -504,8 +480,6 @@ exports.getExpenseReport = async (req, res) => {
     // Convert user ID string to ObjectId for aggregation
     const userId = new mongoose.Types.ObjectId(req.user.id);
     
-    console.log('Expense report request:', { startDate, endDate, userId });
-    
     // Get expenses by category - use ObjectId for user field
     const expensesByCategory = await Transaction.aggregate([
       {
@@ -535,8 +509,6 @@ exports.getExpenseReport = async (req, res) => {
       }
     ]);
     
-    console.log(`Found ${expensesByCategory.length} expense categories`);
-    
     // Get top expenses - add this query
     const topExpenses = await Transaction.find({
       user: req.user.id,
@@ -545,8 +517,6 @@ exports.getExpenseReport = async (req, res) => {
     })
     .sort({ amount: 1 })
     .limit(5);
-    
-    console.log(`Found ${topExpenses.length} top expenses`);
     
     // Get daily expense trend - use ObjectId for user field
     const dailyExpenseTrend = await Transaction.aggregate([
@@ -575,8 +545,6 @@ exports.getExpenseReport = async (req, res) => {
       }
     ]);
     
-    console.log(`Found ${dailyExpenseTrend.length} daily expense entries`);
-    
     // Get total expenses - use ObjectId for user field
     const totalExpenses = await Transaction.aggregate([
       {
@@ -593,8 +561,6 @@ exports.getExpenseReport = async (req, res) => {
         }
       }
     ]);
-    
-    console.log('Total expenses result:', totalExpenses);
     
     // Get average expense per day
     const daysDiff = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));

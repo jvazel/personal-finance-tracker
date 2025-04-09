@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import { FaChartPie } from 'react-icons/fa';
-import '../styles/sidebar.css';
+//import '../styles/sidebar.css';
 
 const Sidebar = () => {
   const { currentUser, logout } = useContext(AuthContext);

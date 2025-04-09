@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
-import AmountDisplay from './AmountDisplay';
+import AmountDisplay from '../common/AmountDisplay';
+import api from '../../utils/api';
 
 const ReportRecurringBills = () => {
   const [recurringBills, setRecurringBills] = useState([]);
@@ -20,7 +20,7 @@ const ReportRecurringBills = () => {
     const fetchRecurringBills = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/transactions/recurring-bills', {
+        const response = await api.get('/transactions/recurring-bills', {
           params: { period }
         });
         setRecurringBills(response.data);

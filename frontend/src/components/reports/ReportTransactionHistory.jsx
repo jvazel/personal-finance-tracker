@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import AmountDisplay from './AmountDisplay';
+import AmountDisplay from '../common/AmountDisplay';
 
 const ReportTransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -66,7 +66,7 @@ const ReportTransactionHistory = () => {
         const formattedStartDate = startDate.toISOString().split('T')[0];
         const formattedEndDate = endDate.toISOString().split('T')[0];
         
-        const response = await axios.get('/api/transactions/reports', {
+        const response = await api.get('/transactions/reports', {
           params: {
             startDate: formattedStartDate,
             endDate: formattedEndDate

@@ -3,8 +3,8 @@ import TransactionForm from './TransactionForm';
 import TransactionList from './TransactionList';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { TransactionContext } from '../contexts/TransactionContext';
-import Modal from './Modal';
+import { TransactionContext } from '../../contexts/TransactionContext';
+import Modal from '../common/Modal';
 import { addMonths, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { FaPlus } from 'react-icons/fa'; // Import the plus icon

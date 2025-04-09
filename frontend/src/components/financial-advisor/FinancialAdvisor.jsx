@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { Card, CardContent, Typography, Box, CircularProgress, Chip, Divider, Button } from '@mui/material';
 import { FaLightbulb, FaChartLine, FaExclamationTriangle, FaCheckCircle, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
@@ -14,7 +14,7 @@ const FinancialAdvisor = () => {
     const fetchFinancialAdvice = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/financial-advisor/insights', {
+        const response = await api.get('/api/financial-advisor/insights', {
           params: { timeframe }
         });
         

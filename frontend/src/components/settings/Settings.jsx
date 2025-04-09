@@ -1,7 +1,7 @@
 // frontend/src/components/Settings.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Categories from './settings/Categories';
+import Categories from './Categories';
 
 const Settings = () => {
   return (

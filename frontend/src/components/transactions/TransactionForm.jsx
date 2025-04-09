@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { TransactionContext } from '../contexts/TransactionContext';
+import { TransactionContext } from '../../contexts/TransactionContext';
 import { registerLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
-import axios from 'axios';
+import api from '../../utils/api';
 
 registerLocale('fr', fr);
 
@@ -36,25 +36,29 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
     const fetchCategories = async () => {
       try {
         setLoadingCategories(true);
-        const response = await axios.get('/api/categories');
-        setCategories(response.data);
+        const response = await api.get('/categories');
+        // Ensure we're setting an array to categories
+        const categoriesData = Array.isArray(response.data) ? response.data : 
+                              (response.data && Array.isArray(response.data.data) ? response.data.data : []);
+        setCategories(categoriesData);
         
         // Set default category if none is selected yet
-        if (!category && response.data.length > 0) {
+        if (!category && categoriesData.length > 0) {
           // Filter categories based on transaction type
-          const filteredCategories = response.data.filter(
+          const filteredCategories = categoriesData.filter(
             cat => cat.type === type || cat.type === 'both'
           );
           
           if (filteredCategories.length > 0) {
             setCategory(filteredCategories[0].name);
-          } else if (response.data.length > 0) {
-            setCategory(response.data[0].name);
+          } else if (categoriesData.length > 0) {
+            setCategory(categoriesData[0].name);
           }
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
         setFormError('Erreur lors du chargement des catégories');
+        setCategories([]); // Set to empty array on error
       } finally {
         setLoadingCategories(false);
       }
@@ -64,9 +68,9 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   }, []);
 
   // Filter categories based on transaction type
-  const filteredCategories = categories.filter(
-    cat => cat.type === type || cat.type === 'both'
-  );
+  // Ensure categories is an array before filtering
+  const filteredCategories = Array.isArray(categories) ? 
+    categories.filter(cat => cat.type === type || cat.type === 'both') : [];
 
   // Update category when type changes
   useEffect(() => {
@@ -77,7 +81,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
         setCategory(filteredCategories[0].name);
       }
     }
-  }, [type]);
+  }, [type, filteredCategories, category]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

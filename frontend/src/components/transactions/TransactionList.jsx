@@ -1,10 +1,10 @@
 import React, { useContext, useState, useMemo } from 'react';
-import { TransactionContext } from '../contexts/TransactionContext';
+import { TransactionContext } from '../../contexts/TransactionContext';
 import TransactionForm from './TransactionForm';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import Modal from './Modal';
-import AmountDisplay from './AmountDisplay';
+import Modal from '../common/Modal';
+import AmountDisplay from '../common/AmountDisplay';
 import { FaEdit, FaTrash } from 'react-icons/fa'; // Add this import at the top with other imports
 
 const TransactionList = ({ selectedMonth }) => {

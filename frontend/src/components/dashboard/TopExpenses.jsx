@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { 
   BarChart, 
   Bar, 
@@ -10,6 +9,7 @@ import {
   Legend, 
   ResponsiveContainer 
 } from 'recharts';
+import api from '../../utils/api'; // Import the API utility instead of axios
 
 // Modification: suppression du paramètre limit dans les props, on utilise une constante
 const TopExpenses = () => {
@@ -33,7 +33,8 @@ const TopExpenses = () => {
         const startDate = firstDayOfMonth.toISOString().split('T')[0];
         const endDate = lastDayOfMonth.toISOString().split('T')[0];
         
-        const response = await axios.get('/api/transactions/top-expenses', {
+        // Use the API utility instead of axios directly
+        const response = await api.get('/transactions/top-expenses', {
           params: { 
             startDate, 
             endDate,

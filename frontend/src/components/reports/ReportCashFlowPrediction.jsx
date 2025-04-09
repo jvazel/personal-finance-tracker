@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { format, addMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { TransactionContext } from '../contexts/TransactionContext';
+import { TransactionContext } from '../../contexts/TransactionContext';
 import { Line } from 'recharts';
 import { ResponsiveContainer, ComposedChart, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Area } from 'recharts';
 
@@ -34,8 +34,8 @@ const ReportCashFlowPrediction = () => {
   const fetchPredictionData = async (months) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/predictions/cash-flow?months=${months}`);
-      setPredictionData(response.data.predictions);
+      const response = await api.get(`/predictions/cash-flow?months=${months}`);
+      setPredictionData(response.data.predictions || []);
       setOverdraftRisk(response.data.overdraftRisk);
     } catch (err) {
       console.error('Error fetching prediction data:', err);
@@ -159,7 +159,14 @@ const ReportCashFlowPrediction = () => {
       <div className="report-summary-cards">
         <div className="report-card">
           <h3>Solde prévu (fin de période)</h3>
-          <p>{loading ? '...' : `${predictionData[predictionData.length - 1]?.balance.toFixed(2)} €`}</p>
+          <p>
+            {loading 
+              ? '...' 
+              : predictionData.length > 0 
+                ? `${predictionData[predictionData.length - 1]?.balance?.toFixed(2) || '0.00'} €`
+                : '0.00 €'
+            }
+          </p>
         </div>
         <div className="report-card income">
           <h3>Revenus prévus (total)</h3>

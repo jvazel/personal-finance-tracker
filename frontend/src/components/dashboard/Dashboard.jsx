@@ -4,7 +4,7 @@ import ExpensePieChart from './ExpensePieChart';
 import IncomeExpenseTrend from './IncomeExpenseTrend';
 import TopExpenses from './TopExpenses';
 import ExpenseLimits from './ExpenseLimits';
-import api from '../services/api';
+import api from '../../services/api';
 
 const Dashboard = () => {
   // Définir les états pour stocker les données financières

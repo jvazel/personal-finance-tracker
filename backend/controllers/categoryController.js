@@ -1,27 +1,6 @@
 // backend/controllers/categoryController.js
 const Category = require('../models/Category');
 
-// Get all categories
-exports.getAllCategories = async (req, res) => {
-  try {
-    const categories = await Category.find().sort({ name: 1 });
-    res.json(categories);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching categories', error: error.message });
-  }
-};
-
-// Create a new category
-exports.createCategory = async (req, res) => {
-  try {
-    const newCategory = new Category(req.body);
-    const savedCategory = await newCategory.save();
-    res.status(201).json(savedCategory);
-  } catch (error) {
-    res.status(400).json({ message: 'Error creating category', error: error.message });
-  }
-};
-
 // Get category by ID
 exports.getCategoryById = async (req, res) => {
   try {
@@ -65,9 +44,6 @@ exports.deleteCategory = async (req, res) => {
     res.status(500).json({ message: 'Error deleting category', error: error.message });
   }
 };
-
-// Example update for the category controller
-// This should replace your existing initializeDefaultCategories method
 
 // Initialize default categories
 exports.initializeDefaultCategories = async () => {

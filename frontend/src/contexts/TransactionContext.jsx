@@ -1,8 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-
-// Set axios default base URL
-axios.defaults.baseURL = 'http://localhost:5000';
+import api from '../utils/api';
 
 export const TransactionContext = createContext();
 
@@ -23,7 +20,7 @@ export const TransactionProvider = ({ children }) => {
         endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       }
       
-      const response = await axios.get('/api/transactions', {
+      const response = await api.get('/transactions', {
         params: {
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString()
@@ -47,9 +44,10 @@ export const TransactionProvider = ({ children }) => {
   }, [refreshTransactions]);
 
   // Rest of the context remains the same
+  // Update these methods to use the api utility
   const addTransaction = async (transactionData) => {
     try {
-      const response = await axios.post('/api/transactions', transactionData);
+      const response = await api.post('/transactions', transactionData);
       return response.data;
     } catch (err) {
       console.error('Error adding transaction:', err);
@@ -59,7 +57,7 @@ export const TransactionProvider = ({ children }) => {
 
   const updateTransaction = async (id, transactionData) => {
     try {
-      const response = await axios.put(`/api/transactions/${id}`, transactionData);
+      const response = await api.put(`/transactions/${id}`, transactionData);
       return response.data;
     } catch (err) {
       console.error('Error updating transaction:', err);
@@ -69,7 +67,7 @@ export const TransactionProvider = ({ children }) => {
 
   const deleteTransaction = async (id) => {
     try {
-      await axios.delete(`/api/transactions/${id}`);
+      await api.delete(`/transactions/${id}`);
     } catch (err) {
       console.error('Error deleting transaction:', err);
       throw err;

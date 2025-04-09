@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -36,7 +36,7 @@ const SavingsChart = () => {
       setLoading(true);
       try {
         // Utiliser la même route que pour les rapports pour obtenir les données d'un an
-        const response = await axios.get('/api/transactions/reports');
+        const response = await api.get('/api/transactions/reports');
         const transactions = response.data;
         
         if (transactions && transactions.length > 0) {

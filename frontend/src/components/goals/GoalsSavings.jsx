@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import Modal from './Modal';
-import '../styles/goals.css';
+import Modal from '../common/Modal';
+//import '../styles/goals.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import api from '../services/api';
+import api from '../../services/api';
 
 const GoalsSavings = () => {
   // Ajoutez cet état pour déclencher le rafraîchissement

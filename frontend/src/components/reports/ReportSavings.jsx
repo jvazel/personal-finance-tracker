@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import AmountDisplay from './AmountDisplay';
+import api from '../../utils/api';
+import AmountDisplay from '../common/AmountDisplay';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -14,7 +14,7 @@ const ReportSavings = () => {
     const fetchReportTransactions = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/transactions/reports');
+        const response = await api.get('/transactions/reports'); // Utiliser api au lieu d'axios
         const transactions = response.data;
         
         // Calculer les économies mensuelles
