@@ -30,7 +30,7 @@ const analyzeSpendingTrends = async (userId, timeframe) => {
   
   // Récupérer toutes les transactions pour la période
   const transactions = await Transaction.find({
-    userId,
+    user: userId, // CORRECTION: userId -> user: userId
     date: { $gte: start, $lte: end }
   }).sort({ date: 1 });
   

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Card, CardContent, Typography, Box, CircularProgress, Chip, Divider, Button } from '@mui/material';
 import { FaLightbulb, FaChartLine, FaExclamationTriangle, FaCheckCircle, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
 const FinancialAdvisor = () => {
@@ -35,19 +34,6 @@ const FinancialAdvisor = () => {
     setTimeframe(newTimeframe);
   };
 
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'high':
-        return '#ef4444';
-      case 'medium':
-        return '#f59e0b';
-      case 'low':
-        return '#10b981';
-      default:
-        return '#3b82f6';
-    }
-  };
-
   const getInsightIcon = (type) => {
     switch (type) {
       case 'spending_increase':
@@ -67,19 +53,19 @@ const FinancialAdvisor = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
-      </Box>
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Chargement des conseils financiers...</p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h5" color="error">
-          {error}
-        </Typography>
-      </Box>
+      <div className="error-container">
+        <h2>Erreur</h2>
+        <p>{error}</p>
+      </div>
     );
   }
 
@@ -93,33 +79,30 @@ const FinancialAdvisor = () => {
         </p>
         
         <div className="timeframe-selector">
-          <Button 
-            variant={timeframe === '1month' ? 'contained' : 'outlined'} 
+          <button 
+            className={timeframe === '1month' ? 'active' : ''} 
             onClick={() => handleTimeframeChange('1month')}
-            sx={{ mr: 1 }}
           >
             1 mois
-          </Button>
-          <Button 
-            variant={timeframe === '3months' ? 'contained' : 'outlined'} 
+          </button>
+          <button 
+            className={timeframe === '3months' ? 'active' : ''} 
             onClick={() => handleTimeframeChange('3months')}
-            sx={{ mr: 1 }}
           >
             3 mois
-          </Button>
-          <Button 
-            variant={timeframe === '6months' ? 'contained' : 'outlined'} 
+          </button>
+          <button 
+            className={timeframe === '6months' ? 'active' : ''} 
             onClick={() => handleTimeframeChange('6months')}
-            sx={{ mr: 1 }}
           >
             6 mois
-          </Button>
-          <Button 
-            variant={timeframe === '1year' ? 'contained' : 'outlined'} 
+          </button>
+          <button 
+            className={timeframe === '1year' ? 'active' : ''} 
             onClick={() => handleTimeframeChange('1year')}
           >
             1 an
-          </Button>
+          </button>
         </div>
       </div>
       
@@ -127,85 +110,80 @@ const FinancialAdvisor = () => {
         <h2>Analyse de vos habitudes financières</h2>
         
         {insights.length === 0 ? (
-          <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
+          <p className="no-data-message">
             Pas assez de données pour générer des analyses. Continuez à enregistrer vos transactions.
-          </Typography>
+          </p>
         ) : (
           <div className="insights-grid">
             {insights.map((insight, index) => (
-              <Card key={index} sx={{ mb: 2, borderLeft: `4px solid ${getSeverityColor(insight.severity)}` }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Box sx={{ mr: 1 }}>{getInsightIcon(insight.type)}</Box>
-                    <Typography variant="h6">{insight.title}</Typography>
-                  </Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    {insight.description}
-                  </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Chip 
-                      label={insight.category} 
-                      size="small" 
-                      sx={{ backgroundColor: '#e5e7eb', color: '#374151' }}
-                    />
+              <div 
+                key={index} 
+                className="insight-card"
+                style={{ borderLeft: `4px solid ${
+                  insight.severity === 'high' ? '#ef4444' : 
+                  insight.severity === 'medium' ? '#f59e0b' : '#10b981'
+                }` }}
+              >
+                <div className="insight-card-header">
+                  <div className="icon">{getInsightIcon(insight.type)}</div>
+                  <h3>{insight.title}</h3>
+                </div>
+                <div className="insight-card-content">
+                  <p>{insight.description}</p>
+                  <div className="insight-card-footer">
+                    <span className="category-chip">{insight.category}</span>
                     {insight.impact && (
-                      <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                      <span className={`impact-text ${
+                        insight.impact === 'Positif' ? 'impact-positive' : 'impact-negative'
+                      }`}>
                         Impact: {insight.impact}
-                      </Typography>
+                      </span>
                     )}
-                  </Box>
-                </CardContent>
-              </Card>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )}
       </div>
       
-      <Divider sx={{ my: 4 }} />
-      
       <div className="recommendations-section">
         <h2>Recommandations personnalisées</h2>
         
         {recommendations.length === 0 ? (
-          <Typography variant="body1" sx={{ mt: 2 }}>
+          <p className="no-data-message">
             Pas assez de données pour générer des recommandations.
-          </Typography>
+          </p>
         ) : (
           <div className="recommendations-grid">
             {recommendations.map((recommendation, index) => (
-              <Card key={index} sx={{ mb: 2 }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <FaLightbulb style={{ color: '#3b82f6', marginRight: '8px' }} />
-                    <Typography variant="h6">{recommendation.title}</Typography>
-                  </Box>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    {recommendation.description}
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    <Chip 
-                      label={`Difficulté: ${recommendation.difficulty}`} 
-                      size="small" 
-                      sx={{ backgroundColor: '#e5e7eb', color: '#374151' }}
-                    />
-                    <Chip 
-                      label={`Impact potentiel: ${recommendation.potentialImpact}`} 
-                      size="small" 
-                      sx={{ backgroundColor: '#e5e7eb', color: '#374151' }}
-                    />
-                  </Box>
+              <div key={index} className="recommendation-card">
+                <div className="recommendation-card-header">
+                  <div className="icon"><FaLightbulb style={{ color: '#3b82f6' }} /></div>
+                  <h3>{recommendation.title}</h3>
+                </div>
+                <div className="recommendation-card-content">
+                  <p>{recommendation.description}</p>
+                  <div>
+                    <span className="recommendation-difficulty">
+                      Difficulté: {recommendation.difficulty}
+                    </span>
+                    <span className="recommendation-impact">
+                      Impact potentiel: {recommendation.potentialImpact}
+                    </span>
+                  </div>
                   {recommendation.steps && (
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="subtitle2">Comment procéder:</Typography>
-                      <ul style={{ paddingLeft: '20px', margin: '8px 0' }}>
+                    <div className="recommendation-steps">
+                      <h4>Comment procéder:</h4>
+                      <ul>
                         {recommendation.steps.map((step, stepIndex) => (
                           <li key={stepIndex}>{step}</li>
                         ))}
                       </ul>
-                    </Box>
+                    </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         )}
