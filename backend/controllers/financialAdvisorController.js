@@ -1,9 +1,13 @@
+const FinancialProgress = require('../models/FinancialProgress');
+const SavedRecommendation = require('../models/SavedRecommendation');
 const Transaction = require('../models/Transaction');
 const Goal = require('../models/Goal');
+
 const { 
   startOfMonth, endOfMonth, subMonths, 
   startOfYear, endOfYear, subYears,
-  format, parseISO, isAfter, isBefore
+  format, parseISO, isAfter, isBefore,
+  addMonths
 } = require('date-fns');
 
 // Fonction pour obtenir la plage de dates en fonction du timeframe
@@ -195,6 +199,51 @@ const analyzeSpendingTrends = async (userId, timeframe) => {
   return { insights, monthlySpendingByCategory, months };
 };
 
+// Fonction pour analyser les objectifs financiers
+const analyzeFinancialGoals = async (userId) => {
+  // Récupérer les objectifs de l'utilisateur
+  const goals = await Goal.find({ user: userId });
+  const insights = [];
+  
+  if (goals.length === 0) {
+    insights.push({
+      type: 'warning',
+      title: 'Aucun objectif financier défini',
+      description: 'Définir des objectifs financiers clairs vous aidera à mieux planifier votre avenir financier.',
+      severity: 'medium',
+      category: 'Objectifs',
+      impact: 'Négatif'
+    });
+  } else {
+    // Analyser la progression vers les objectifs
+    for (const goal of goals) {
+      const progressPercentage = (goal.currentAmount / goal.targetAmount) * 100;
+      
+      if (progressPercentage < 25) {
+        insights.push({
+          type: 'warning',
+          title: `Progression lente vers l'objectif: ${goal.name}`,
+          description: `Vous avez atteint seulement ${progressPercentage.toFixed(1)}% de votre objectif "${goal.name}". Envisagez d'augmenter vos contributions mensuelles.`,
+          severity: 'medium',
+          category: 'Objectifs',
+          impact: 'Négatif'
+        });
+      } else if (progressPercentage >= 90) {
+        insights.push({
+          type: 'achievement',
+          title: `Objectif presque atteint: ${goal.name}`,
+          description: `Félicitations! Vous avez atteint ${progressPercentage.toFixed(1)}% de votre objectif "${goal.name}". Continuez ainsi!`,
+          severity: 'low',
+          category: 'Objectifs',
+          impact: 'Positif'
+        });
+      }
+    }
+  }
+  
+  return insights;
+};
+
 // Fonction pour générer des recommandations basées sur les insights
 const generateRecommendations = (insights, monthlySpendingByCategory, months) => {
   const recommendations = [];
@@ -297,6 +346,50 @@ const generateRecommendations = (insights, monthlySpendingByCategory, months) =>
     });
   }
   
+  // Recommandations basées sur les objectifs
+  const goalInsights = insights.filter(insight => insight.category === 'Objectifs');
+  
+  if (goalInsights.length > 0) {
+    const noGoalsInsight = goalInsights.find(insight => 
+      insight.title === 'Aucun objectif financier défini'
+    );
+    
+    if (noGoalsInsight) {
+      recommendations.push({
+        title: 'Définir des objectifs financiers SMART',
+        description: 'Des objectifs Spécifiques, Mesurables, Atteignables, Réalistes et Temporels vous aideront à structurer votre plan financier.',
+        difficulty: 'Facile',
+        potentialImpact: 'Très élevé',
+        steps: [
+          'Réfléchissez à vos priorités financières (achat immobilier, retraite, etc.)',
+          'Fixez un montant précis pour chaque objectif',
+          'Établissez une date limite réaliste',
+          'Déterminez combien vous devez épargner mensuellement',
+          'Suivez régulièrement votre progression'
+        ]
+      });
+    }
+    
+    const slowProgressInsights = goalInsights.filter(insight => 
+      insight.title.includes('Progression lente')
+    );
+    
+    if (slowProgressInsights.length > 0) {
+      recommendations.push({
+        title: 'Accélérer la progression vers vos objectifs',
+        description: 'Plusieurs de vos objectifs progressent lentement. Voici comment accélérer leur réalisation.',
+        difficulty: 'Moyenne',
+        potentialImpact: 'Élevé',
+        steps: [
+          'Réévaluez vos dépenses mensuelles pour dégager plus d\'épargne',
+          'Automatisez vos virements vers vos comptes d\'épargne dédiés',
+          'Envisagez des sources de revenus complémentaires',
+          'Ajustez vos objectifs si nécessaire pour qu\'ils restent réalistes'
+        ]
+      });
+    }
+  }
+  
   return recommendations;
 };
 
@@ -307,17 +400,233 @@ exports.getFinancialInsights = async (req, res) => {
     const userId = req.user ? req.user.id : '123'; // À remplacer par l'ID réel de l'utilisateur
     
     // Analyser les tendances de dépenses
-    const { insights, monthlySpendingByCategory, months } = await analyzeSpendingTrends(userId, timeframe);
+    const { insights: spendingInsights, monthlySpendingByCategory, months } = 
+      await analyzeSpendingTrends(userId, timeframe);
     
-    // Générer des recommandations basées sur les insights
-    const recommendations = generateRecommendations(insights, monthlySpendingByCategory, months);
+    // Analyser les objectifs financiers
+    const goalInsights = await analyzeFinancialGoals(userId);
+    
+    // Combiner les insights
+    const allInsights = [...spendingInsights, ...goalInsights];
+    
+    // Générer des recommandations basées sur tous les insights
+    const recommendations = generateRecommendations(allInsights, monthlySpendingByCategory, months);
     
     res.json({
-      insights,
+      insights: allInsights,
       recommendations
     });
   } catch (error) {
     console.error('Erreur lors de la génération des conseils financiers:', error);
     res.status(500).json({ message: 'Erreur lors de la génération des conseils financiers' });
+  }
+};
+
+// Récupérer toutes les recommandations sauvegardées
+exports.getSavedRecommendations = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const savedRecommendations = await SavedRecommendation.find({ user: userId })
+      .sort({ dateCreated: -1 });
+    
+    res.json(savedRecommendations);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des recommandations sauvegardées:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des recommandations sauvegardées' });
+  }
+};
+
+// Sauvegarder une recommandation
+exports.saveRecommendation = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { title, description, steps } = req.body;
+    
+    const newRecommendation = new SavedRecommendation({
+      user: userId,
+      title,
+      description,
+      steps
+    });
+    
+    const savedRecommendation = await newRecommendation.save();
+    
+    res.status(201).json(savedRecommendation);
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la recommandation:', error);
+    res.status(500).json({ message: 'Erreur lors de la sauvegarde de la recommandation' });
+  }
+};
+
+// Mettre à jour une étape d'une recommandation
+exports.updateRecommendationStep = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id, stepIndex } = req.params;
+    const { completed } = req.body;
+    
+    // Vérifier que la recommandation appartient à l'utilisateur
+    const savedRecommendation = await SavedRecommendation.findOne({
+      _id: id,
+      user: userId
+    });
+    
+    if (!savedRecommendation) {
+      return res.status(404).json({ message: 'Recommandation non trouvée' });
+    }
+    
+    // Vérifier que l'index de l'étape est valide
+    if (stepIndex < 0 || stepIndex >= savedRecommendation.steps.length) {
+      return res.status(400).json({ message: 'Index d\'étape invalide' });
+    }
+    
+    // Mettre à jour l'étape
+    savedRecommendation.steps[stepIndex].completed = completed;
+    await savedRecommendation.save();
+    
+    res.json(savedRecommendation);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'étape:', error);
+    res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'étape' });
+  }
+};
+
+// Supprimer une recommandation sauvegardée
+exports.deleteRecommendation = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    // Vérifier que la recommandation appartient à l'utilisateur
+    const savedRecommendation = await SavedRecommendation.findOne({
+      _id: id,
+      user: userId
+    });
+    
+    if (!savedRecommendation) {
+      return res.status(404).json({ message: 'Recommandation non trouvée' });
+    }
+    
+    await SavedRecommendation.findByIdAndDelete(id);
+    
+    res.json({ message: 'Recommandation supprimée avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la recommandation:', error);
+    res.status(500).json({ message: 'Erreur lors de la suppression de la recommandation' });
+  }
+};
+
+// Récupérer les données de progression financière
+exports.getFinancialProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { timeframe = '6months' } = req.query;
+    
+    // Déterminer la plage de dates en fonction du timeframe
+    const now = new Date();
+    let startDate;
+    
+    switch (timeframe) {
+      case '3months':
+        startDate = subMonths(now, 3);
+        break;
+      case '1year':
+        startDate = subYears(now, 1);
+        break;
+      case '6months':
+      default:
+        startDate = subMonths(now, 6);
+        break;
+    }
+    
+    // Récupérer les données de progression existantes
+    const progressData = await FinancialProgress.find({
+      user: userId,
+      date: { $gte: startDate, $lte: now }
+    }).sort({ date: 1 });
+    
+    // Si aucune donnée n'existe, générer des données de démonstration
+    if (progressData.length === 0) {
+      // Pour la démo, générer des données fictives pour les derniers mois
+      const demoData = [];
+      let currentDate = startDate;
+      
+      while (currentDate <= now) {
+        // Générer des valeurs aléatoires mais réalistes pour la démo
+        const savingsRate = 10 + Math.random() * 20; // Entre 10% et 30%
+        const expenseReduction = 5 + Math.random() * 15; // Entre 5% et 20%
+        const recommendationsCompleted = Math.floor(Math.random() * 5); // Entre 0 et 4
+        
+        demoData.push({
+          date: format(currentDate, 'yyyy-MM-dd'),
+          savingsRate: parseFloat(savingsRate.toFixed(1)),
+          expenseReduction: parseFloat(expenseReduction.toFixed(1)),
+          recommendationsCompleted: recommendationsCompleted
+        });
+        
+        currentDate = addMonths(currentDate, 1);
+      }
+      
+      return res.json(demoData);
+    }
+    
+    // Formater les données pour le frontend
+    const formattedData = progressData.map(entry => ({
+      date: format(new Date(entry.date), 'yyyy-MM-dd'),
+      savingsRate: entry.savingsRate,
+      expenseReduction: entry.expenseReduction,
+      recommendationsCompleted: entry.recommendationsCompleted
+    }));
+    
+    res.json(formattedData);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des données de progression:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des données de progression' });
+  }
+};
+
+// Mettre à jour les données de progression financière
+exports.updateFinancialProgress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { savingsRate, expenseReduction, recommendationsCompleted } = req.body;
+    
+    // Utiliser la date actuelle ou celle fournie
+    const date = req.body.date ? new Date(req.body.date) : new Date();
+    
+    // Vérifier si une entrée existe déjà pour ce mois
+    const startOfCurrentMonth = startOfMonth(date);
+    const endOfCurrentMonth = endOfMonth(date);
+    
+    let progressEntry = await FinancialProgress.findOne({
+      user: userId,
+      date: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth }
+    });
+    
+    if (progressEntry) {
+      // Mettre à jour l'entrée existante
+      progressEntry.savingsRate = savingsRate || progressEntry.savingsRate;
+      progressEntry.expenseReduction = expenseReduction !== undefined ? expenseReduction : progressEntry.expenseReduction;
+      progressEntry.recommendationsCompleted = recommendationsCompleted !== undefined ? recommendationsCompleted : progressEntry.recommendationsCompleted;
+      
+      await progressEntry.save();
+    } else {
+      // Créer une nouvelle entrée
+      progressEntry = new FinancialProgress({
+        user: userId,
+        date,
+        savingsRate,
+        expenseReduction: expenseReduction || 0,
+        recommendationsCompleted: recommendationsCompleted || 0
+      });
+      
+      await progressEntry.save();
+    }
+    
+    res.json(progressEntry);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des données de progression:', error);
+    res.status(500).json({ message: 'Erreur lors de la mise à jour des données de progression' });
   }
 };

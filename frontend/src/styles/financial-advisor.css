@@ -197,3 +197,299 @@
     flex-direction: column;
   }
 }
+
+/* Styles pour les contrôles de l'advisor */
+.advisor-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tracker-toggle-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tracker-toggle-button:hover {
+  background-color: #2563eb;
+}
+
+/* Styles pour les filtres */
+.recommendations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filter-toggle-button {
+  background-color: #353549;
+  color: #e2e8f0;
+  border: 1px solid #4b5563;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.filter-toggle-button:hover {
+  background-color: #3f3f5f;
+}
+
+.recommendations-filters {
+  background-color: #353549;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.filter-group select {
+  background-color: #2a2a3c;
+  color: #e2e8f0;
+  border: 1px solid #4b5563;
+  padding: 8px;
+  border-radius: 4px;
+  min-width: 150px;
+}
+
+.recommendation-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Bouton pour sauvegarder une recommandation */
+.save-recommendation-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.save-recommendation-button:hover {
+  background-color: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .advisor-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .recommendations-filters {
+    flex-direction: column;
+  }
+}
+
+/* Styles pour le suivi des recommandations */
+.recommendation-tracker-container {
+  background-color: #2a2a3c;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  margin-top: 24px;
+}
+
+.saved-recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.saved-recommendation-card {
+  background-color: #353549;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.saved-recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.saved-recommendation-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.delete-recommendation-button {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #3b82f6;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: #e2e8f0;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.recommendation-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recommendation-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.recommendation-step:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.recommendation-step.completed p {
+  text-decoration: line-through;
+  color: #a0aec0;
+}
+
+.step-checkbox {
+  color: #3b82f6;
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+.recommendation-step.completed .step-checkbox {
+  color: #10b981;
+}
+
+.recommendation-step p {
+  margin: 0;
+  color: #e2e8f0;
+}
+
+/* Styles pour la visualisation de progression */
+.progress-visualization-container {
+  background-color: #353549;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.progress-visualization-container h2 {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.timeframe-selector.small button {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.chart-container {
+  margin: 24px 0;
+}
+
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.stat-card {
+  background-color: #2a2a3c;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  color: #e2e8f0;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.stat-change {
+  color: #a0aec0;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.stat-change .positive {
+  color: #10b981;
+}
+
+.stat-change .negative {
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .progress-stats {
+    grid-template-columns: 1fr;
+  }
+}

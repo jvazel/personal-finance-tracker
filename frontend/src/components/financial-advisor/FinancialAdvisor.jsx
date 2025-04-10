@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { FaLightbulb, FaChartLine, FaExclamationTriangle, FaCheckCircle, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { FaLightbulb, FaChartLine, FaExclamationTriangle, FaCheckCircle, FaArrowUp, FaArrowDown, FaFilter, FaBookmark } from 'react-icons/fa';
+import RecommendationTracker from './RecommendationTracker';
+import ProgressVisualization from './ProgressVisualization';
 
 const FinancialAdvisor = () => {
   const [insights, setInsights] = useState([]);
@@ -8,6 +10,10 @@ const FinancialAdvisor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeframe, setTimeframe] = useState('3months'); // '1month', '3months', '6months', '1year'
+  const [difficultyFilter, setDifficultyFilter] = useState('all'); // 'all', 'Facile', 'Moyenne', 'Difficile'
+  const [impactFilter, setImpactFilter] = useState('all'); // 'all', 'Moyen', 'Élevé', 'Très élevé'
+  const [showFilters, setShowFilters] = useState(false);
+  const [showTracker, setShowTracker] = useState(false);
 
   useEffect(() => {
     const fetchFinancialAdvice = async () => {
@@ -51,6 +57,35 @@ const FinancialAdvisor = () => {
     }
   };
 
+  // Fonction pour filtrer les recommandations
+  const filteredRecommendations = recommendations.filter(rec => {
+    const matchesDifficulty = difficultyFilter === 'all' || rec.difficulty === difficultyFilter;
+    const matchesImpact = impactFilter === 'all' || rec.potentialImpact === impactFilter;
+    return matchesDifficulty && matchesImpact;
+  });
+
+  const saveRecommendation = async (recommendation) => {
+    try {
+      await api.post('/api/financial-advisor/saved-recommendations', {
+        title: recommendation.title,
+        description: recommendation.description,
+        steps: recommendation.steps.map(step => ({
+          text: step,
+          completed: false
+        }))
+      });
+      
+      // Afficher un message de succès
+      alert('Recommandation sauvegardée avec succès!');
+      
+      // Afficher automatiquement le tracker après la sauvegarde
+      setShowTracker(true);
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde de la recommandation:', err);
+      alert('Erreur lors de la sauvegarde de la recommandation');
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -78,33 +113,44 @@ const FinancialAdvisor = () => {
           pour améliorer votre santé financière.
         </p>
         
-        <div className="timeframe-selector">
+        <div className="advisor-controls">
+          <div className="timeframe-selector">
+            <button 
+              className={timeframe === '1month' ? 'active' : ''} 
+              onClick={() => handleTimeframeChange('1month')}
+            >
+              1 mois
+            </button>
+            <button 
+              className={timeframe === '3months' ? 'active' : ''} 
+              onClick={() => handleTimeframeChange('3months')}
+            >
+              3 mois
+            </button>
+            <button 
+              className={timeframe === '6months' ? 'active' : ''} 
+              onClick={() => handleTimeframeChange('6months')}
+            >
+              6 mois
+            </button>
+            <button 
+              className={timeframe === '1year' ? 'active' : ''} 
+              onClick={() => handleTimeframeChange('1year')}
+            >
+              1 an
+            </button>
+          </div>
+          
           <button 
-            className={timeframe === '1month' ? 'active' : ''} 
-            onClick={() => handleTimeframeChange('1month')}
+            className="tracker-toggle-button"
+            onClick={() => setShowTracker(!showTracker)}
           >
-            1 mois
-          </button>
-          <button 
-            className={timeframe === '3months' ? 'active' : ''} 
-            onClick={() => handleTimeframeChange('3months')}
-          >
-            3 mois
-          </button>
-          <button 
-            className={timeframe === '6months' ? 'active' : ''} 
-            onClick={() => handleTimeframeChange('6months')}
-          >
-            6 mois
-          </button>
-          <button 
-            className={timeframe === '1year' ? 'active' : ''} 
-            onClick={() => handleTimeframeChange('1year')}
-          >
-            1 an
+            {showTracker ? 'Masquer mes recommandations' : 'Voir mes recommandations sauvegardées'}
           </button>
         </div>
       </div>
+      
+      {showTracker && <RecommendationTracker />}
       
       <div className="insights-section">
         <h2>Analyse de vos habitudes financières</h2>
@@ -147,16 +193,60 @@ const FinancialAdvisor = () => {
         )}
       </div>
       
+      <ProgressVisualization />
+
       <div className="recommendations-section">
-        <h2>Recommandations personnalisées</h2>
+        <div className="recommendations-header">
+          <h2>Recommandations personnalisées</h2>
+          <button 
+            className="filter-toggle-button"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <FaFilter /> Filtrer
+          </button>
+        </div>
+        
+        {showFilters && (
+          <div className="recommendations-filters">
+            <div className="filter-group">
+              <label>Difficulté:</label>
+              <select 
+                value={difficultyFilter} 
+                onChange={(e) => setDifficultyFilter(e.target.value)}
+              >
+                <option value="all">Toutes</option>
+                <option value="Facile">Facile</option>
+                <option value="Moyenne">Moyenne</option>
+                <option value="Difficile">Difficile</option>
+              </select>
+            </div>
+            
+            <div className="filter-group">
+              <label>Impact potentiel:</label>
+              <select 
+                value={impactFilter} 
+                onChange={(e) => setImpactFilter(e.target.value)}
+              >
+                <option value="all">Tous</option>
+                <option value="Moyen">Moyen</option>
+                <option value="Élevé">Élevé</option>
+                <option value="Très élevé">Très élevé</option>
+              </select>
+            </div>
+          </div>
+        )}
         
         {recommendations.length === 0 ? (
           <p className="no-data-message">
             Pas assez de données pour générer des recommandations.
           </p>
+        ) : filteredRecommendations.length === 0 ? (
+          <p className="no-data-message">
+            Aucune recommandation ne correspond aux filtres sélectionnés.
+          </p>
         ) : (
           <div className="recommendations-grid">
-            {recommendations.map((recommendation, index) => (
+            {filteredRecommendations.map((recommendation, index) => (
               <div key={index} className="recommendation-card">
                 <div className="recommendation-card-header">
                   <div className="icon"><FaLightbulb style={{ color: '#3b82f6' }} /></div>
@@ -164,7 +254,7 @@ const FinancialAdvisor = () => {
                 </div>
                 <div className="recommendation-card-content">
                   <p>{recommendation.description}</p>
-                  <div>
+                  <div className="recommendation-metadata">
                     <span className="recommendation-difficulty">
                       Difficulté: {recommendation.difficulty}
                     </span>
@@ -182,6 +272,12 @@ const FinancialAdvisor = () => {
                       </ul>
                     </div>
                   )}
+                  <button 
+                    className="save-recommendation-button"
+                    onClick={() => saveRecommendation(recommendation)}
+                  >
+                    <FaBookmark /> Sauvegarder cette recommandation
+                  </button>
                 </div>
               </div>
             ))}
