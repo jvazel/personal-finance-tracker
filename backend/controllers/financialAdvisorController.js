@@ -222,8 +222,8 @@ const analyzeFinancialGoals = async (userId) => {
       if (progressPercentage < 25) {
         insights.push({
           type: 'warning',
-          title: `Progression lente vers l'objectif: ${goal.name}`,
-          description: `Vous avez atteint seulement ${progressPercentage.toFixed(1)}% de votre objectif "${goal.name}". Envisagez d'augmenter vos contributions mensuelles.`,
+          title: `Progression lente vers l'objectif: ${goal.title}`,
+          description: `Vous avez atteint seulement ${progressPercentage.toFixed(1)}% de votre objectif "${goal.title}". Envisagez d'augmenter vos contributions mensuelles.`, // Changed from goal.name to goal.title
           severity: 'medium',
           category: 'Objectifs',
           impact: 'Négatif'
@@ -231,8 +231,8 @@ const analyzeFinancialGoals = async (userId) => {
       } else if (progressPercentage >= 90) {
         insights.push({
           type: 'achievement',
-          title: `Objectif presque atteint: ${goal.name}`,
-          description: `Félicitations! Vous avez atteint ${progressPercentage.toFixed(1)}% de votre objectif "${goal.name}". Continuez ainsi!`,
+          title: `Objectif presque atteint: ${goal.title}`,
+          description: `Félicitations! Vous avez atteint ${progressPercentage.toFixed(1)}% de votre objectif "${goal.title}". Continuez ainsi!`, // Changed from goal.name to goal.title
           severity: 'low',
           category: 'Objectifs',
           impact: 'Positif'
