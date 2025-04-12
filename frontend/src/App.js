@@ -14,6 +14,7 @@ import { AuthProvider } from './context/AuthContext';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
 import './styles/auth.css';
+import TaxDashboard from './components/tax/TaxDashboard';
 
 // Register French locale
 registerLocale('fr', fr);
@@ -74,6 +75,14 @@ function App() {
               <Sidebar />
               <div className="main-content">
                 <Settings />
+              </div>
+            </div>
+          } />
+          <Route path="/tax" element={
+            <div className="app-container">
+              <Sidebar />
+              <div className="main-content">
+                <TaxDashboard />
               </div>
             </div>
           } />

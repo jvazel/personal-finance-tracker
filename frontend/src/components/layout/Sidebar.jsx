@@ -87,6 +87,11 @@ const Sidebar = () => {
           <span className="nav-icon">💡</span>
           <span className="nav-text">Conseiller</span>
         </NavLink>
+
+        <NavLink to="/tax" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <span className="nav-icon">📑</span>
+          <span className="nav-text">Services Fiscaux</span>
+        </NavLink>
         
         <NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
           <span className="nav-icon">⚙️</span>

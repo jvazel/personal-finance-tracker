@@ -10,7 +10,11 @@ const Categories = () => {
     name: '',
     type: 'expense',
     color: '#3b82f6',
-    icon: 'fa-tag'
+    icon: 'fa-tag',
+    // Ajout des propriétés fiscales
+    taxable: false,
+    taxDeductible: false,
+    taxCategory: 'none'
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,10 +71,28 @@ const Categories = () => {
       name: category.name,
       type: category.type,
       color: category.color,
-      icon: category.icon
+      icon: category.icon,
+      // Récupération des propriétés fiscales existantes
+      taxable: category.taxable || false,
+      taxDeductible: category.taxDeductible || false,
+      taxCategory: category.taxCategory || 'none'
     });
     setEditingId(category._id);
     setShowModal(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      type: 'expense',
+      color: '#3b82f6',
+      icon: 'fa-tag',
+      // Réinitialisation des propriétés fiscales
+      taxable: false,
+      taxDeductible: false,
+      taxCategory: 'none'
+    });
+    setEditingId(null);
   };
 
   const handleDelete = async (id) => {
@@ -83,16 +105,6 @@ const Categories = () => {
         setError('Erreur lors de la suppression de la catégorie');
       }
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      type: 'expense',
-      color: '#3b82f6',
-      icon: 'fa-tag'
-    });
-    setEditingId(null);
   };
 
   const openAddModal = () => {
@@ -179,6 +191,64 @@ const Categories = () => {
                 placeholder="fa-tag"
               />
             </div>
+            
+            {/* Ajout des champs pour les propriétés fiscales */}
+            <div className="form-divider">Propriétés fiscales</div>
+            
+            {formData.type === 'income' && (
+              <div className="form-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="taxable"
+                    checked={formData.taxable}
+                    onChange={(e) => setFormData({...formData, taxable: e.target.checked})}
+                  />
+                  Revenu imposable
+                </label>
+                <small>Cochez cette case si ce type de revenu est imposable</small>
+              </div>
+            )}
+            
+            {formData.type === 'expense' && (
+              <div className="form-group">
+                <div className="checkbox-container">
+                  <label htmlFor="taxDeductible">Dépense déductible</label>
+                  <input
+                    type="checkbox"
+                    id="taxDeductible"
+                    name="taxDeductible"
+                    checked={formData.taxDeductible}
+                    onChange={(e) => setFormData({...formData, taxDeductible: e.target.checked})}
+                  />
+                </div>
+                <small>Cochez cette case si ce type de dépense est déductible des impôts</small>
+              </div>
+            )}
+            
+            <div className="form-group">
+              <label htmlFor="taxCategory">Catégorie fiscale</label>
+              <select
+                id="taxCategory"
+                name="taxCategory"
+                value={formData.taxCategory}
+                onChange={handleChange}
+              >
+                <option value="none">Aucune</option>
+                {formData.type === 'income' && (
+                  <option value="income">Revenu imposable</option>
+                )}
+                {formData.type === 'expense' && (
+                  <>
+                    <option value="deduction">Déduction standard</option>
+                    <option value="donation">Don caritatif</option>
+                    <option value="investment">Investissement</option>
+                  </>
+                )}
+              </select>
+              <small>Sélectionnez la catégorie fiscale appropriée pour ce type de transaction</small>
+            </div>
+            
             <div className="modal-footer">
               <button type="button" className="danger" onClick={closeModal}>
                 Annuler

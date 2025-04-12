@@ -25,6 +25,19 @@ const CategorySchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  taxable: {
+    type: Boolean,
+    default: false
+  },
+  taxDeductible: {
+    type: Boolean,
+    default: false
+  },
+  taxCategory: {
+    type: String,
+    enum: ['none', 'income', 'deduction', 'donation', 'investment'],
+    default: 'none'
+  },
   createdAt: {
     type: Date,
     default: Date.now

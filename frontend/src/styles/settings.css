@@ -222,3 +222,53 @@
 .error {
   color: #ef4444;
 }
+
+.form-divider {
+  margin: 20px 0 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.form-group small {
+  display: block;
+  color: #9ca3af;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Styles pour les cases à cocher dans le formulaire de catégorie */
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.checkbox-container label {
+  order: 1; 
+  margin-right: 20px;
+}
+
+.checkbox-container input[type="checkbox"] {
+  order: 2;
+  margin: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 4px;
+  color: #a0aec0;
+  font-size: 0.85rem;
+}
