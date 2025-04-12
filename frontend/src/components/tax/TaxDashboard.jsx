@@ -4,6 +4,7 @@ import api from '../../services/api';
 import TaxReportsList from './TaxReportsList';
 import TaxCategorySettings from './TaxCategorySettings';
 import '../../styles/tax.css';
+import TaxTransactionsTable from './TaxTransactionsTable';
 
 const TaxDashboard = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -172,43 +173,10 @@ const TaxDashboard = () => {
 
           {activeTab === 'transactions' && taxData && (
             <div className="tax-transactions">
-              <h3>Transactions fiscales pour {currentYear}</h3>
-              <div className="tax-transactions-filters">
-                <button className="filter-button active">Toutes</button>
-                <button className="filter-button">Revenus imposables</button>
-                <button className="filter-button">Dépenses déductibles</button>
-                <button className="filter-button">Dons</button>
-              </div>
-              <div className="tax-transactions-table-container">
-                <table className="tax-transactions-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Description</th>
-                      <th>Montant</th>
-                      <th>Catégorie</th>
-                      <th>Type fiscal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {taxData.transactions.map(transaction => (
-                      <tr key={transaction.id}>
-                        <td>{new Date(transaction.date).toLocaleDateString()}</td>
-                        <td>{transaction.description}</td>
-                        <td className={transaction.type === 'income' ? 'income-amount' : 'expense-amount'}>
-                          {transaction.type === 'income' ? '+' : '-'}{Math.abs(transaction.amount).toFixed(2)} €
-                        </td>
-                        <td>{transaction.category}</td>
-                        <td>
-                          {transaction.isTaxable && 'Imposable'}
-                          {transaction.isTaxDeductible && 'Déductible'}
-                          {!transaction.isTaxable && !transaction.isTaxDeductible && 'Non fiscal'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <h3>Transactions fiscales</h3>
+              {taxData && taxData.transactions && (
+                <TaxTransactionsTable transactions={taxData.transactions} />
+              )}
             </div>
           )}
 
