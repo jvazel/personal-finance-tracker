@@ -398,8 +398,8 @@ const generateRecommendations = (insights, monthlySpendingByCategory, months) =>
 exports.getFinancialInsights = async (req, res) => {
   try {
     const { timeframe = '3months' } = req.query;
-    const userId = req.user ? req.user.id : '123'; // À remplacer par l'ID réel de l'utilisateur
-    
+    const userId = req.user.id;
+
     // Récupérer toutes les catégories de l'utilisateur pour les avoir disponibles
     const categories = await Category.find({ user: userId });
     const categoriesMap = categories.reduce((map, category) => {
@@ -686,68 +686,5 @@ exports.updateFinancialProgress = async (req, res) => {
   } catch (error) {
     console.error('Erreur lors de la mise à jour des données de progression:', error);
     res.status(500).json({ message: 'Erreur lors de la mise à jour des données de progression' });
-  }
-};
-
-// Fonction pour obtenir les insights financiers
-exports.getFinancialInsights = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { timeframe = '3months' } = req.query;
-    
-    // Récupérer toutes les catégories de l'utilisateur pour les avoir disponibles
-    const categories = await Category.find({ user: userId });
-    const categoriesMap = categories.reduce((map, category) => {
-      map[category._id.toString()] = category;
-      return map;
-    }, {});
-    
-    // Récupérer les insights depuis la base de données ou les générer
-    let insights = await generateInsights(userId, timeframe);
-    
-    // Remplacer les références aux IDs de catégorie par les noms dans les titres et descriptions
-    insights = insights.map(insight => {
-      // Si l'insight a une catégorie qui est juste un ID, la remplacer par l'objet complet
-      if (insight.category && typeof insight.category === 'string') {
-        const categoryId = insight.category;
-        if (categoriesMap[categoryId]) {
-          insight.category = categoriesMap[categoryId];
-        }
-      }
-      
-      // Remplacer les IDs dans le titre et la description
-      if (insight.title) {
-        insight.title = replaceIdsWithCategoryNames(insight.title, categoriesMap);
-      }
-      
-      if (insight.description) {
-        insight.description = replaceIdsWithCategoryNames(insight.description, categoriesMap);
-      }
-      
-      return insight;
-    });
-    
-    // Faire la même chose pour les recommandations
-    let recommendations = await generateRecommendations(userId, timeframe);
-    
-    recommendations = recommendations.map(recommendation => {
-      if (recommendation.title) {
-        recommendation.title = replaceIdsWithCategoryNames(recommendation.title, categoriesMap);
-      }
-      
-      if (recommendation.description) {
-        recommendation.description = replaceIdsWithCategoryNames(recommendation.description, categoriesMap);
-      }
-      
-      return recommendation;
-    });
-    
-    res.json({
-      insights,
-      recommendations
-    });
-  } catch (error) {
-    console.error('Erreur lors de la récupération des insights financiers:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération des insights financiers' });
   }
 };
