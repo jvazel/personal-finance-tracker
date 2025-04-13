@@ -240,10 +240,11 @@ const TransactionList = ({ selectedMonth }) => {
                 </td>
                 <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
                 <td>
-                  {/* Safely render category name from either category object or direct property */}
-                  {transaction.category && typeof transaction.category === 'object' 
-                    ? transaction.category.name 
-                    : (transaction.categoryName || transaction.category || 'Non catégorisé')}
+                  <span 
+                    className="category-indicator" 
+                    style={{ backgroundColor: transaction.category?.color || '#808080' }}
+                  ></span>
+                  {transaction.category?.name || 'Non catégorisé'}
                 </td>
                 <td className="transaction-actions">
                   <button 
