@@ -28,7 +28,14 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const [description, setDescription] = useState(transactionToEdit ? transactionToEdit.description : '');
   const [amount, setAmount] = useState(transactionToEdit ? transactionToEdit.amount : '');
   const [type, setType] = useState(transactionToEdit ? transactionToEdit.type : 'expense');
-  const [category, setCategory] = useState(transactionToEdit ? transactionToEdit.category : '');
+  
+  // Initialize category state with ID if available, otherwise use name
+  const [category, setCategory] = useState(
+    transactionToEdit ? 
+    (transactionToEdit.category?._id || transactionToEdit.category) : 
+    ''
+  );
+  
   const [formError, setFormError] = useState('');
 
   // Fetch categories from the database
@@ -50,9 +57,9 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           );
           
           if (filteredCategories.length > 0) {
-            setCategory(filteredCategories[0].name);
+            setCategory(filteredCategories[0]._id);
           } else if (categoriesData.length > 0) {
-            setCategory(categoriesData[0].name);
+            setCategory(categoriesData[0]._id);
           }
         }
       } catch (error) {
@@ -76,9 +83,9 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   useEffect(() => {
     if (filteredCategories.length > 0) {
       // Check if current category is valid for the selected type
-      const categoryExists = filteredCategories.some(cat => cat.name === category);
+      const categoryExists = filteredCategories.some(cat => cat._id === category);
       if (!categoryExists) {
-        setCategory(filteredCategories[0].name);
+        setCategory(filteredCategories[0]._id);
       }
     }
   }, [type, filteredCategories, category]);
@@ -185,28 +192,31 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       
       <div className="form-group">
         <label htmlFor="category">Catégorie</label>
-        {loadingCategories ? (
-          <div className="loading-categories">Chargement des catégories...</div>
-        ) : (
-          <select
-            id="category"
-            value={category}
-            onChange={e => setCategory(e.target.value)}
-          >
-            {filteredCategories.length > 0 ? (
-              filteredCategories.map(cat => (
-                <option key={cat._id} value={cat.name}>{cat.name}</option>
-              ))
-            ) : (
-              <option value="">Aucune catégorie disponible</option>
-            )}
-          </select>
-        )}
+        <select
+          id="category"
+          value={category}
+          onChange={e => setCategory(e.target.value)}
+          disabled={loadingCategories}
+        >
+          {loadingCategories ? (
+            <option>Chargement des catégories...</option>
+          ) : (
+            filteredCategories.map(cat => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))
+          )}
+        </select>
       </div>
       
       <div className="form-actions">
-        <button type="button" className="cancel" onClick={onClose}>Annuler</button>
-        <button type="submit">{transactionToEdit ? 'Mettre à jour' : 'Ajouter'} la transaction</button>
+        <button type="button" onClick={onClose} className="cancel-button">
+          Annuler
+        </button>
+        <button type="submit" className="submit-button">
+          {transactionToEdit ? 'Mettre à jour' : 'Ajouter'}
+        </button>
       </div>
     </form>
   );

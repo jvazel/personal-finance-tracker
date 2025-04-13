@@ -434,3 +434,90 @@
   color: #a0aec0;
   font-style: italic;
 }
+
+.prediction-controls {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.months-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #353549;
+  color: #e2e8f0;
+  border: 1px solid #4b5563;
+}
+
+.prediction-month-card {
+  background-color: #353549;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.prediction-month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  background-color: #353549;
+  border-bottom: 1px solid #4b5563;
+}
+
+.prediction-month-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.prediction-month-balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expand-button {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.prediction-month-details {
+  padding: 16px;
+}
+
+.prediction-month-details h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.predicted-row {
+  background-color: rgba(79, 70, 229, 0.1) !important;
+}
+
+.no-transactions-message {
+  color: #9ca3af;
+  text-align: center;
+  padding: 16px;
+}
+
+.prediction-disclaimer {
+  margin-top: 24px;
+  padding: 12px;
+  background-color: rgba(79, 70, 229, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.prediction-disclaimer p {
+  margin: 0;
+  color: #e2e8f0;
+}

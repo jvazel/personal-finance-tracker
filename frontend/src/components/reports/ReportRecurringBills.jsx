@@ -15,19 +15,45 @@ const ReportRecurringBills = () => {
   const [period, setPeriod] = useState('12'); // Par défaut 12 mois
   const [selectedBill, setSelectedBill] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'statistics.count', direction: 'desc' });
+  const [categories, setCategories] = useState({}); // Add state for categories
 
   useEffect(() => {
     const fetchRecurringBills = async () => {
       try {
         setLoading(true);
+        
+        // Fetch categories first to have them available for mapping
+        const categoriesResponse = await api.get('/transactions/categories');
+        const categoriesMap = {};
+        if (Array.isArray(categoriesResponse.data)) {
+          categoriesResponse.data.forEach(category => {
+            categoriesMap[category._id] = category;
+          });
+        }
+        setCategories(categoriesMap);
+        
         const response = await api.get('/transactions/recurring-bills', {
           params: { period }
         });
-        setRecurringBills(response.data);
+        
+        // Process the bills to replace category IDs with names
+        const processedBills = response.data.map(bill => {
+          // Create a copy of the bill to avoid mutating the original
+          const processedBill = { ...bill };
+          
+          // Replace category ID with category object if available
+          if (bill.category && categoriesMap[bill.category]) {
+            processedBill.categoryObject = categoriesMap[bill.category];
+          }
+          
+          return processedBill;
+        });
+        
+        setRecurringBills(processedBills);
         
         // Sélectionner la première facture par défaut s'il y en a
-        if (response.data.length > 0 && !selectedBill) {
-          setSelectedBill(response.data[0]);
+        if (processedBills.length > 0 && !selectedBill) {
+          setSelectedBill(processedBills[0]);
         }
         
         setLoading(false);
@@ -106,6 +132,27 @@ const ReportRecurringBills = () => {
     }));
   };
 
+  // Remplacer la fonction getCategoryName existante ou l'ajouter si elle n'existe pas
+  const getCategoryName = (bill) => {
+    // Si le backend a fourni directement le nom de la catégorie
+    if (bill.categoryName) {
+      return bill.categoryName;
+    }
+    
+    // Si la catégorie est un objet avec un nom
+    if (bill.category && typeof bill.category === 'object' && bill.category.name) {
+      return bill.category.name;
+    }
+    
+    // Si nous avons la catégorie dans notre mapping local
+    if (bill.category && typeof bill.category === 'string' && categories[bill.category]) {
+      return categories[bill.category].name;
+    }
+    
+    // Valeur par défaut
+    return 'Non catégorisé';
+  };
+
   if (loading) {
     return <div>Chargement des factures récurrentes...</div>;
   }
@@ -167,7 +214,7 @@ const ReportRecurringBills = () => {
                     className={selectedBill && selectedBill.description === bill.description ? 'selected-row' : ''}
                   >
                     <td>{bill.description}</td>
-                    <td>{bill.category}</td>
+                    <td>{getCategoryName(bill)}</td>
                     <td>{bill.statistics.count}</td>
                     <td>
                       <AmountDisplay 

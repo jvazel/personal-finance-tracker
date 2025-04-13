@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Modal from '../common/Modal';
 import AmountDisplay from '../common/AmountDisplay';
-import { FaEdit, FaTrash } from 'react-icons/fa'; // Add this import at the top with other imports
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
 const TransactionList = ({ selectedMonth }) => {
   const { transactions, loading, error, deleteTransaction, refreshTransactions } = useContext(TransactionContext);
@@ -66,9 +66,13 @@ const TransactionList = ({ selectedMonth }) => {
     
     return transactions.filter(transaction => {
       const searchTermLower = searchTerm.toLowerCase();
+      const categoryName = transaction.category && typeof transaction.category === 'object' 
+        ? transaction.category.name 
+        : (transaction.categoryName || transaction.category || '');
+        
       return (
         transaction.description.toLowerCase().includes(searchTermLower) ||
-        transaction.category.toLowerCase().includes(searchTermLower)
+        categoryName.toLowerCase().includes(searchTermLower)
       );
     });
   }, [transactions, searchTerm]);
@@ -80,6 +84,25 @@ const TransactionList = ({ selectedMonth }) => {
     let sortableTransactions = [...filteredTransactions];
     if (sortConfig.key) {
       sortableTransactions.sort((a, b) => {
+        // Special handling for category which might be an object
+        if (sortConfig.key === 'category') {
+          const aCategory = a.category && typeof a.category === 'object' 
+            ? a.category.name 
+            : (a.categoryName || a.category || '');
+            
+          const bCategory = b.category && typeof b.category === 'object' 
+            ? b.category.name 
+            : (b.categoryName || b.category || '');
+            
+          if (aCategory < bCategory) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+          }
+          if (aCategory > bCategory) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+          }
+          return 0;
+        }
+        
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
         
@@ -205,18 +228,23 @@ const TransactionList = ({ selectedMonth }) => {
         </thead>
         <tbody>
           {currentTransactions.length > 0 ? (
-            currentTransactions.map(transaction => (
+            currentTransactions.map((transaction) => (
               <tr key={transaction._id}>
                 <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
                 <td>{transaction.description}</td>
-                <td>
+                <td className={`amount ${transaction.type}`}>
                   <AmountDisplay 
                     amount={transaction.amount} 
                     type={transaction.type} 
                   />
                 </td>
                 <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
-                <td>{transaction.category}</td>
+                <td>
+                  {/* Safely render category name from either category object or direct property */}
+                  {transaction.category && typeof transaction.category === 'object' 
+                    ? transaction.category.name 
+                    : (transaction.categoryName || transaction.category || 'Non catégorisé')}
+                </td>
                 <td className="transaction-actions">
                   <button 
                     className="edit-button" 
@@ -235,8 +263,8 @@ const TransactionList = ({ selectedMonth }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="6" style={{ textAlign: 'center' }}>
-                Aucune transaction ne correspond à votre recherche
+              <td colSpan="6" className="no-transactions">
+                {searchTerm ? "Aucune transaction ne correspond à votre recherche." : "Aucune transaction pour ce mois."}
               </td>
             </tr>
           )}

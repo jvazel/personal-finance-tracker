@@ -63,34 +63,52 @@ const ReportExpenses = () => {
   };
 
   // Format currency
-  const formatCurrency = (value) => {
-    return `${value.toFixed(2)} €`;
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   // Custom tooltip for pie chart
-  const CustomTooltip = ({ active, payload }) => {
+  const CustomPieTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
       return (
-        <div className="custom-tooltip">
-          <p className="tooltip-category">{data.category}</p>
-          <p className="tooltip-amount">{formatCurrency(data.amount)}</p>
-          <p className="tooltip-percent">{`${(data.amount / expenseData.totalExpenses * 100).toFixed(1)}%`}</p>
+        <div className="custom-tooltip" style={{ backgroundColor: '#333', padding: '10px', border: '1px solid #666' }}>
+          <p className="label" style={{ margin: '0', color: '#fff' }}>{`${payload[0].name}: ${formatCurrency(payload[0].value)}`}</p>
+          <p className="percent" style={{ margin: '0', color: '#fff' }}>{`(${(payload[0].percent * 100).toFixed(2)}%)`}</p>
         </div>
       );
     }
     return null;
   };
 
-  if (loading) return <div>Chargement du rapport de dépenses...</div>;
-  if (error) return <div>Erreur: {error}</div>;
-  if (!expenseData) return <div>Aucune donnée disponible</div>;
+  // Custom tooltip for line chart
+  const CustomLineTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip" style={{ backgroundColor: '#333', padding: '10px', border: '1px solid #666' }}>
+          <p className="label" style={{ margin: '0', color: '#fff' }}>{`Date: ${label}`}</p>
+          <p className="value" style={{ margin: '0', color: '#fff' }}>{`Dépenses: ${formatCurrency(payload[0].value)}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  if (loading) {
+    return <div className="loading-message">Chargement du rapport de dépenses...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
+  if (!expenseData) {
+    return <div className="no-data-message">Aucune donnée disponible pour cette période</div>;
+  }
 
   return (
     <div className="report-section">
-      <h2>Evolution des dépenses</h2>
+      <h2>Rapport de Dépenses</h2>
 
-      {/* Month selector */}
       <div className="month-selector">
         <button onClick={goToPreviousMonth} className="month-nav-button">
           <FaChevronLeft />
@@ -101,167 +119,99 @@ const ReportExpenses = () => {
         </button>
       </div>
 
-      {/* Summary cards */}
       <div className="expense-summary-cards">
         <div className="report-card">
-          <h3>Total des dépenses</h3>
-          <p className="amount-expense">{formatCurrency(expenseData.totalExpenses)}</p>
+          <h3>Total des Dépenses</h3>
+          <p>{formatCurrency(expenseData.totalExpenses)}</p>
         </div>
         <div className="report-card">
-          <h3>Dépense moyenne par jour</h3>
-          <p className="amount-expense">{formatCurrency(expenseData.averageDailyExpense)}</p>
+          <h3>Dépense Moyenne Journalière</h3>
+          <p>{formatCurrency(expenseData.averageDailyExpense)}</p>
         </div>
       </div>
 
-      {/* Main charts section */}
       <div className="expense-charts-container">
-        {/* Expenses by category pie chart */}
-        <div className="chart-card">
-          <h3>Répartition des dépenses par catégorie</h3>
-          <div style={{ height: '300px' }}>
-            {expenseData.expensesByCategory.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenseData.expensesByCategory}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="amount"
-                    nameKey="category"
-                    label={({ category, percent }) => `${category}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {expenseData.expensesByCategory.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="no-data-message">Aucune dépense pour ce mois</div>
-            )}
-          </div>
-        </div>
-
-        {/* Top 5 expenses bar chart */}
-        <div className="chart-card">
-          <h3>Top 5 des dépenses</h3>
-          <div style={{ height: '300px' }}>
-            {expenseData.topExpenses.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={expenseData.topExpenses.map(expense => ({
-                    description: expense.description.length > 20
-                      ? expense.description.substring(0, 20) + '...'
-                      : expense.description,
-                    amount: Math.abs(expense.amount),
-                    category: expense.category,
-                    fullDescription: expense.description
-                  }))}
-                  layout="vertical"
-                  margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+        {/* Pie Chart for Category Distribution */}
+        <div className="expense-chart-card">
+          <h3>Répartition par Catégorie</h3>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={expenseData.expensesByCategory}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="amount"
+                  nameKey="categoryName" // Utiliser categoryName au lieu de category
+                  label={({ categoryName, percent }) => `${categoryName}: ${(percent * 100).toFixed(0)}%`}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                  <XAxis type="number" stroke="#aaa" />
-                  <YAxis
-                    dataKey="description"
-                    type="category"
-                    stroke="#aaa"
-                    width={100}
-                  />
-                  <Tooltip
-                    formatter={(value) => [formatCurrency(value), 'Montant']}
-                    labelFormatter={(label) => {
-                      const item = expenseData.topExpenses.find(item =>
-                        item.description.includes(label) || label.includes(item.description)
-                      );
-                      return item ? item.description : label;
-                    }}
-                    contentStyle={{ backgroundColor: '#333', border: '1px solid #666', color: 'white' }}
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="amount"
-                    fill="#ef4444"
-                    name="Montant"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="no-data-message">Aucune dépense pour ce mois</div>
-            )}
+                  {expenseData.expensesByCategory.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.categoryColor || COLORS[index % COLORS.length]} 
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomPieTooltip />} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      </div>
 
-      {/* Daily expense trend line chart */}
-      <div className="chart-card">
-        <h3>Évolution des dépenses quotidiennes</h3>
-        <div style={{ height: '300px' }}>
-          {expenseData.dailyExpenseTrend.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
+        {/* Line Chart for Daily Expense Trend */}
+        <div className="expense-chart-card">
+          <h3>Évolution Journalière des Dépenses</h3>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
               <LineChart
                 data={expenseData.dailyExpenseTrend}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                <XAxis
-                  dataKey="date"
-                  stroke="#aaa"
-                  tickFormatter={(date) => format(new Date(date), 'dd/MM')}
-                />
+                <XAxis dataKey="date" stroke="#aaa" />
                 <YAxis stroke="#aaa" />
-                <Tooltip
-                  formatter={(value) => [formatCurrency(value), 'Dépenses']}
-                  labelFormatter={(date) => format(new Date(date), 'dd MMMM yyyy', { locale: fr })}
-                  contentStyle={{ backgroundColor: '#333', border: '1px solid #666', color: 'white' }}
-                />
+                <Tooltip content={<CustomLineTooltip />} />
                 <Legend />
                 <Line
                   type="monotone"
                   dataKey="amount"
                   stroke="#ef4444"
+                  activeDot={{ r: 8 }}
                   name="Dépenses"
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: '#ef4444' }}
                 />
               </LineChart>
             </ResponsiveContainer>
-          ) : (
-            <div className="no-data-message">Aucune dépense pour ce mois</div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Expenses by category breakdown */}
-      <div className="chart-card">
-        <h3>Détail des dépenses par catégorie</h3>
-        <div className="expense-category-table">
-          <table className="transaction-table">
-            <thead>
-              <tr>
-                <th>Catégorie</th>
-                <th>Montant</th>
-                <th>Pourcentage</th>
-                <th>Nombre de transactions</th>
+      {/* Top Expenses Table */}
+      <div className="top-expenses-section">
+        <h3>Top 5 des Dépenses</h3>
+        <table className="transaction-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Catégorie</th>
+              <th>Date</th>
+              <th>Montant</th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenseData.topExpenses.map((expense, index) => (
+              <tr key={index}>
+                <td>{expense.description}</td>
+                <td>{expense.categoryName || 'Non catégorisé'}</td>
+                <td>{format(new Date(expense.date), 'dd/MM/yyyy', { locale: fr })}</td>
+                <td className="amount-expense">{formatCurrency(Math.abs(expense.amount))}</td>
               </tr>
-            </thead>
-            <tbody>
-              {expenseData.expensesByCategory.map((category, index) => (
-                <tr key={index}>
-                  <td>{category.category}</td>
-                  <td className="amount-expense">{formatCurrency(category.amount)}</td>
-                  <td>{((category.amount / expenseData.totalExpenses) * 100).toFixed(1)}%</td>
-                  <td>{category.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

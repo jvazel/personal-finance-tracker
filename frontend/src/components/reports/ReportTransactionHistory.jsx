@@ -99,26 +99,49 @@ const ReportTransactionHistory = () => {
   };
 
   // Filtrer les transactions en fonction du terme de recherche
+  // Update the filtering function to handle category objects
   const filteredTransactions = React.useMemo(() => {
-    if (!searchTerm.trim()) return transactions;
+    if (!transactions) return [];
     
     return transactions.filter(transaction => {
       const searchTermLower = searchTerm.toLowerCase();
-      const descriptionMatch = transaction.description.toLowerCase().includes(searchTermLower);
-      const typeMatch = 
-        (transaction.type === 'income' && 'revenu'.includes(searchTermLower)) || 
-        (transaction.type === 'expense' && 'dépense'.includes(searchTermLower));
-      const categoryMatch = transaction.category.toLowerCase().includes(searchTermLower);
-      
-      return descriptionMatch || typeMatch || categoryMatch;
+      const categoryName = transaction.category && typeof transaction.category === 'object' 
+        ? transaction.category.name 
+        : (transaction.categoryName || transaction.category || '');
+        
+      return (
+        transaction.description.toLowerCase().includes(searchTermLower) ||
+        categoryName.toLowerCase().includes(searchTermLower)
+      );
     });
   }, [transactions, searchTerm]);
-
-  // Sort transactions based on current sortConfig
+  
+  // Update the sorting function to handle category objects
   const sortedTransactions = React.useMemo(() => {
+    if (!filteredTransactions) return [];
+    
     let sortableTransactions = [...filteredTransactions];
     if (sortConfig.key) {
       sortableTransactions.sort((a, b) => {
+        // Special handling for category which might be an object
+        if (sortConfig.key === 'category') {
+          const aCategory = a.category && typeof a.category === 'object' 
+            ? a.category.name 
+            : (a.categoryName || a.category || '');
+            
+          const bCategory = b.category && typeof b.category === 'object' 
+            ? b.category.name 
+            : (b.categoryName || b.category || '');
+            
+          if (aCategory < bCategory) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+          }
+          if (aCategory > bCategory) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+          }
+          return 0;
+        }
+        
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
         
@@ -277,15 +300,24 @@ const ReportTransactionHistory = () => {
               </tr>
             </thead>
             <tbody>
-              {currentTransactions.map(transaction => (
+              {currentTransactions.map((transaction) => (
                 <tr key={transaction._id}>
                   <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
                   <td>{transaction.description}</td>
-                  <td className={transaction.type === 'income' ? 'amount-income' : 'amount-expense'}>
-                    <AmountDisplay amount={transaction.amount} type={transaction.type} />
+                  <td className={`amount ${transaction.type}`}>
+                    <AmountDisplay 
+                      amount={transaction.amount} 
+                      type={transaction.type} 
+                    />
                   </td>
                   <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
-                  <td>{transaction.category}</td>
+                  <td>
+                    {/* Safely render category name from either category object or direct property */}
+                    {transaction.category && typeof transaction.category === 'object' 
+                      ? transaction.category.name 
+                      : (transaction.categoryName || transaction.category || 'Non catégorisé')}
+                  </td>
+                  {/* Other cells... */}
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,7 @@
 const FinancialProgress = require('../models/FinancialProgress');
 const SavedRecommendation = require('../models/SavedRecommendation');
 const Transaction = require('../models/Transaction');
+const Category = require('../models/Category');
 const Goal = require('../models/Goal');
 
 const { 
@@ -399,6 +400,13 @@ exports.getFinancialInsights = async (req, res) => {
     const { timeframe = '3months' } = req.query;
     const userId = req.user ? req.user.id : '123'; // À remplacer par l'ID réel de l'utilisateur
     
+    // Récupérer toutes les catégories de l'utilisateur pour les avoir disponibles
+    const categories = await Category.find({ user: userId });
+    const categoriesMap = categories.reduce((map, category) => {
+      map[category._id.toString()] = category;
+      return map;
+    }, {});
+    
     // Analyser les tendances de dépenses
     const { insights: spendingInsights, monthlySpendingByCategory, months } = 
       await analyzeSpendingTrends(userId, timeframe);
@@ -407,10 +415,45 @@ exports.getFinancialInsights = async (req, res) => {
     const goalInsights = await analyzeFinancialGoals(userId);
     
     // Combiner les insights
-    const allInsights = [...spendingInsights, ...goalInsights];
+    let allInsights = [...spendingInsights, ...goalInsights];
+    
+    // Remplacer les références aux IDs de catégorie par les noms dans les titres et descriptions
+    allInsights = allInsights.map(insight => {
+      // Si l'insight a une catégorie qui est un ID MongoDB
+      if (insight.category && typeof insight.category === 'string' && /^[a-f0-9]{24}$/.test(insight.category)) {
+        const categoryId = insight.category;
+        if (categoriesMap[categoryId]) {
+          insight.category = categoriesMap[categoryId].name;
+        }
+      }
+      
+      // Remplacer les IDs dans le titre et la description
+      if (insight.title) {
+        insight.title = replaceIdsWithCategoryNames(insight.title, categoriesMap);
+      }
+      
+      if (insight.description) {
+        insight.description = replaceIdsWithCategoryNames(insight.description, categoriesMap);
+      }
+      
+      return insight;
+    });
     
     // Générer des recommandations basées sur tous les insights
-    const recommendations = generateRecommendations(allInsights, monthlySpendingByCategory, months);
+    let recommendations = generateRecommendations(allInsights, monthlySpendingByCategory, months);
+    
+    // Remplacer les références aux IDs de catégorie dans les recommandations
+    recommendations = recommendations.map(recommendation => {
+      if (recommendation.title) {
+        recommendation.title = replaceIdsWithCategoryNames(recommendation.title, categoriesMap);
+      }
+      
+      if (recommendation.description) {
+        recommendation.description = replaceIdsWithCategoryNames(recommendation.description, categoriesMap);
+      }
+      
+      return recommendation;
+    });
     
     res.json({
       insights: allInsights,
@@ -421,6 +464,21 @@ exports.getFinancialInsights = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la génération des conseils financiers' });
   }
 };
+
+// Fonction utilitaire pour remplacer les IDs par les noms de catégorie dans un texte
+function replaceIdsWithCategoryNames(text, categoriesMap) {
+  if (!text || typeof text !== 'string') return text;
+  
+  // Recherche des IDs MongoDB (format: 24 caractères hexadécimaux)
+  return text.replace(/\b([a-f0-9]{24})\b/g, (match) => {
+    // Vérifier si l'ID correspond à une catégorie
+    if (categoriesMap[match]) {
+      return categoriesMap[match].name;
+    }
+    // Si nous ne trouvons pas de correspondance, retourner l'ID tel quel
+    return match;
+  });
+}
 
 // Récupérer toutes les recommandations sauvegardées
 exports.getSavedRecommendations = async (req, res) => {
@@ -628,5 +686,68 @@ exports.updateFinancialProgress = async (req, res) => {
   } catch (error) {
     console.error('Erreur lors de la mise à jour des données de progression:', error);
     res.status(500).json({ message: 'Erreur lors de la mise à jour des données de progression' });
+  }
+};
+
+// Fonction pour obtenir les insights financiers
+exports.getFinancialInsights = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { timeframe = '3months' } = req.query;
+    
+    // Récupérer toutes les catégories de l'utilisateur pour les avoir disponibles
+    const categories = await Category.find({ user: userId });
+    const categoriesMap = categories.reduce((map, category) => {
+      map[category._id.toString()] = category;
+      return map;
+    }, {});
+    
+    // Récupérer les insights depuis la base de données ou les générer
+    let insights = await generateInsights(userId, timeframe);
+    
+    // Remplacer les références aux IDs de catégorie par les noms dans les titres et descriptions
+    insights = insights.map(insight => {
+      // Si l'insight a une catégorie qui est juste un ID, la remplacer par l'objet complet
+      if (insight.category && typeof insight.category === 'string') {
+        const categoryId = insight.category;
+        if (categoriesMap[categoryId]) {
+          insight.category = categoriesMap[categoryId];
+        }
+      }
+      
+      // Remplacer les IDs dans le titre et la description
+      if (insight.title) {
+        insight.title = replaceIdsWithCategoryNames(insight.title, categoriesMap);
+      }
+      
+      if (insight.description) {
+        insight.description = replaceIdsWithCategoryNames(insight.description, categoriesMap);
+      }
+      
+      return insight;
+    });
+    
+    // Faire la même chose pour les recommandations
+    let recommendations = await generateRecommendations(userId, timeframe);
+    
+    recommendations = recommendations.map(recommendation => {
+      if (recommendation.title) {
+        recommendation.title = replaceIdsWithCategoryNames(recommendation.title, categoriesMap);
+      }
+      
+      if (recommendation.description) {
+        recommendation.description = replaceIdsWithCategoryNames(recommendation.description, categoriesMap);
+      }
+      
+      return recommendation;
+    });
+    
+    res.json({
+      insights,
+      recommendations
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des insights financiers:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des insights financiers' });
   }
 };

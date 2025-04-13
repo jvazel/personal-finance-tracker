@@ -14,11 +14,20 @@ const ExpensePieChart = ({ expensesByCategory }) => {
 
   // Prepare data for the pie chart
   const data = {
-    labels: expensesByCategory.map(item => item.category),
+    labels: expensesByCategory.map(item => {
+      // Handle both string categories and category objects
+      return typeof item.category === 'object' ? item.category.name : item.category;
+    }),
     datasets: [
       {
         data: expensesByCategory.map(item => item.amount),
-        backgroundColor: backgroundColors.slice(0, expensesByCategory.length),
+        backgroundColor: expensesByCategory.map(item => {
+          // Use category color if available, otherwise use default colors
+          if (typeof item.category === 'object' && item.category.color) {
+            return item.category.color;
+          }
+          return backgroundColors[expensesByCategory.indexOf(item) % backgroundColors.length];
+        }),
         borderWidth: 1,
       },
     ],

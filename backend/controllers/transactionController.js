@@ -1,5 +1,6 @@
 // backend/controllers/transactionController.js
 const Transaction = require('../models/Transaction');
+const Category = require('../models/Category');
 const mongoose = require('mongoose');
 
 // Get all transactions
@@ -15,8 +16,21 @@ exports.getAllTransactions = async (req, res) => {
       };
     }
 
-    const transactions = await Transaction.find(query).sort({ date: -1 }); // Sort by date descending
-    res.json(transactions);
+    const transactions = await Transaction.find(query)
+      .populate('category', 'name color icon type')
+      .sort({ date: -1 }); // Sort by date descending
+    
+    // Format transactions to maintain backward compatibility
+    const formattedTransactions = transactions.map(transaction => {
+      const transObj = transaction.toObject();
+      // Add category name as a property for backward compatibility
+      if (transObj.category && typeof transObj.category === 'object') {
+        transObj.categoryName = transObj.category.name;
+      }
+      return transObj;
+    });
+    
+    res.json(formattedTransactions);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching transactions', error: error.message });
   }
@@ -44,9 +58,21 @@ exports.getReportTransactions = async (req, res) => {
       query.date = { $gte: oneYearAgo };
     }
 
-    const transactions = await Transaction.find(query).sort({ date: -1 }); // Tri par date décroissante
+    const transactions = await Transaction.find(query)
+      .populate('category', 'name color icon type')
+      .sort({ date: -1 }); // Tri par date décroissante
 
-    res.json(transactions);
+    // Format transactions to maintain backward compatibility
+    const formattedTransactions = transactions.map(transaction => {
+      const transObj = transaction.toObject();
+      // Add category name as a property for backward compatibility
+      if (transObj.category && typeof transObj.category === 'object') {
+        transObj.categoryName = transObj.category.name;
+      }
+      return transObj;
+    });
+
+    res.json(formattedTransactions);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching report transactions', error: error.message });
   }
@@ -55,11 +81,36 @@ exports.getReportTransactions = async (req, res) => {
 // Create a new transaction
 exports.createTransaction = async (req, res) => {
   try {
+    // If category is provided as a name, find the category ID
+    let categoryId = req.body.category;
+    
+    // If the category is not a valid ObjectId, try to find it by name
+    if (categoryId && !mongoose.Types.ObjectId.isValid(categoryId)) {
+      const category = await Category.findOne({ 
+        name: categoryId,
+        user: req.user.id
+      });
+      
+      if (category) {
+        categoryId = category._id;
+      } else {
+        return res.status(400).json({ 
+          message: 'Category not found. Please provide a valid category ID or name.' 
+        });
+      }
+    }
+    
     const newTransaction = new Transaction({
       ...req.body,
+      category: categoryId,
       user: req.user.id // Add user ID to transaction
     });
+    
     const savedTransaction = await newTransaction.save();
+    
+    // Populate the category for the response
+    await savedTransaction.populate('category', 'name color icon type');
+    
     res.status(201).json(savedTransaction);
   } catch (error) {
     res.status(400).json({ message: 'Error creating transaction', error: error.message });
@@ -85,14 +136,34 @@ exports.getTransactionById = async (req, res) => {
 // Update transaction by ID
 exports.updateTransaction = async (req, res) => {
   try {
+    // If category is provided as a name, find the category ID
+    let updateData = { ...req.body };
+    
+    if (updateData.category && !mongoose.Types.ObjectId.isValid(updateData.category)) {
+      const category = await Category.findOne({ 
+        name: updateData.category,
+        user: req.user.id
+      });
+      
+      if (category) {
+        updateData.category = category._id;
+      } else {
+        return res.status(400).json({ 
+          message: 'Category not found. Please provide a valid category ID or name.' 
+        });
+      }
+    }
+    
     const updatedTransaction = await Transaction.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id }, // Only update user's own transaction
-      req.body,
+      updateData,
       { new: true, runValidators: true }
-    );
+    ).populate('category', 'name color icon type');
+    
     if (!updatedTransaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
+    
     res.json(updatedTransaction);
   } catch (error) {
     res.status(400).json({ message: 'Error updating transaction', error: error.message });
@@ -178,45 +249,42 @@ exports.getExpensesByCategory = async (req, res) => {
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999); // Set to end of day
 
-    // Validate date format
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.status(400).json({
-        success: false,
-        message: 'Format de date invalide. Utilisez YYYY-MM-DD'
-      });
-    }
+    // Find all expense transactions in the date range
+    const transactions = await Transaction.find({
+      user: req.user.id,
+      type: 'expense',
+      date: { $gte: start, $lte: end }
+    }).populate('category', 'name color');
 
-    // Convert user ID string to ObjectId - use 'new' keyword with the constructor
-    const userId = new mongoose.Types.ObjectId(req.user.id);
-
-    // Aggregate expenses by category
-    const expensesByCategory = await Transaction.aggregate([
-      {
-        $match: {
-          user: userId, // Use converted ObjectId
-          type: 'expense',
-          date: { $gte: start, $lte: end }
-        }
-      },
-      {
-        $group: {
-          _id: '$category',
-          amount: { $sum: '$amount' }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          category: '$_id',
-          amount: 1
-        }
-      },
-      {
-        $sort: { amount: -1 }
+    // Group transactions by category
+    const expensesByCategory = {};
+    
+    transactions.forEach(transaction => {
+      // Get category name from either the populated category object or fallback to direct property
+      const categoryName = transaction.category && typeof transaction.category === 'object' 
+        ? transaction.category.name 
+        : 'Autre';
+      
+      // Get category color if available
+      const categoryColor = transaction.category && typeof transaction.category === 'object' 
+        ? transaction.category.color 
+        : null;
+      
+      if (!expensesByCategory[categoryName]) {
+        expensesByCategory[categoryName] = {
+          category: categoryName,
+          amount: 0,
+          color: categoryColor
+        };
       }
-    ]);
+      
+      expensesByCategory[categoryName].amount += Math.abs(transaction.amount);
+    });
 
-    res.status(200).json(expensesByCategory);
+    // Convert to array and sort by amount
+    const result = Object.values(expensesByCategory).sort((a, b) => b.amount - a.amount);
+
+    res.json(result);
   } catch (error) {
     console.error('Error fetching expenses by category:', error);
     res.status(500).json({
@@ -350,7 +418,9 @@ exports.getRecurringBills = async (req, res) => {
       user: req.user.id, // Filter by authenticated user
       type: 'expense',
       date: { $gte: startDate, $lte: endDate }
-    }).sort({ date: 1 });
+    })
+    .populate('category', 'name color icon') // Ajouter cette ligne pour récupérer les infos de catégorie
+    .sort({ date: 1 });
     
     // Algorithme pour détecter les factures récurrentes
     // Une facture est considérée comme récurrente si:
@@ -367,12 +437,15 @@ exports.getRecurringBills = async (req, res) => {
         potentialRecurringBills[normalizedDesc] = [];
       }
       
-      potentialRecurringBills[normalizedDesc].push({
+      // Créer un objet avec les données de transaction, y compris la catégorie
+      const transactionData = {
         id: transaction._id,
         date: transaction.date,
         amount: transaction.amount,
-        category: transaction.category
-      });
+        category: transaction.category // Maintenant c'est l'objet catégorie complet
+      };
+      
+      potentialRecurringBills[normalizedDesc].push(transactionData);
     });
     
     // Filtrer pour ne garder que les transactions qui apparaissent au moins 2 fois
@@ -391,6 +464,9 @@ exports.getRecurringBills = async (req, res) => {
           ? ((occurrences[occurrences.length - 1].amount - occurrences[0].amount) / occurrences[0].amount) * 100 
           : 0;
         
+        // Utiliser la catégorie de la première occurrence (maintenant c'est un objet complet)
+        const categoryInfo = occurrences[0].category;
+        
         return {
           description,
           occurrences,
@@ -401,7 +477,8 @@ exports.getRecurringBills = async (req, res) => {
             max,
             trend // Pourcentage d'évolution entre la première et la dernière occurrence
           },
-          category: occurrences[0].category // Utiliser la catégorie de la première occurrence
+          category: categoryInfo, // Ceci est maintenant l'objet catégorie complet
+          categoryName: categoryInfo && typeof categoryInfo === 'object' ? categoryInfo.name : 'Non catégorisé' // Ajouter le nom de la catégorie directement
         };
       })
       // Trier par nombre d'occurrences (décroissant)
@@ -480,6 +557,14 @@ exports.getExpenseReport = async (req, res) => {
     // Convert user ID string to ObjectId for aggregation
     const userId = new mongoose.Types.ObjectId(req.user.id);
     
+    // Récupérer toutes les catégories pour créer un mapping
+    const Category = mongoose.model('Category');
+    const categories = await Category.find({});
+    const categoriesMap = {};
+    categories.forEach(category => {
+      categoriesMap[category._id.toString()] = category;
+    });
+    
     // Get expenses by category - use ObjectId for user field
     const expensesByCategory = await Transaction.aggregate([
       {
@@ -509,14 +594,40 @@ exports.getExpenseReport = async (req, res) => {
       }
     ]);
     
+    // Ajouter les noms des catégories aux résultats
+    const processedExpensesByCategory = expensesByCategory.map(item => {
+      const categoryId = item.category ? item.category.toString() : null;
+      const categoryInfo = categoryId && categoriesMap[categoryId] 
+        ? categoriesMap[categoryId] 
+        : null;
+      
+      return {
+        ...item,
+        categoryName: categoryInfo ? categoryInfo.name : 'Non catégorisé',
+        categoryColor: categoryInfo ? categoryInfo.color : '#808080'
+      };
+    });
+    
     // Get top expenses - add this query
     const topExpenses = await Transaction.find({
       user: req.user.id,
       type: 'expense',
       date: { $gte: start, $lte: end }
     })
+    .populate('category', 'name color icon')
     .sort({ amount: 1 })
     .limit(5);
+    
+    // Formater les top expenses pour inclure le nom de la catégorie
+    const processedTopExpenses = topExpenses.map(expense => {
+      const expenseObj = expense.toObject();
+      if (expenseObj.category && typeof expenseObj.category === 'object') {
+        expenseObj.categoryName = expenseObj.category.name;
+      } else {
+        expenseObj.categoryName = 'Non catégorisé';
+      }
+      return expenseObj;
+    });
     
     // Get daily expense trend - use ObjectId for user field
     const dailyExpenseTrend = await Transaction.aggregate([
@@ -568,8 +679,8 @@ exports.getExpenseReport = async (req, res) => {
     
     // Return all data
     res.json({
-      expensesByCategory,
-      topExpenses,
+      expensesByCategory: processedExpensesByCategory,
+      topExpenses: processedTopExpenses, // Use processedTopExpenses instead of formattedTopExpenses
       dailyExpenseTrend,
       totalExpenses: totalExpenses.length > 0 ? totalExpenses[0].total : 0,
       averageDailyExpense

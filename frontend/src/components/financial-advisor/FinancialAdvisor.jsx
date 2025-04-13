@@ -40,6 +40,7 @@ const FinancialAdvisor = () => {
     setTimeframe(newTimeframe);
   };
 
+  // Dans la fonction getInsightIcon, il pourrait y avoir des références à des catégories
   const getInsightIcon = (type) => {
     switch (type) {
       case 'spending_increase':
@@ -172,12 +173,17 @@ const FinancialAdvisor = () => {
               >
                 <div className="insight-card-header">
                   <div className="icon">{getInsightIcon(insight.type)}</div>
-                  <h3>{insight.title}</h3>
+                  <h3>{formatCategoryReferences(insight.title, insight)}</h3>
                 </div>
                 <div className="insight-card-content">
-                  <p>{insight.description}</p>
+                  <p>{formatCategoryReferences(insight.description, insight)}</p>
                   <div className="insight-card-footer">
-                    <span className="category-chip">{insight.category}</span>
+                    <span className="category-chip">
+                      {/* Afficher le nom de la catégorie au lieu de l'objet catégorie */}
+                      {insight.category && typeof insight.category === 'object' 
+                        ? insight.category.name 
+                        : (insight.categoryName || insight.category || 'Non catégorisé')}
+                    </span>
                     {insight.impact && (
                       <span className={`impact-text ${
                         insight.impact === 'Positif' ? 'impact-positive' : 'impact-negative'
@@ -250,10 +256,10 @@ const FinancialAdvisor = () => {
               <div key={index} className="recommendation-card">
                 <div className="recommendation-card-header">
                   <div className="icon"><FaLightbulb style={{ color: '#3b82f6' }} /></div>
-                  <h3>{recommendation.title}</h3>
+                  <h3>{formatCategoryReferences(recommendation.title, recommendation)}</h3>
                 </div>
                 <div className="recommendation-card-content">
-                  <p>{recommendation.description}</p>
+                  <p>{formatCategoryReferences(recommendation.description, recommendation)}</p>
                   <div className="recommendation-metadata">
                     <span className="recommendation-difficulty">
                       Difficulté: {recommendation.difficulty}
@@ -289,3 +295,26 @@ const FinancialAdvisor = () => {
 };
 
 export default FinancialAdvisor;
+
+// Ajoutons une fonction utilitaire pour formater les titres et descriptions qui pourraient contenir des IDs de catégorie
+const formatCategoryReferences = (text, insight) => {
+  console.log("formatCategoryReferences " + text + ";" + insight);
+  if (!text || typeof text !== 'string') return text;
+  
+  // Recherche des IDs MongoDB (format: 24 caractères hexadécimaux)
+  return text.replace(/\b([a-f0-9]{24})\b/g, (match) => {
+    // Vérifier si l'insight a une propriété category qui est un objet
+    if (insight.category && typeof insight.category === 'object' && insight.category._id === match) {
+      return insight.category.name;
+    }
+    // Vérifier si l'insight a une propriété relatedCategories
+    else if (insight.relatedCategories && Array.isArray(insight.relatedCategories)) {
+      const category = insight.relatedCategories.find(cat => cat._id === match || (typeof cat === 'object' && cat._id === match));
+      if (category) {
+        return typeof category === 'object' ? category.name : category;
+      }
+    }
+    // Si nous ne trouvons pas de correspondance, retourner l'ID tel quel
+    return match;
+  });
+};
