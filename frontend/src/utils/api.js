@@ -29,9 +29,14 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear token and redirect to login on auth error
+      // Clear token
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      
+      // Only redirect to login if not already on login or register page
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && currentPath !== '/register') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
