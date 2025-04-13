@@ -522,7 +522,8 @@
   color: #e2e8f0;
 }
 
-.recurring-bills-list .category-indicator {
+.top-expenses-section .category-indicator,
+.expense-category-table .category-indicator {
   display: inline-block;
   width: 12px;
   height: 12px;
@@ -531,8 +532,9 @@
   vertical-align: middle;
 }
 
-/* Style pour la cellule de catégorie dans les rapports */
-.recurring-bills-list .category-cell {
+/* Style pour la cellule de catégorie dans le rapport des dépenses */
+.top-expenses-section .category-cell,
+.expense-category-table .category-cell {
   display: flex;
   align-items: center;
 }

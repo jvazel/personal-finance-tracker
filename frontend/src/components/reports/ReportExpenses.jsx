@@ -205,9 +205,44 @@ const ReportExpenses = () => {
             {expenseData.topExpenses.map((expense, index) => (
               <tr key={index}>
                 <td>{expense.description}</td>
-                <td>{expense.categoryName || 'Non catégorisé'}</td>
+                <td className="category-cell">
+                  <span 
+                    className="category-indicator" 
+                    style={{ backgroundColor: expense.categoryColor || '#808080' }}
+                  ></span>
+                  {expense.categoryName || 'Non catégorisé'}
+                </td>
                 <td>{format(new Date(expense.date), 'dd/MM/yyyy', { locale: fr })}</td>
                 <td className="amount-expense">{formatCurrency(Math.abs(expense.amount))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
+      {/* Category Expenses Table */}
+      <div className="expense-category-table">
+        <h3>Top Catégories de Dépenses</h3>
+        <table className="transaction-table">
+          <thead>
+            <tr>
+              <th>Catégorie</th>
+              <th>Montant</th>
+              <th>% du total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenseData.expensesByCategory.slice(0, 5).map((category, index) => (
+              <tr key={index}>
+                <td className="category-cell">
+                  <span 
+                    className="category-indicator" 
+                    style={{ backgroundColor: category.categoryColor || '#808080' }}
+                  ></span>
+                  {category.categoryName || 'Non catégorisé'}
+                </td>
+                <td>{formatCurrency(Math.abs(category.amount))}</td>
+                <td>{(category.percentage * 100).toFixed(2)}%</td>
               </tr>
             ))}
           </tbody>

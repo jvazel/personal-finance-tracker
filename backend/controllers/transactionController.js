@@ -543,152 +543,103 @@ exports.getMonthlySummary = async (req, res) => {
 exports.getExpenseReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    
-    // Validate dates
+    const userId = req.user.id;
+
+    // Vérifier que les dates sont valides
     if (!startDate || !endDate) {
       return res.status(400).json({ message: 'Les dates de début et de fin sont requises' });
     }
-    
-    // Parse dates
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999); // Set to end of day
-    
-    // Convert user ID string to ObjectId for aggregation
-    const userId = new mongoose.Types.ObjectId(req.user.id);
-    
-    // Récupérer toutes les catégories pour créer un mapping
-    const Category = mongoose.model('Category');
-    const categories = await Category.find({});
-    const categoriesMap = {};
-    categories.forEach(category => {
-      categoriesMap[category._id.toString()] = category;
-    });
-    
-    // Get expenses by category - use ObjectId for user field
-    const expensesByCategory = await Transaction.aggregate([
-      {
-        $match: {
-          user: userId, // Use converted ObjectId
-          type: 'expense',
-          date: { $gte: start, $lte: end }
-        }
-      },
-      {
-        $group: {
-          _id: '$category',
-          amount: { $sum: { $abs: '$amount' } },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          category: '$_id',
-          amount: 1,
-          count: 1,
-          _id: 0
-        }
-      },
-      {
-        $sort: { amount: -1 }
-      }
-    ]);
-    
-    // Ajouter les noms des catégories aux résultats
-    const processedExpensesByCategory = expensesByCategory.map(item => {
-      const categoryId = item.category ? item.category.toString() : null;
-      const categoryInfo = categoryId && categoriesMap[categoryId] 
-        ? categoriesMap[categoryId] 
-        : null;
-      
-      return {
-        ...item,
-        categoryName: categoryInfo ? categoryInfo.name : 'Non catégorisé',
-        categoryColor: categoryInfo ? categoryInfo.color : '#808080'
-      };
-    });
-    
-    // Get top expenses - add this query
-    const topExpenses = await Transaction.find({
-      user: req.user.id,
+
+    // Récupérer toutes les transactions de dépenses pour la période
+    const transactions = await Transaction.find({
+      user: userId,
       type: 'expense',
-      date: { $gte: start, $lte: end }
-    })
-    .populate('category', 'name color icon')
-    .sort({ amount: 1 })
-    .limit(5);
-    
-    // Formater les top expenses pour inclure le nom de la catégorie
-    const processedTopExpenses = topExpenses.map(expense => {
-      const expenseObj = expense.toObject();
-      if (expenseObj.category && typeof expenseObj.category === 'object') {
-        expenseObj.categoryName = expenseObj.category.name;
-      } else {
-        expenseObj.categoryName = 'Non catégorisé';
+      date: { $gte: new Date(startDate), $lte: new Date(endDate) }
+    }).populate('category'); // Ajouter populate pour récupérer les détails de la catégorie
+
+    // Si aucune transaction n'est trouvée
+    if (transactions.length === 0) {
+      return res.json({
+        totalExpenses: 0,
+        averageDailyExpense: 0,
+        expensesByCategory: [],
+        topExpenses: [],
+        dailyExpenseTrend: []
+      });
+    }
+
+    // Calculer le total des dépenses
+    const totalExpenses = transactions.reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
+
+    // Calculer la moyenne journalière
+    const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+    const averageDailyExpense = totalExpenses / days;
+
+    // Regrouper les dépenses par catégorie
+    const categoriesMap = new Map();
+    transactions.forEach(transaction => {
+      const categoryId = transaction.category ? transaction.category._id.toString() : 'uncategorized';
+      const categoryName = transaction.category ? transaction.category.name : 'Non catégorisé';
+      const categoryColor = transaction.category ? transaction.category.color : '#808080'; // Ajouter la couleur
+      
+      if (!categoriesMap.has(categoryId)) {
+        categoriesMap.set(categoryId, {
+          categoryId,
+          categoryName,
+          categoryColor, // Ajouter la couleur
+          amount: 0,
+          count: 0
+        });
       }
-      return expenseObj;
+      
+      const category = categoriesMap.get(categoryId);
+      category.amount += Math.abs(transaction.amount);
+      category.count += 1;
     });
-    
-    // Get daily expense trend - use ObjectId for user field
-    const dailyExpenseTrend = await Transaction.aggregate([
-      {
-        $match: {
-          user: userId, // Use converted ObjectId
-          type: 'expense',
-          date: { $gte: start, $lte: end }
-        }
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
-          amount: { $sum: { $abs: '$amount' } }
-        }
-      },
-      {
-        $project: {
-          date: '$_id',
-          amount: 1,
-          _id: 0
-        }
-      },
-      {
-        $sort: { date: 1 }
-      }
-    ]);
-    
-    // Get total expenses - use ObjectId for user field
-    const totalExpenses = await Transaction.aggregate([
-      {
-        $match: {
-          user: userId, // Use converted ObjectId
-          type: 'expense',
-          date: { $gte: start, $lte: end }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: { $abs: '$amount' } }
-        }
-      }
-    ]);
-    
-    // Get average expense per day
-    const daysDiff = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
-    const averageDailyExpense = totalExpenses.length > 0 ? totalExpenses[0].total / daysDiff : 0;
-    
-    // Return all data
+
+    // Convertir en tableau et calculer les pourcentages
+    const expensesByCategory = Array.from(categoriesMap.values()).map(category => ({
+      ...category,
+      percentage: category.amount / totalExpenses
+    }));
+
+    // Trier par montant décroissant
+    expensesByCategory.sort((a, b) => b.amount - a.amount);
+
+    // Top 5 des dépenses individuelles
+    const topExpenses = [...transactions]
+      .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))
+      .slice(0, 5)
+      .map(transaction => ({
+        description: transaction.description,
+        amount: transaction.amount,
+        date: transaction.date,
+        categoryName: transaction.category ? transaction.category.name : 'Non catégorisé',
+        categoryColor: transaction.category ? transaction.category.color : '#808080' // Ajouter la couleur
+      }));
+
+    // Tendance journalière des dépenses
+    const dailyExpenseMap = new Map();
+    transactions.forEach(transaction => {
+      const date = transaction.date.toISOString().split('T')[0];
+      const currentAmount = dailyExpenseMap.get(date) || 0;
+      dailyExpenseMap.set(date, currentAmount + Math.abs(transaction.amount));
+    });
+
+    const dailyExpenseTrend = Array.from(dailyExpenseMap.entries())
+      .map(([date, amount]) => ({ date, amount }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
     res.json({
-      expensesByCategory: processedExpensesByCategory,
-      topExpenses: processedTopExpenses, // Use processedTopExpenses instead of formattedTopExpenses
-      dailyExpenseTrend,
-      totalExpenses: totalExpenses.length > 0 ? totalExpenses[0].total : 0,
-      averageDailyExpense
+      totalExpenses,
+      averageDailyExpense,
+      expensesByCategory,
+      topExpenses,
+      dailyExpenseTrend
     });
-    
-  } catch (err) {
-    console.error('Erreur lors de la récupération des données du rapport de dépenses:', err);
-    res.status(500).json({ message: 'Erreur lors de la récupération des données du rapport de dépenses' });
+  } catch (error) {
+    console.error('Erreur lors de la génération du rapport de dépenses:', error);
+    res.status(500).json({ message: 'Erreur lors de la génération du rapport de dépenses' });
   }
 };
 
