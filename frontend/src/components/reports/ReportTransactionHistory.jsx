@@ -312,10 +312,20 @@ const ReportTransactionHistory = () => {
                   </td>
                   <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
                   <td>
-                    {/* Safely render category name from either category object or direct property */}
-                    {transaction.category && typeof transaction.category === 'object' 
-                      ? transaction.category.name 
-                      : (transaction.categoryName || transaction.category || 'Non catégorisé')}
+                    {/* Add color indicator next to category name */}
+                    <div className="category-cell">
+                      <span 
+                        className="category-indicator" 
+                        style={{ 
+                          backgroundColor: transaction.category && typeof transaction.category === 'object' 
+                            ? transaction.category.color 
+                            : '#808080' 
+                        }}
+                      ></span>
+                      {transaction.category && typeof transaction.category === 'object' 
+                        ? transaction.category.name 
+                        : (transaction.categoryName || transaction.category || 'Non catégorisé')}
+                    </div>
                   </td>
                   {/* Other cells... */}
                 </tr>
