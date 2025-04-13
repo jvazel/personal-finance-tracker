@@ -214,7 +214,13 @@ const ReportRecurringBills = () => {
                     className={selectedBill && selectedBill.description === bill.description ? 'selected-row' : ''}
                   >
                     <td>{bill.description}</td>
-                    <td>{getCategoryName(bill)}</td>
+                    <td>
+                      <span 
+                        className="category-indicator" 
+                        style={{ backgroundColor: bill.categoryObject?.color || bill.category?.color || '#808080' }}
+                      ></span>
+                      {getCategoryName(bill)}
+                    </td>
                     <td>{bill.statistics.count}</td>
                     <td>
                       <AmountDisplay 
