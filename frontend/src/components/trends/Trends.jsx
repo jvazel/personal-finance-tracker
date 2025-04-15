@@ -104,8 +104,27 @@ const Trends = () => {
         setHeatmapData(heatmapResponse.data);
         
         // Charger les données de graphique circulaire dynamique
-        const pieChartResponse = await api.get('/api/trends/category-evolution', { params });  // Ajout du préfixe /api
-        setPieChartData(pieChartResponse.data);
+        const pieChartResponse = await api.get('/api/trends/category-evolution', { params });
+        console.log('Raw category evolution data:', pieChartResponse.data);
+        
+        // Transform the data to match the expected format for DynamicPieChart
+        const rawData = pieChartResponse.data;
+        const transformedPieChartData = {
+          periods: rawData.periods.map((periodLabel, periodIndex) => {
+            return {
+              label: periodLabel,
+              categories: rawData.categories.map(category => ({
+                name: category.name,
+                amount: category.values[periodIndex] || 0,
+                color: category.color
+              })),
+              total: rawData.totals[periodIndex] || 0
+            };
+          })
+        };
+        
+        console.log('Transformed pie chart data:', transformedPieChartData);
+        setPieChartData(transformedPieChartData);
         
         // Charger les anomalies
         const anomaliesResponse = await api.get('/api/trends/anomalies', { params });  // Ajout du préfixe /api
