@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaChartPie } from 'react-icons/fa';
+import { FaChartPie, FaChartLine } from 'react-icons/fa';
 //import '../styles/sidebar.css';
 
 const Sidebar = () => {
@@ -81,6 +81,11 @@ const Sidebar = () => {
         <NavLink to="/goals" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
           <span className="nav-icon">🎯</span>
           <span className="nav-text">Objectifs</span>
+        </NavLink>
+        
+        <NavLink to="/trends" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <span className="nav-icon"><FaChartLine /></span>
+          <span className="nav-text">Tendances</span>
         </NavLink>
         
         <NavLink to="/financial-advisor" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>

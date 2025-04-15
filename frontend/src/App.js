@@ -6,6 +6,7 @@ import Reports from './components/reports/Reports';
 import Goals from './components/goals/Goals';
 import Settings from './components/settings/Settings';
 import FinancialAdvisor from './components/financial-advisor/FinancialAdvisor';
+import Trends from './components/trends/Trends';
 import Sidebar from './components/layout/Sidebar';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -83,6 +84,14 @@ function App() {
               <Sidebar />
               <div className="main-content">
                 <TaxDashboard />
+              </div>
+            </div>
+          } />
+          <Route path="/trends" element={
+            <div className="app-container">
+              <Sidebar />
+              <div className="main-content">
+                <Trends />
               </div>
             </div>
           } />

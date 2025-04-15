@@ -11,6 +11,7 @@ const financialAdvisorRoutes = require('./routes/financialAdvisorRoutes');
 const authRoutes = require('./routes/authRoutes');
 const { protect } = require('./middleware/auth');
 const taxRoutes = require('./routes/taxRoutes');
+const trendsRoutes = require('./routes/trendsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -39,6 +40,7 @@ app.use('/api/predictions', protect, predictionRoutes);
 app.use('/api/goals', protect, goalRoutes);
 app.use('/api/financial-advisor', financialAdvisorRoutes);
 app.use('/api/tax', protect, taxRoutes);
+app.use('/api/trends', protect, trendsRoutes);
 app.get('/api/dashboard-data', protect, require('./controllers/transactionController').getDashboardData);
 
 app.listen(PORT, () => {
