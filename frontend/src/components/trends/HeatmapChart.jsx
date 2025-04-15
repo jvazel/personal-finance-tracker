@@ -1,9 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const HeatmapChart = ({ data, metadata, timeframe }) => {
+const HeatmapChart = ({ data, metadata, timeframe, selectedCategories }) => {
   const [metric, setMetric] = useState('expense'); // 'expense', 'count', 'average'
+  const [filteredData, setFilteredData] = useState(data);
+  
+  // Effet pour filtrer les données lorsque les catégories sélectionnées changent
+  useEffect(() => {
+    if (!data) return;
+    
+    // Si aucune catégorie n'est sélectionnée ou si toutes sont sélectionnées, afficher toutes les données
+    if (!selectedCategories || selectedCategories.length === 0) {
+      setFilteredData(data);
+      return;
+    }
+    
+    // Filtrer les données en fonction des catégories sélectionnées
+    const filtered = data.filter(item => {
+      // Si l'item a une propriété category, vérifier si elle est dans les catégories sélectionnées
+      if (item.category) {
+        return selectedCategories.includes(item.category);
+      }
+      // Si l'item n'a pas de catégorie mais a des transactions, vérifier chaque transaction
+      if (item.transactions) {
+        return item.transactions.some(transaction => 
+          selectedCategories.includes(transaction.category)
+        );
+      }
+      return true; // Si pas d'info de catégorie, garder l'item par défaut
+    });
+    
+    setFilteredData(filtered);
+  }, [data, selectedCategories]);
   
   // Fonction pour déterminer la couleur en fonction de la valeur
   const getColorIntensity = (value, max) => {
@@ -66,14 +95,14 @@ const HeatmapChart = ({ data, metadata, timeframe }) => {
   
   // Trouver la valeur maximale pour normaliser les couleurs
   const getMaxValue = () => {
-    if (!data || data.length === 0) return 0;
+    if (!filteredData || filteredData.length === 0) return 0;
     
     if (metric === 'expense') {
-      return Math.max(...data.map(item => item.expense || 0));
+      return Math.max(...filteredData.map(item => item.expense || 0));
     } else if (metric === 'count') {
-      return Math.max(...data.map(item => item.count || 0));
+      return Math.max(...filteredData.map(item => item.count || 0));
     } else if (metric === 'average') {
-      return Math.max(...data.map(item => item.average || 0));
+      return Math.max(...filteredData.map(item => item.average || 0));
     }
     
     return 0;
@@ -106,9 +135,9 @@ const HeatmapChart = ({ data, metadata, timeframe }) => {
         </div>
       </div>
       
-      {data && data.length > 0 ? (
+      {filteredData && filteredData.length > 0 ? (
         <div className="heatmap-grid">
-          {data.map((item, index) => (
+          {filteredData.map((item, index) => (
             <div 
               key={index}
               className="heatmap-cell"
@@ -121,7 +150,7 @@ const HeatmapChart = ({ data, metadata, timeframe }) => {
         </div>
       ) : (
         <div className="no-data-message">
-          Aucune donnée disponible pour cette période
+          Aucune donnée disponible pour cette période ou ces catégories
         </div>
       )}
     </div>

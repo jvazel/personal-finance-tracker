@@ -151,7 +151,9 @@ const Trends = () => {
               categories: rawData.categories.map(category => ({
                 name: category.name,
                 amount: category.values[periodIndex] || 0,
-                color: category.color
+                color: category.color,
+                _id: category._id || category.id, // Ajouter l'identifiant de catégorie
+                id: category._id || category.id   // Ajouter l'identifiant sous un autre nom aussi
               })),
               total: rawData.totals[periodIndex] || 0
             };
@@ -322,7 +324,10 @@ const Trends = () => {
 
                   <div className="trends-section">
                     <h2>Répartition par Catégorie</h2>
-                    <DynamicPieChart data={pieChartData || {}} />
+                    <DynamicPieChart 
+                      data={pieChartData} 
+                      selectedCategories={selectedCategories} 
+                    />
                   </div>
 
                   <div className="trends-section">
@@ -331,6 +336,7 @@ const Trends = () => {
                       data={heatmapData && heatmapData.data ? heatmapData.data : []}
                       metadata={heatmapData && heatmapData.metadata ? heatmapData.metadata : null}
                       timeframe={timeframe}
+                      selectedCategories={selectedCategories} // Ajout du prop selectedCategories
                     />
                   </div>
                 </div>
