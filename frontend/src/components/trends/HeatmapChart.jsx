@@ -2,114 +2,128 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const HeatmapChart = ({ data, timeframe }) => {
-  const [selectedMetric, setSelectedMetric] = useState('expense'); // 'expense', 'income'
+const HeatmapChart = ({ data, metadata, timeframe }) => {
+  const [metric, setMetric] = useState('expense'); // 'expense', 'count', 'average'
   
-  // Fonction pour déterminer la couleur de la cellule en fonction de la valeur
-  const getCellColor = (value, maxValue) => {
-    if (value === 0) return '#2d3748'; // Couleur de base pour zéro
+  // Fonction pour déterminer la couleur en fonction de la valeur
+  const getColorIntensity = (value, max) => {
+    if (!value || !max || max === 0) return '#4b5563'; // Couleur par défaut
     
-    const intensity = Math.min(value / maxValue, 1);
+    const intensity = Math.min(value / max, 1); // Normaliser entre 0 et 1
     
-    if (selectedMetric === 'expense') {
-      // Dégradé de rouge pour les dépenses
-      return `rgba(239, 68, 68, ${0.2 + intensity * 0.8})`;
-    } else {
-      // Dégradé de vert pour les revenus
-      return `rgba(16, 185, 129, ${0.2 + intensity * 0.8})`;
+    // Palette de couleurs pour les dépenses (rouge)
+    if (metric === 'expense') {
+      if (intensity < 0.2) return '#fecaca'; // Rouge très clair
+      if (intensity < 0.4) return '#fca5a5'; // Rouge clair
+      if (intensity < 0.6) return '#f87171'; // Rouge moyen
+      if (intensity < 0.8) return '#ef4444'; // Rouge
+      return '#dc2626'; // Rouge foncé
+    }
+    
+    // Palette de couleurs pour le nombre de transactions (bleu)
+    if (metric === 'count') {
+      if (intensity < 0.2) return '#bfdbfe'; // Bleu très clair
+      if (intensity < 0.4) return '#93c5fd'; // Bleu clair
+      if (intensity < 0.6) return '#60a5fa'; // Bleu moyen
+      if (intensity < 0.8) return '#3b82f6'; // Bleu
+      return '#2563eb'; // Bleu foncé
+    }
+    
+    // Palette de couleurs pour la moyenne (violet)
+    if (intensity < 0.2) return '#e9d5ff'; // Violet très clair
+    if (intensity < 0.4) return '#d8b4fe'; // Violet clair
+    if (intensity < 0.6) return '#c084fc'; // Violet moyen
+    if (intensity < 0.8) return '#a855f7'; // Violet
+    return '#9333ea'; // Violet foncé
+  };
+  
+  // Fonction pour formater la date
+  const formatDate = (item) => {
+    // Si formattedDate existe déjà, l'utiliser directement
+    if (item.formattedDate) {
+      return item.formattedDate;
+    }
+    
+    // Sinon, utiliser les propriétés monthName et dayName
+    if (item.dayName && item.monthName) {
+      return `${item.dayName}, ${item.monthName}`;
+    }
+    
+    // Fallback si aucune information n'est disponible
+    return "Date inconnue";
+  };
+  
+  // Fonction pour formater la valeur affichée
+  const formatValue = (item) => {
+    if (metric === 'expense') {
+      return `${item.expense.toFixed(2)} €`;
+    } else if (metric === 'count') {
+      return `${item.count} transaction${item.count > 1 ? 's' : ''}`;
+    } else if (metric === 'average') {
+      return `Moy: ${item.average.toFixed(2)} €`;
     }
   };
   
-  // Trouver la valeur maximale pour l'échelle de couleur
-  const findMaxValue = () => {
-    if (!data || !Array.isArray(data) || data.length === 0) return 1;
+  // Trouver la valeur maximale pour normaliser les couleurs
+  const getMaxValue = () => {
+    if (!data || data.length === 0) return 0;
     
-    return Math.max(...data.map(item => 
-      selectedMetric === 'expense' ? item.expense : item.income
-    ));
-  };
-  
-  const maxValue = findMaxValue();
-  
-  // Formater la date en fonction du timeframe
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    
-    if (timeframe === 'week' || timeframe === 'month') {
-      return format(date, 'dd MMM', { locale: fr });
-    } else if (timeframe === 'quarter') {
-      return format(date, 'MMM', { locale: fr });
-    } else if (timeframe === 'year') {
-      return format(date, 'MMM', { locale: fr });
+    if (metric === 'expense') {
+      return Math.max(...data.map(item => item.expense || 0));
+    } else if (metric === 'count') {
+      return Math.max(...data.map(item => item.count || 0));
+    } else if (metric === 'average') {
+      return Math.max(...data.map(item => item.average || 0));
     }
     
-    return dateString;
+    return 0;
   };
+  
+  const maxValue = getMaxValue();
   
   return (
     <div className="heatmap-chart-container">
-      <div className="heatmap-controls">
+      <div className="chart-controls">
         <div className="metric-selector">
           <button 
-            className={`metric-button ${selectedMetric === 'expense' ? 'active' : ''}`}
-            onClick={() => setSelectedMetric('expense')}
+            className={`metric-button ${metric === 'expense' ? 'active' : ''}`}
+            onClick={() => setMetric('expense')}
           >
-            Dépenses
+            Montant
           </button>
           <button 
-            className={`metric-button ${selectedMetric === 'income' ? 'active' : ''}`}
-            onClick={() => setSelectedMetric('income')}
+            className={`metric-button ${metric === 'count' ? 'active' : ''}`}
+            onClick={() => setMetric('count')}
           >
-            Revenus
+            Fréquence
+          </button>
+          <button 
+            className={`metric-button ${metric === 'average' ? 'active' : ''}`}
+            onClick={() => setMetric('average')}
+          >
+            Moyenne
           </button>
         </div>
       </div>
       
-      <div className="heatmap-legend">
-        <div className="legend-item">
-          <div className="legend-color" style={{ backgroundColor: getCellColor(0, maxValue) }}></div>
-          <span>0 €</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color" style={{ backgroundColor: getCellColor(maxValue * 0.25, maxValue) }}></div>
-          <span>Faible</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color" style={{ backgroundColor: getCellColor(maxValue * 0.5, maxValue) }}></div>
-          <span>Moyen</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color" style={{ backgroundColor: getCellColor(maxValue * 0.75, maxValue) }}></div>
-          <span>Élevé</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color" style={{ backgroundColor: getCellColor(maxValue, maxValue) }}></div>
-          <span>{maxValue.toFixed(2)} €</span>
-        </div>
-      </div>
-      
-      <div className="heatmap-grid">
-        {data && data.length > 0 ? (
-          data.map((item, index) => (
+      {data && data.length > 0 ? (
+        <div className="heatmap-grid">
+          {data.map((item, index) => (
             <div 
-              key={index} 
+              key={index}
               className="heatmap-cell"
-              style={{ 
-                backgroundColor: getCellColor(
-                  selectedMetric === 'expense' ? item.expense : item.income, 
-                  maxValue
-                ) 
-              }}
-              title={`${formatDate(item.date)}: ${(selectedMetric === 'expense' ? item.expense : item.income).toFixed(2)} €`}
+              style={{ backgroundColor: getColorIntensity(item[metric], maxValue) }}
             >
-              <div className="cell-date">{formatDate(item.date)}</div>
-              <div className="cell-value">{(selectedMetric === 'expense' ? item.expense : item.income).toFixed(2)} €</div>
+              <div className="cell-date">{formatDate(item)}</div>
+              <div className="cell-value">{formatValue(item)}</div>
             </div>
-          ))
-        ) : (
-          <div className="no-data-message">Aucune donnée disponible pour cette période</div>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="no-data-message">
+          Aucune donnée disponible pour cette période
+        </div>
+      )}
     </div>
   );
 };

@@ -21,7 +21,7 @@ const Trends = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   // États pour les différentes données d'analyse
   const [timeSeriesData, setTimeSeriesData] = useState([]);
   const [comparisonData, setComparisonData] = useState({});
@@ -30,7 +30,7 @@ const Trends = () => {
   const [anomalies, setAnomalies] = useState([]);
   const [seasonalPatterns, setSeasonalPatterns] = useState([]);
   const [financialLeakages, setFinancialLeakages] = useState([]);
-  
+
   // Fonction pour charger les catégories
   useEffect(() => {
     const fetchCategories = async () => {
@@ -55,23 +55,23 @@ const Trends = () => {
         setCategories([]); // Ensure categories is an array even on error
       }
     };
-    
+
     fetchCategories();
   }, []);
-  
+
   // Fonction pour charger les données d'analyse en fonction des filtres
   useEffect(() => {
     const fetchTrendsData = async () => {
       if (selectedCategories.length === 0) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
         // Calculate proper date ranges based on timeframe
         const endDate = new Date(selectedDate);
         let startDate = new Date(selectedDate);
-        
+
         if (timeframe === 'week') {
           startDate.setDate(startDate.getDate() - 7);
         } else if (timeframe === 'month') {
@@ -81,7 +81,7 @@ const Trends = () => {
         } else if (timeframe === 'year') {
           startDate.setFullYear(startDate.getFullYear() - 1);
         }
-        
+
         // Préparer les paramètres pour l'API
         const params = {
           timeframe,
@@ -90,23 +90,58 @@ const Trends = () => {
           endDate: endDate.toISOString(),
           categories: selectedCategories.join(',')
         };
-        
+
         // Charger les données de séries temporelles
-        const timeSeriesResponse = await api.get('/api/trends/time-series', { params });  // Ajout du préfixe /api
+        const timeSeriesResponse = await api.get('/api/trends/time-series', { params });
         setTimeSeriesData(timeSeriesResponse.data);
-        
+
         // Charger les données de comparaison
-        const comparisonResponse = await api.get('/api/trends/period-comparison', { params });  // Ajout du préfixe /api
+        const comparisonResponse = await api.get('/api/trends/period-comparison', { params });
         setComparisonData(comparisonResponse.data);
-        
+
         // Charger les données de heatmap
-        const heatmapResponse = await api.get('/api/trends/heatmap', { params });  // Ajout du préfixe /api
-        setHeatmapData(heatmapResponse.data);
-        
+        const heatmapResponse = await api.get('/api/trends/heatmap', { params });
+        console.log('Raw heatmap data:', heatmapResponse.data);
+
+        // Transformer les données pour qu'elles correspondent à ce que HeatmapChart attend
+        if (heatmapResponse.data && heatmapResponse.data.data) {
+          // Utiliser directement la structure de données fournie par l'API
+          const transformedHeatmapData = {
+            data: heatmapResponse.data.data.map(item => {
+              // Ne pas créer d'objet Date, utiliser simplement les valeurs numériques
+              return {
+                // Conserver les propriétés originales
+                month: item.month,
+                dayOfWeek: item.dayOfWeek,
+                total: item.total || 0,
+                count: item.count || 0,
+                average: item.average || 0,
+                
+                // Ajouter les propriétés nécessaires pour l'affichage
+                monthName: heatmapResponse.data.metadata?.monthNames?.[item.month - 1] || '',
+                dayName: heatmapResponse.data.metadata?.dayNames?.[item.dayOfWeek] || '',
+                
+                // Utiliser total comme valeur d'expense pour la heatmap
+                expense: item.total || 0,
+                
+                // Ajouter une chaîne formatée au lieu d'un objet Date
+                formattedDate: `${heatmapResponse.data.metadata?.dayNames?.[item.dayOfWeek] || ''}, ${heatmapResponse.data.metadata?.monthNames?.[item.month - 1] || ''}`
+              };
+            }),
+            metadata: heatmapResponse.data.metadata
+          };
+          
+          setHeatmapData(transformedHeatmapData);
+          console.log('Transformed heatmap data:', transformedHeatmapData);
+        } else {
+          setHeatmapData({ data: [], metadata: null });
+          console.warn('Données heatmap manquantes ou dans un format inattendu');
+        }
+
         // Charger les données de graphique circulaire dynamique
         const pieChartResponse = await api.get('/api/trends/category-evolution', { params });
         console.log('Raw category evolution data:', pieChartResponse.data);
-        
+
         // Transform the data to match the expected format for DynamicPieChart
         const rawData = pieChartResponse.data;
         const transformedPieChartData = {
@@ -122,22 +157,22 @@ const Trends = () => {
             };
           })
         };
-        
+
         console.log('Transformed pie chart data:', transformedPieChartData);
         setPieChartData(transformedPieChartData);
-        
+
         // Charger les anomalies
         const anomaliesResponse = await api.get('/api/trends/anomalies', { params });  // Ajout du préfixe /api
         setAnomalies(anomaliesResponse.data);
-        
+
         // Charger les patterns saisonniers
         const seasonalResponse = await api.get('/api/trends/seasonal-patterns', { params });  // Ajout du préfixe /api
         setSeasonalPatterns(seasonalResponse.data);
-        
+
         // Charger les fuites financières
         const leakageResponse = await api.get('/api/trends/financial-leakage', { params });  // Ajout du préfixe /api
         setFinancialLeakages(leakageResponse.data);
-        
+
       } catch (err) {
         console.error('Erreur lors du chargement des données de tendances:', err);
         setError('Impossible de charger les données d\'analyse. Veuillez réessayer plus tard.');
@@ -145,10 +180,10 @@ const Trends = () => {
         setLoading(false);
       }
     };
-    
+
     fetchTrendsData();
   }, [timeframe, selectedDate, selectedCategories]);
-  
+
   // Fonctions de navigation temporelle
   const navigatePrevious = () => {
     if (timeframe === 'week' || timeframe === 'month') {
@@ -159,7 +194,7 @@ const Trends = () => {
       setSelectedDate(prevDate => subYears(prevDate, 1));
     }
   };
-  
+
   const navigateNext = () => {
     if (timeframe === 'week' || timeframe === 'month') {
       setSelectedDate(prevDate => addMonths(prevDate, 1));
@@ -169,7 +204,7 @@ const Trends = () => {
       setSelectedDate(prevDate => addYears(prevDate, 1));
     }
   };
-  
+
   // Formater l'affichage de la période
   const formatPeriodDisplay = () => {
     if (timeframe === 'week') {
@@ -183,7 +218,7 @@ const Trends = () => {
       return selectedDate.getFullYear().toString();
     }
   };
-  
+
   // Gérer le changement de catégories sélectionnées
   const handleCategoryChange = (categoryId) => {
     setSelectedCategories(prev => {
@@ -194,7 +229,7 @@ const Trends = () => {
       }
     });
   };
-  
+
   // Sélectionner/désélectionner toutes les catégories
   const toggleAllCategories = () => {
     if (selectedCategories.length === categories.length && categories.length > 0) {
@@ -206,44 +241,44 @@ const Trends = () => {
       }
     }
   };
-  
+
   return (
     <div className="trends-container">
       <div className="trends-header">
         <h1>Analyse des Tendances</h1>
         <p>Visualisez et analysez l'évolution de vos finances dans le temps</p>
       </div>
-      
+
       <div className="trends-tabs">
-        <button 
+        <button
           className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
           Vue d'ensemble
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'comparison' ? 'active' : ''}`}
           onClick={() => setActiveTab('comparison')}
         >
           Comparaison
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'patterns' ? 'active' : ''}`}
           onClick={() => setActiveTab('patterns')}
         >
           Patterns
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'anomalies' ? 'active' : ''}`}
           onClick={() => setActiveTab('anomalies')}
         >
           Anomalies
         </button>
       </div>
-      
+
       <div className="trends-content">
         <div className="trends-sidebar">
-          <FilterPanel 
+          <FilterPanel
             timeframe={timeframe}
             setTimeframe={setTimeframe}
             selectedDate={selectedDate}
@@ -254,7 +289,7 @@ const Trends = () => {
             toggleAllCategories={toggleAllCategories}
           />
         </div>
-        
+
         <div className="trends-main">
           <div className="trends-period-navigation">
             <button className="period-nav-button" onClick={navigatePrevious}>
@@ -265,7 +300,7 @@ const Trends = () => {
               Suivant &gt;
             </button>
           </div>
-          
+
           {loading ? (
             <div className="trends-loading">
               <LoadingSpinner />
@@ -284,19 +319,23 @@ const Trends = () => {
                     <h2>Évolution Temporelle</h2>
                     <TimeSeriesChart data={Array.isArray(timeSeriesData) ? timeSeriesData : []} timeframe={timeframe} />
                   </div>
-                  
+
                   <div className="trends-section">
                     <h2>Répartition par Catégorie</h2>
                     <DynamicPieChart data={pieChartData || {}} />
                   </div>
-                  
+
                   <div className="trends-section">
                     <h2>Intensité des Dépenses</h2>
-                    <HeatmapChart data={Array.isArray(heatmapData) ? heatmapData : []} timeframe={timeframe} />
+                    <HeatmapChart
+                      data={heatmapData && heatmapData.data ? heatmapData.data : []}
+                      metadata={heatmapData && heatmapData.metadata ? heatmapData.metadata : null}
+                      timeframe={timeframe}
+                    />
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'comparison' && (
                 <div className="trends-comparison">
                   <div className="trends-section">
@@ -305,21 +344,21 @@ const Trends = () => {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'patterns' && (
                 <div className="trends-patterns">
                   <div className="trends-section">
                     <h2>Analyse Saisonnière</h2>
                     <SeasonalAnalysis data={seasonalPatterns} />
                   </div>
-                  
+
                   <div className="trends-section">
                     <h2>Fuites Financières</h2>
                     <FinancialLeakage data={financialLeakages} />
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'anomalies' && (
                 <div className="trends-anomalies">
                   <div className="trends-section">
