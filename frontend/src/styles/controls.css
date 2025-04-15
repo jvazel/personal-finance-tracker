@@ -7,8 +7,8 @@
 
 .react-datepicker__input-container {
   width: 100%; /* Ensure input container takes full width */
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex !important;
+  align-items: center !important;
 }
 
 .react-datepicker__input {
