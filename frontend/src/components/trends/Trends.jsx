@@ -232,9 +232,10 @@ const Trends = () => {
   // Formater l'affichage de la période
   const formatPeriodDisplay = () => {
     if (timeframe === 'week') {
-      return `Semaine du ${format(selectedDate, 'dd MMMM yyyy', { locale: fr })}`;
+      return `Semaine du ${format(selectedDate, 'dd MMMM yyyy', { locale: fr })}`.replace(/^(.*\s)([a-z])/, (match, p1, p2) => p1 + p2.toUpperCase());
     } else if (timeframe === 'month') {
-      return format(selectedDate, 'MMMM yyyy', { locale: fr });
+      const formattedDate = format(selectedDate, 'MMMM yyyy', { locale: fr });
+      return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
     } else if (timeframe === 'quarter') {
       const quarter = Math.floor(selectedDate.getMonth() / 3) + 1;
       return `T${quarter} ${selectedDate.getFullYear()}`;
