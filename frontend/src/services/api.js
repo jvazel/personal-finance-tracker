@@ -37,6 +37,7 @@ api.interceptors.response.use(
   }
 );
 
+/*
 // Ajouter un intercepteur pour logger les requêtes
 api.interceptors.request.use(config => {
   console.log('Requête API envoyée:', config.method.toUpperCase(), config.url);
@@ -56,5 +57,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+*/
 
 export default api;

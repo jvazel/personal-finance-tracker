@@ -101,7 +101,6 @@ const Trends = () => {
 
         // Charger les données de heatmap
         const heatmapResponse = await api.get('/api/trends/heatmap', { params });
-        console.log('Raw heatmap data:', heatmapResponse.data);
 
         // Transformer les données pour qu'elles correspondent à ce que HeatmapChart attend
         if (heatmapResponse.data && heatmapResponse.data.data) {
@@ -132,7 +131,6 @@ const Trends = () => {
           };
           
           setHeatmapData(transformedHeatmapData);
-          console.log('Transformed heatmap data:', transformedHeatmapData);
         } else {
           setHeatmapData({ data: [], metadata: null });
           console.warn('Données heatmap manquantes ou dans un format inattendu');
@@ -140,7 +138,6 @@ const Trends = () => {
 
         // Charger les données de graphique circulaire dynamique
         const pieChartResponse = await api.get('/api/trends/category-evolution', { params });
-        console.log('Raw category evolution data:', pieChartResponse.data);
 
         // Transform the data to match the expected format for DynamicPieChart
         const rawData = pieChartResponse.data;
@@ -160,19 +157,44 @@ const Trends = () => {
           })
         };
 
-        console.log('Transformed pie chart data:', transformedPieChartData);
         setPieChartData(transformedPieChartData);
 
         // Charger les anomalies
-        const anomaliesResponse = await api.get('/api/trends/anomalies', { params });  // Ajout du préfixe /api
-        setAnomalies(anomaliesResponse.data);
+        const anomaliesResponse = await api.get('/api/trends/anomalies', { params });
+        
+        // Transformer les données pour s'assurer que les propriétés nécessaires sont au bon niveau
+        const transformedAnomalies = anomaliesResponse.data.map(anomaly => {
+          // Calculer la déviation en pourcentage à partir des statistiques
+          const percentageDeviation = anomaly.statistics?.percentageDeviation || 0;
+          
+          return {
+            ...anomaly,
+            date: anomaly.transaction?.date, // Remonter la date au niveau racine
+            amount: anomaly.transaction?.amount, // Remonter le montant au niveau racine
+            description: anomaly.transaction?.description, // Remonter la description au niveau racine
+            categoryName: anomaly.category?.name || "Non catégorisé", // Remonter le nom de la catégorie
+            categoryColor: anomaly.category?.color || "#808080", // Remonter la couleur de la catégorie
+            // Remonter les statistiques au niveau racine avec des valeurs par défaut
+            zScore: anomaly.statistics?.zScore || 0,
+            mean: anomaly.statistics?.mean || 0,
+            stdDev: anomaly.statistics?.stdDev || 0,
+            percentageDeviation: anomaly.statistics?.percentageDeviation || 0,
+            // Ajouter une propriété pour indiquer si les statistiques sont valides
+            hasValidStats: !!(anomaly.statistics?.zScore && anomaly.statistics?.mean && 
+                          anomaly.statistics?.stdDev && anomaly.statistics?.percentageDeviation),
+            // Ajouter la propriété deviationPercent nécessaire pour le calcul de la sévérité
+            deviationPercent: percentageDeviation
+          };
+        });
+        
+        setAnomalies(transformedAnomalies);
 
         // Charger les patterns saisonniers
-        const seasonalResponse = await api.get('/api/trends/seasonal-patterns', { params });  // Ajout du préfixe /api
+        const seasonalResponse = await api.get('/api/trends/seasonal-patterns', { params });
         setSeasonalPatterns(seasonalResponse.data);
 
         // Charger les fuites financières
-        const leakageResponse = await api.get('/api/trends/financial-leakage', { params });  // Ajout du préfixe /api
+        const leakageResponse = await api.get('/api/trends/financial-leakage', { params });
         setFinancialLeakages(leakageResponse.data);
 
       } catch (err) {
@@ -366,13 +388,16 @@ const Trends = () => {
               )}
 
               {activeTab === 'anomalies' && (
-                <div className="trends-anomalies">
-                  <div className="trends-section">
-                    <h2>Détection d'Anomalies</h2>
-                    <AnomalyDetection data={anomalies} />
+                  <div className="trends-anomalies">
+                    <div className="trends-section">
+                      <h2>Détection d'Anomalies</h2>
+                      <AnomalyDetection 
+                        data={anomalies} 
+                        selectedCategories={selectedCategories} 
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </>
           )}
         </div>

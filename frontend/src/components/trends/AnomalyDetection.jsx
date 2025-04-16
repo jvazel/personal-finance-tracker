@@ -1,19 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, isValid, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const AnomalyDetection = ({ data }) => {
-  // Vérifier si les données sont disponibles
-  if (!data || data.length === 0) {
+const AnomalyDetection = ({ data, selectedCategories }) => {
+  const [filteredData, setFilteredData] = useState(data);
+  
+  // Effet pour filtrer les données lorsque les catégories sélectionnées changent
+  useEffect(() => {
+    if (!data) return;
+    
+    // Si aucune catégorie n'est sélectionnée, afficher toutes les données
+    if (!selectedCategories || selectedCategories.length === 0) {
+      setFilteredData(data);
+      return;
+    }
+    
+    // Filtrer les anomalies en fonction des catégories sélectionnées
+    const filtered = data.filter(anomaly => {
+      // Récupérer l'ID de la catégorie de l'anomalie
+      const categoryId = anomaly.categoryId || 
+                         (anomaly.category && (anomaly.category._id || anomaly.category.id));
+      
+      // Vérifier si la catégorie est dans les catégories sélectionnées
+      return selectedCategories.includes(categoryId);
+    });
+    
+    setFilteredData(filtered);
+  }, [data, selectedCategories]);
+  
+  // Vérifier si les données filtrées sont disponibles
+  if (!filteredData || filteredData.length === 0) {
     return (
       <div className="anomaly-detection-container">
-        <div className="no-data-message">Aucune anomalie détectée pour cette période</div>
+        <div className="no-data-message">
+          {selectedCategories && selectedCategories.length === 0 
+            ? "Veuillez sélectionner au moins une catégorie pour voir les anomalies."
+            : "Aucune anomalie détectée pour cette période ou ces catégories"}
+        </div>
       </div>
     );
   }
   
   // Formater la date avec gestion des erreurs
   const formatDate = (dateString) => {
+    // Vérifier si dateString est undefined ou null
+    if (!dateString) {
+      console.warn('Date invalide (undefined ou null)');
+      return 'Date non spécifiée';
+    }
+    
     try {
       // Essayer de parser la date
       const date = typeof dateString === 'string' ? parseISO(dateString) : new Date(dateString);
@@ -48,7 +83,7 @@ const AnomalyDetection = ({ data }) => {
     <div className="anomaly-detection-container">
       <div className="anomaly-summary">
         <div className="anomaly-count">
-          <span className="count-number">{data.length}</span>
+          <span className="count-number">{filteredData.length}</span>
           <span className="count-label">anomalies détectées</span>
         </div>
         
@@ -61,22 +96,24 @@ const AnomalyDetection = ({ data }) => {
       </div>
       
       <div className="anomaly-list">
-        {data.map((anomaly, index) => (
+        {filteredData.map((anomaly, index) => (
           <div 
             key={index} 
             className={`anomaly-card severity-${getAnomalySeverity(anomaly)}`}
           >
             <div className="anomaly-header">
               <div className="anomaly-date">{formatDate(anomaly.date)}</div>
-              <div className="anomaly-category" style={{ color: anomaly.categoryColor }}>
-                {anomaly.categoryName}
+              <div className="anomaly-category" style={{ color: anomaly.categoryColor || '#808080' }}>
+                {anomaly.categoryName || 'Non catégorisé'}
               </div>
             </div>
             
             <div className="anomaly-details">
-              <div className="anomaly-amount">{anomaly.amount.toFixed(2)} €</div>
+              <div className="anomaly-amount">{anomaly.amount ? anomaly.amount.toFixed(2) : '0.00'} €</div>
               <div className="anomaly-deviation">
-                {anomaly.deviationPercent > 0 ? '+' : ''}{anomaly.deviationPercent.toFixed(2)}% par rapport à la normale
+                {anomaly.deviationPercent !== undefined ? 
+                  `${anomaly.deviationPercent > 0 ? '+' : ''}${anomaly.deviationPercent.toFixed(2)}% par rapport à la normale` : 
+                  'Données insuffisantes pour calculer l\'écart'}
               </div>
             </div>
             

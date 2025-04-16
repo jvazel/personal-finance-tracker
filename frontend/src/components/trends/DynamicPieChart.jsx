@@ -12,15 +12,9 @@ const DynamicPieChart = ({ data, selectedCategories }) => {
   const [selectedPeriodIndex, setSelectedPeriodIndex] = useState(0);
   const [filteredData, setFilteredData] = useState(data);
   
-  // Logs pour le débogage
-  console.log('DynamicPieChart - selectedCategories:', selectedCategories);
-  console.log('DynamicPieChart - raw data:', data);
-  
   // Effet pour filtrer les données lorsque les catégories sélectionnées changent
   useEffect(() => {
     if (!data || !data.periods || !Array.isArray(data.periods)) return;
-    
-    console.log('Filtering data with categories:', selectedCategories);
     
     // Créer une copie profonde des données pour éviter de modifier l'original
     const newFilteredData = JSON.parse(JSON.stringify(data));
@@ -35,12 +29,6 @@ const DynamicPieChart = ({ data, selectedCategories }) => {
     newFilteredData.periods = data.periods.map(period => {
       if (!period.categories || !Array.isArray(period.categories)) return period;
       
-      // Log pour voir les catégories disponibles dans cette période
-      console.log('Period categories before filtering:', period.categories.map(cat => ({
-        name: cat.name,
-        id: cat.id || cat._id
-      })));
-      
       // Filtrer les catégories selon celles qui sont sélectionnées
       const filteredCategories = period.categories.filter(category => {
         // Vérifier si la catégorie est dans la liste des catégories sélectionnées
@@ -50,11 +38,8 @@ const DynamicPieChart = ({ data, selectedCategories }) => {
           selectedCategories.includes(category.categoryId) ||
           selectedCategories.includes(category.name);
         
-        console.log(`Category ${category.name}: isSelected=${isSelected}`);
         return isSelected;
       });
-      
-      console.log('Filtered categories:', filteredCategories);
       
       // Recalculer le total pour cette période
       const newTotal = filteredCategories.reduce((sum, cat) => sum + (cat.amount || 0), 0);
