@@ -369,7 +369,13 @@ const Trends = () => {
                 <div className="trends-comparison">
                   <div className="trends-section">
                     <h2>Comparaison de Périodes</h2>
-                    <PeriodComparison data={comparisonData} timeframe={timeframe} />
+                    {comparisonData && (
+                      <PeriodComparison 
+                        data={comparisonData} 
+                        timeframe={timeframe} 
+                        selectedCategories={selectedCategories}
+                      />
+                    )}
                   </div>
                 </div>
               )}

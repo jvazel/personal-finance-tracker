@@ -11,7 +11,8 @@ import {
   ReferenceLine
 } from 'recharts';
 
-const PeriodComparison = ({ data, timeframe }) => {
+// Ajouter selectedCategories aux props
+const PeriodComparison = ({ data, timeframe, selectedCategories = [] }) => {
   const [comparisonType, setComparisonType] = useState('previous'); // 'previous', 'lastYear'
   
   // Vérifier si les données sont disponibles
@@ -36,7 +37,24 @@ const PeriodComparison = ({ data, timeframe }) => {
     
     // Créer les données pour les catégories
     if (data.categories && data.categories.length > 0) {
-      data.categories.forEach(category => {
+      // Filtrer les catégories en fonction de celles sélectionnées
+      let categoriesToUse = data.categories;
+      
+      // Si des catégories sont sélectionnées, filtrer la liste
+      if (selectedCategories && selectedCategories.length > 0) {
+        categoriesToUse = data.categories.filter(category => 
+          selectedCategories.includes(category.id)
+        );
+      }
+      
+      // Ensuite, filtrer davantage pour n'inclure que celles qui ont des données
+      const relevantCategories = categoriesToUse.filter(category => {
+        const hasCurrentData = data.current.categoriesData && data.current.categoriesData[category.id];
+        const hasComparisonData = comparisonPeriod.categoriesData && comparisonPeriod.categoriesData[category.id];
+        return hasCurrentData || hasComparisonData;
+      });
+  
+      relevantCategories.forEach(category => {
         const currentValue = data.current.categoriesData[category.id] || 0;
         const comparisonValue = comparisonPeriod.categoriesData[category.id] || 0;
         const difference = currentValue - comparisonValue;
