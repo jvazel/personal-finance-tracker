@@ -55,15 +55,15 @@ const PeriodComparison = ({ data, timeframe }) => {
       });
     }
     
-    // Ajouter le total
+    // Ajouter le total (utiliser balance au lieu de total)
     comparisonData.push({
       name: 'Total',
-      current: data.current.total || 0,
-      comparison: comparisonPeriod.total || 0,
-      difference: (data.current.total || 0) - (comparisonPeriod.total || 0),
-      percentChange: comparisonPeriod.total !== 0 
-        ? (((data.current.total || 0) - (comparisonPeriod.total || 0)) / comparisonPeriod.total) * 100 
-        : (data.current.total || 0) > 0 ? 100 : 0,
+      current: data.current.balance || 0,
+      comparison: comparisonPeriod.balance || 0,
+      difference: (data.current.balance || 0) - (comparisonPeriod.balance || 0),
+      percentChange: comparisonPeriod.balance !== 0 
+        ? (((data.current.balance || 0) - (comparisonPeriod.balance || 0)) / comparisonPeriod.balance) * 100 
+        : (data.current.balance || 0) > 0 ? 100 : 0,
       color: '#6366f1' // Couleur pour le total
     });
     
@@ -94,9 +94,9 @@ const PeriodComparison = ({ data, timeframe }) => {
   };
   
   // Valeurs sécurisées pour les calculs
-  const currentTotal = data.current?.total || 0;
-  const previousTotal = data.previous?.total || 0;
-  const lastYearTotal = data.lastYear?.total || 0;
+  const currentTotal = data.current?.balance || 0;
+  const previousTotal = data.previous?.balance || 0;
+  const lastYearTotal = data.lastYear?.balance || 0;
   const comparisonTotal = comparisonType === 'previous' ? previousTotal : lastYearTotal;
   const difference = currentTotal - comparisonTotal;
   const percentChange = comparisonTotal !== 0 
