@@ -857,3 +857,58 @@
     grid-template-columns: 1fr;
   }
 }
+
+.anomaly-details-modal {
+  color: #e2e8f0;
+  padding: 10px;
+}
+
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section h3 {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.detail-label {
+  flex: 0 0 40%;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+.detail-value {
+  flex: 0 0 60%;
+}
+
+.recommendation-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.recommendation-actions .action-button {
+  background-color: #4b5563;
+  border: none;
+  color: #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recommendation-actions .action-button:hover {
+  background-color: #6366f1;
+}

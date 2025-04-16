@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { format, isValid, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import Modal from '../common/Modal'; // Importer le composant Modal
 
 const AnomalyDetection = ({ data, selectedCategories }) => {
   const [filteredData, setFilteredData] = useState(data);
+  const [selectedAnomaly, setSelectedAnomaly] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   
   // Effet pour filtrer les données lorsque les catégories sélectionnées changent
   useEffect(() => {
@@ -27,6 +30,18 @@ const AnomalyDetection = ({ data, selectedCategories }) => {
     
     setFilteredData(filtered);
   }, [data, selectedCategories]);
+  
+  // Fonction pour afficher les détails d'une anomalie
+  const handleViewDetails = (anomaly) => {
+    setSelectedAnomaly(anomaly);
+    setShowDetailsModal(true);
+  };
+
+  // Fonction pour fermer le modal
+  const handleCloseModal = () => {
+    setShowDetailsModal(false);
+    setSelectedAnomaly(null);
+  };
   
   // Vérifier si les données filtrées sont disponibles
   if (!filteredData || filteredData.length === 0) {
@@ -118,16 +133,97 @@ const AnomalyDetection = ({ data, selectedCategories }) => {
             </div>
             
             <div className="anomaly-description">
-              <p>{anomaly.description}</p>
+              <p>{anomaly.description || 'Aucune description disponible'}</p>
             </div>
             
             <div className="anomaly-actions">
-              <button className="action-button">Marquer comme normal</button>
-              <button className="action-button">Voir les détails</button>
+              <button 
+                className="action-button" 
+                onClick={() => handleViewDetails(anomaly)}
+              >
+                Voir plus de détails
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Modal pour afficher les détails de l'anomalie */}
+      {showDetailsModal && selectedAnomaly && (
+        <Modal 
+          isOpen={showDetailsModal} 
+          onClose={handleCloseModal} 
+          title="Détails de l'anomalie"
+        >
+          <div className="anomaly-details-modal">
+            <div className="modal-section">
+              <h3>Informations générales</h3>
+              <div className="detail-row">
+                <span className="detail-label">Date:</span>
+                <span className="detail-value">{formatDate(selectedAnomaly.date)}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Montant:</span>
+                <span className="detail-value">{selectedAnomaly.amount ? selectedAnomaly.amount.toFixed(2) : '0.00'} €</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Catégorie:</span>
+                <span className="detail-value" style={{ color: selectedAnomaly.categoryColor || '#808080' }}>
+                  {selectedAnomaly.categoryName || 'Non catégorisé'}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Description:</span>
+                <span className="detail-value">{selectedAnomaly.description || 'Aucune description disponible'}</span>
+              </div>
+            </div>
+    
+            <div className="modal-section">
+              <h3>Analyse statistique</h3>
+              <div className="detail-row">
+                <span className="detail-label">Écart:</span>
+                <span className="detail-value">
+                  {selectedAnomaly.deviationPercent !== undefined ? 
+                    `${selectedAnomaly.deviationPercent > 0 ? '+' : ''}${selectedAnomaly.deviationPercent.toFixed(2)}%` : 
+                    'Non disponible'}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Z-Score:</span>
+                <span className="detail-value">
+                  {selectedAnomaly.zScore !== undefined ? selectedAnomaly.zScore.toFixed(2) : 'Non disponible'}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Moyenne de la catégorie:</span>
+                <span className="detail-value">
+                  {selectedAnomaly.mean !== undefined ? selectedAnomaly.mean.toFixed(2) : 'Non disponible'} €
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Écart-type:</span>
+                <span className="detail-value">
+                  {selectedAnomaly.stdDev !== undefined ? selectedAnomaly.stdDev.toFixed(2) : 'Non disponible'} €
+                </span>
+              </div>
+            </div>
+    
+            <div className="modal-section">
+              <h3>Recommandations</h3>
+              <p>
+                Cette transaction s'écarte significativement de vos habitudes de dépenses dans cette catégorie.
+                {selectedAnomaly.deviationPercent > 100 ? 
+                  " Il s'agit d'une anomalie majeure qui mérite votre attention." : 
+                  " Vérifiez si cette dépense était prévue ou si elle nécessite une action de votre part."}
+              </p>
+              <div className="recommendation-actions">
+                <button className="action-button">Marquer comme vérifiée</button>
+                <button className="action-button">Ajouter une note</button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
