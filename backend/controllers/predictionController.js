@@ -18,8 +18,6 @@ const groupTransactionsByDay = (transactions) => {
   return grouped;
 };
 
-// Add these utility functions before the getCashFlowPrediction function
-
 // Function to determine if a recurring transaction should occur in a given month
 const shouldTransactionOccurInMonth = (recurringTransaction, monthStart, monthEnd) => {
   // Get the frequency of the transaction
@@ -180,13 +178,48 @@ exports.getCashFlowPrediction = async (req, res) => {
     const today = new Date();
     const predictions = [];
     
+    // Récupérer toutes les transactions futures déjà enregistrées
+    const futureTransactions = await Transaction.find({
+      user: req.user.id,
+      date: { $gte: today }
+    }).populate('category');
+    
+    // Créer un mapping des transactions futures par mois
+    const futureTransactionsByMonth = {};
+    futureTransactions.forEach(transaction => {
+      const monthKey = format(new Date(transaction.date), 'yyyy-MM');
+      if (!futureTransactionsByMonth[monthKey]) {
+        futureTransactionsByMonth[monthKey] = [];
+      }
+      futureTransactionsByMonth[monthKey].push(transaction);
+    });
+    
     for (let i = 0; i < monthsToPredict; i++) {
       const monthDate = addMonths(today, i);
       const monthStart = startOfMonth(monthDate);
       const monthEnd = endOfMonth(monthDate);
+      const monthKey = format(monthDate, 'yyyy-MM');
       
       // Prédire les transactions pour ce mois
       const monthTransactions = [];
+      
+      // Ajouter les transactions réelles déjà enregistrées pour ce mois
+      if (futureTransactionsByMonth[monthKey]) {
+        futureTransactionsByMonth[monthKey].forEach(transaction => {
+          const categoryInfo = transaction.category;
+          
+          monthTransactions.push({
+            description: transaction.description,
+            amount: normalizeTransactionAmount(transaction),
+            type: transaction.type,
+            date: transaction.date,
+            category: transaction.category ? transaction.category._id : null,
+            predicted: false,
+            categoryName: categoryInfo ? categoryInfo.name : 'Non catégorisé',
+            categoryColor: categoryInfo ? categoryInfo.color : '#808080'
+          });
+        });
+      }
       
       // Ajouter les transactions récurrentes prévues pour ce mois
       recurringTransactions.forEach(recurring => {
@@ -197,22 +230,32 @@ exports.getCashFlowPrediction = async (req, res) => {
           // Calculer la date prévue pour cette transaction
           const predictedDate = calculatePredictedDate(recurring, monthStart);
           
-          // Obtenir les informations de catégorie
-          const categoryId = recurring.category ? recurring.category.toString() : null;
-          const categoryInfo = categoryId && categoriesMap[categoryId] 
-            ? categoriesMap[categoryId] 
-            : null;
+          // Vérifier si une transaction similaire existe déjà dans ce mois
+          const similarExists = monthTransactions.some(t => 
+            t.description.toLowerCase() === recurring.description.toLowerCase() &&
+            Math.abs(t.amount) === Math.abs(recurring.amount) &&
+            t.type === recurring.type
+          );
           
-          // Créer l'objet de transaction prédit avec les informations de catégorie
-          const predictedTransaction = {
-            ...recurring,
-            date: predictedDate,
-            predicted: true,
-            categoryName: categoryInfo ? categoryInfo.name : 'Non catégorisé',
-            categoryColor: categoryInfo ? categoryInfo.color : '#808080'
-          };
-          
-          monthTransactions.push(predictedTransaction);
+          // N'ajouter la transaction récurrente que si aucune transaction similaire n'existe déjà
+          if (!similarExists) {
+            // Obtenir les informations de catégorie
+            const categoryId = recurring.category ? recurring.category.toString() : null;
+            const categoryInfo = categoryId && categoriesMap[categoryId] 
+              ? categoriesMap[categoryId] 
+              : null;
+            
+            // Créer l'objet de transaction prédit avec les informations de catégorie
+            const predictedTransaction = {
+              ...recurring,
+              date: predictedDate,
+              predicted: true,
+              categoryName: categoryInfo ? categoryInfo.name : 'Non catégorisé',
+              categoryColor: categoryInfo ? categoryInfo.color : '#808080'
+            };
+            
+            monthTransactions.push(predictedTransaction);
+          }
         }
       });
       
