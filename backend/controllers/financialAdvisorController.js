@@ -11,6 +11,24 @@ const {
   addMonths
 } = require('date-fns');
 
+// Générateur de nombres aléatoires avec seed
+class SeededRandom {
+  constructor(seed) {
+    this.seed = seed;
+  }
+  
+  // Algorithme simple de génération pseudo-aléatoire
+  next() {
+    const x = Math.sin(this.seed++) * 10000;
+    return x - Math.floor(x);
+  }
+  
+  // Génère un nombre entre min et max
+  nextInRange(min, max) {
+    return min + this.next() * (max - min);
+  }
+}
+
 // Fonction pour obtenir la plage de dates en fonction du timeframe
 const getDateRange = (timeframe) => {
   const now = new Date();
@@ -606,15 +624,20 @@ exports.getFinancialProgress = async (req, res) => {
     
     // Si aucune donnée n'existe, générer des données de démonstration
     if (progressData.length === 0) {
+      // Créer une seed basée sur l'ID utilisateur et la plage de dates
+      const seedString = `${userId}-${startDate.getTime()}-${now.getTime()}`;
+      const seed = Array.from(seedString).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const random = new SeededRandom(seed);
+      
       // Pour la démo, générer des données fictives pour les derniers mois
       const demoData = [];
       let currentDate = startDate;
       
       while (currentDate <= now) {
-        // Générer des valeurs aléatoires mais réalistes pour la démo
-        const savingsRate = 10 + Math.random() * 20; // Entre 10% et 30%
-        const expenseReduction = 5 + Math.random() * 15; // Entre 5% et 20%
-        const recommendationsCompleted = Math.floor(Math.random() * 5); // Entre 0 et 4
+        // Générer des valeurs déterministes mais réalistes pour la démo
+        const savingsRate = 10 + random.nextInRange(0, 20); // Entre 10% et 30%
+        const expenseReduction = 5 + random.nextInRange(0, 15); // Entre 5% et 20%
+        const recommendationsCompleted = Math.floor(random.nextInRange(0, 5)); // Entre 0 et 4
         
         demoData.push({
           date: format(currentDate, 'yyyy-MM-dd'),
