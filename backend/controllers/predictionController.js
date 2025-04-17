@@ -68,6 +68,19 @@ const calculatePredictedDate = (recurringTransaction, monthStart) => {
   return predictedDate;
 };
 
+// Modification du code pour s'assurer que les montants sont correctement signés
+const normalizeTransactionAmount = (transaction) => {
+  // Si c'est une dépense, s'assurer que le montant est négatif
+  if (transaction.type === 'expense' && transaction.amount > 0) {
+    return -Math.abs(transaction.amount);
+  }
+  // Si c'est un revenu, s'assurer que le montant est positif
+  else if (transaction.type === 'income' && transaction.amount < 0) {
+    return Math.abs(transaction.amount);
+  }
+  return transaction.amount;
+};
+
 // Function to identify recurring transactions
 const identifyRecurringTransactions = async (userId) => {
   // Get transactions from the last 6 months
@@ -101,15 +114,21 @@ const identifyRecurringTransactions = async (userId) => {
       // Determine frequency
       const frequency = determineFrequency(group);
       
+      // Normaliser le montant selon le type de transaction
+      const normalizedAmount = normalizeTransactionAmount(group[0]);
+      
       // Add to recurring transactions
       recurringTransactions.push({
         description: group[0].description,
-        amount: group[0].amount,
+        amount: normalizedAmount, // Utiliser le montant normalisé
         type: group[0].type,
         category: group[0].category ? group[0].category._id : null,
         frequency,
         firstOccurrence: group[0].date,
-        occurrences: group.map(t => ({ date: t.date, amount: t.amount }))
+        occurrences: group.map(t => ({ 
+          date: t.date, 
+          amount: normalizeTransactionAmount(t) // Normaliser les montants des occurrences
+        }))
       });
     }
   }
