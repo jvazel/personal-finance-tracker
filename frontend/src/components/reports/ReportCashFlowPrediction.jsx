@@ -143,7 +143,15 @@ const ReportCashFlowPrediction = () => {
                           <tr key={tIndex} className={transaction.predicted ? 'predicted-row' : ''}>
                             <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
                             <td>{transaction.description}</td>
-                            <td>{transaction.categoryName || 'Non catégorisé'}</td>
+                            <td className="category-cell">
+                              {transaction.categoryColor && (
+                                <span 
+                                  className="category-indicator" 
+                                  style={{ backgroundColor: transaction.categoryColor }}
+                                ></span>
+                              )}
+                              {transaction.categoryName || 'Non catégorisé'}
+                            </td>
                             <td>
                               <AmountDisplay 
                                 amount={transaction.amount} 
