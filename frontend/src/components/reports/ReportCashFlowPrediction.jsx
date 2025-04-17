@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import AmountDisplay from '../common/AmountDisplay';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
@@ -16,13 +16,37 @@ const ReportCashFlowPrediction = () => {
     const fetchPredictions = async () => {
       try {
         setLoading(true);
-        // Fix the URL by removing the duplicate 'api/'
         const response = await api.get(`/predictions/cash-flow?months=${months}`);
-        setPredictions(response.data);
+        
+        // Formater les mois en français
+        const formattedPredictions = response.data.map(prediction => {
+          // Vérifier si le mois est une chaîne de date (format ISO)
+          if (prediction.month && typeof prediction.month === 'string') {
+            try {
+              // Essayer de parser la date et la formater en français
+              const date = new Date(prediction.month);
+              const formattedMonth = format(date, 'MMMM yyyy', { locale: fr });
+              
+              // Mettre la première lettre du mois en majuscule
+              const capitalizedMonth = formattedMonth.charAt(0).toUpperCase() + formattedMonth.slice(1);
+              
+              return {
+                ...prediction,
+                month: capitalizedMonth
+              };
+            } catch (e) {
+              console.warn('Erreur de parsing de la date:', prediction.month);
+              return prediction;
+            }
+          }
+          return prediction;
+        });
+        
+        setPredictions(formattedPredictions);
         
         // Initialize expanded state for all months
         const initialExpandedState = {};
-        response.data.forEach((prediction, index) => {
+        formattedPredictions.forEach((prediction, index) => {
           initialExpandedState[index] = index === 0; // Only expand the first month by default
         });
         setExpandedMonths(initialExpandedState);

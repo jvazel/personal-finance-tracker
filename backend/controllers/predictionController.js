@@ -2,6 +2,7 @@ const Transaction = require('../models/Transaction');
 const Category = require('../models/Category'); // Ajout de l'import du modèle Category
 const mongoose = require('mongoose'); // Ajout de l'import de mongoose
 const { addDays, addMonths, format, parseISO, isAfter, isBefore, startOfMonth, endOfMonth } = require('date-fns');
+const { fr } = require('date-fns/locale');
 
 // Utility function to group transactions by day
 const groupTransactionsByDay = (transactions) => {
