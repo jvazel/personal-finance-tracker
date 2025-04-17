@@ -131,14 +131,14 @@ const TaxReportDetail = () => {
   return (
     <div className="tax-report-detail-container">
       <div className="tax-report-detail-header">
+        <h2>Rapport fiscal {report.year}</h2>
+        {getStatusBadge(report.status)}
         <button 
           className="tax-back-button"
           onClick={handleGoBack}
         >
           <span className="back-icon">←</span> Retour
         </button>
-        <h2>Rapport fiscal {report.year}</h2>
-        {getStatusBadge(report.status)}
       </div>
 
       <div className="tax-report-detail-content">
