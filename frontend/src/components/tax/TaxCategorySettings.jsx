@@ -15,7 +15,19 @@ const TaxCategorySettings = () => {
     try {
       setLoading(true);
       const response = await api.get('/api/categories');
-      setCategories(Array.isArray(response.data) ? response.data : []);
+      
+      // Vérifier si la réponse contient un objet avec une propriété data
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        setCategories(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        // Fallback au cas où la réponse est directement un tableau
+        setCategories(response.data);
+      } else {
+        // Si aucun format valide n'est trouvé, initialiser avec un tableau vide
+        setCategories([]);
+        console.error('Format de réponse inattendu:', response.data);
+      }
+      
       setError(null);
     } catch (err) {
       console.error('Erreur lors de la récupération des catégories:', err);
@@ -176,7 +188,6 @@ const TaxCategorySettings = () => {
                     </div>
                   </td>
                   <td>{category.type === 'income' ? 'Revenu' : 'Dépense'}</td>
-                  // Remplaçons les cellules de case à cocher par cette version améliorée
                   <td>
                     <div className="tax-category-checkbox-group">
                       <input 
