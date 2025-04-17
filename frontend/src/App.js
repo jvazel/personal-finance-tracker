@@ -16,6 +16,7 @@ import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
 import './styles/auth.css';
 import TaxDashboard from './components/tax/TaxDashboard';
+import TaxReportDetail from './components/tax/TaxReportDetail';
 
 // Register French locale
 registerLocale('fr', fr);
@@ -84,6 +85,15 @@ function App() {
               <Sidebar />
               <div className="main-content">
                 <TaxDashboard />
+              </div>
+            </div>
+          } />
+          {/* Ajouter la nouvelle route pour les détails du rapport fiscal */}
+          <Route path="/tax/reports/:id" element={
+            <div className="app-container">
+              <Sidebar />
+              <div className="main-content">
+                <TaxReportDetail />
               </div>
             </div>
           } />

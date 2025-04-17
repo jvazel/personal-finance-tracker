@@ -196,3 +196,25 @@ exports.deleteTaxReport = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la suppression du rapport fiscal' });
   }
 };
+
+// Ajouter cette fonction au contrôleur
+exports.getTaxReportById = async (req, res) => {
+  try {
+    const reportId = req.params.id;
+    const userId = req.user.id;
+
+    const report = await TaxReport.findOne({
+      _id: reportId,
+      user: userId
+    });
+
+    if (!report) {
+      return res.status(404).json({ message: 'Rapport fiscal non trouvé' });
+    }
+
+    res.json(report);
+  } catch (error) {
+    console.error('Erreur lors de la récupération du rapport fiscal:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération du rapport fiscal' });
+  }
+};

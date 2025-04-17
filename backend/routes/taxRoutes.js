@@ -17,4 +17,7 @@ router.get('/reports', taxController.getTaxReports);
 // Supprimer un rapport fiscal
 router.delete('/reports/:id', taxController.deleteTaxReport);
 
+// Ajouter cette route
+router.get('/reports/:id', taxController.getTaxReportById);
+
 module.exports = router;

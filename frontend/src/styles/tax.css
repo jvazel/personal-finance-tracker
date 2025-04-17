@@ -609,3 +609,144 @@
   font-size: 14px;
   margin: 0 10px;
 }
+
+.tax-report-detail-container {
+  background-color: #2a2a3c;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.tax-report-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tax-report-detail-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  flex-grow: 1;
+}
+
+.tax-report-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tax-report-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tax-report-summary-item {
+  flex: 1;
+  min-width: 200px;
+  background-color: #353549;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.tax-report-summary-item h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.tax-report-summary-item .amount {
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.tax-report-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.tax-report-date-item {
+  flex: 1;
+  min-width: 200px;
+}
+
+.tax-report-date-item h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tax-report-date-item p {
+  margin: 0;
+  color: #ffffff;
+}
+
+.tax-report-notes {
+  background-color: #353549;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.tax-report-notes h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tax-report-notes p {
+  margin: 0;
+  color: #ffffff;
+  white-space: pre-line;
+}
+
+.loading-container, .error-container, .no-data-container {
+  text-align: center;
+  padding: 48px 24px;
+  color: #e2e8f0;
+}
+
+.tax-back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #353549;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tax-back-button:hover {
+  background-color: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.tax-back-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-icon {
+  font-size: 18px;
+  line-height: 1;
+}
