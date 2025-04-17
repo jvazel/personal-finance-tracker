@@ -197,15 +197,16 @@ const Categories = () => {
             
             {formData.type === 'income' && (
               <div className="form-group">
-                <label>
+                <div className="checkbox-container">
+                  <label htmlFor="taxable">Revenu imposable</label>
                   <input
                     type="checkbox"
+                    id="taxable"
                     name="taxable"
                     checked={formData.taxable}
                     onChange={(e) => setFormData({...formData, taxable: e.target.checked})}
                   />
-                  Revenu imposable
-                </label>
+                </div>
                 <small>Cochez cette case si ce type de revenu est imposable</small>
               </div>
             )}
