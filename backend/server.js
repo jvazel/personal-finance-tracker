@@ -12,6 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const { protect } = require('./middleware/auth');
 const taxRoutes = require('./routes/taxRoutes');
 const trendsRoutes = require('./routes/trendsRoutes');
+const importExportRoutes = require('./routes/importExportRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +31,15 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .catch(err => console.error('MongoDB Connection Error:', err));
 
+// Ajouter le middleware pour créer le dossier uploads s'il n'existe pas
+const fs = require('fs');
+const path = require('path');
+const uploadsDir = path.join(__dirname, 'uploads');
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
 // Routes publiques
 app.use('/api/auth', authRoutes);
 
@@ -42,6 +52,7 @@ app.use('/api/financial-advisor', protect, financialAdvisorRoutes);
 app.use('/api/tax', protect, taxRoutes);
 app.use('/api/trends', protect, trendsRoutes);
 app.get('/api/dashboard-data', protect, require('./controllers/transactionController').getDashboardData);
+app.use('/api/import-export', protect, importExportRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -17,6 +17,7 @@ import fr from 'date-fns/locale/fr';
 import './styles/auth.css';
 import TaxDashboard from './components/tax/TaxDashboard';
 import TaxReportDetail from './components/tax/TaxReportDetail';
+import ImportExport from './components/import-export/ImportExport';
 
 // Register French locale
 registerLocale('fr', fr);
@@ -88,7 +89,6 @@ function App() {
               </div>
             </div>
           } />
-          {/* Ajouter la nouvelle route pour les détails du rapport fiscal */}
           <Route path="/tax/reports/:id" element={
             <div className="app-container">
               <Sidebar />
@@ -102,6 +102,14 @@ function App() {
               <Sidebar />
               <div className="main-content">
                 <Trends />
+              </div>
+            </div>
+          } />
+          <Route path="/import-export" element={
+            <div className="app-container">
+              <Sidebar />
+              <div className="main-content">
+                <ImportExport />
               </div>
             </div>
           } />

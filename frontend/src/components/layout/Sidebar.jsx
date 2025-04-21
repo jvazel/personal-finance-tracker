@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaChartPie, FaChartLine } from 'react-icons/fa';
+import { FaChartPie, FaChartLine, FaFileImport } from 'react-icons/fa';
 //import '../styles/sidebar.css';
 
 const Sidebar = () => {
@@ -96,6 +96,11 @@ const Sidebar = () => {
         <NavLink to="/tax" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
           <span className="nav-icon">📑</span>
           <span className="nav-text">Services Fiscaux</span>
+        </NavLink>
+        
+        <NavLink to="/import-export" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <span className="nav-icon"><FaFileImport /></span>
+          <span className="nav-text">Import/Export</span>
         </NavLink>
         
         <NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>

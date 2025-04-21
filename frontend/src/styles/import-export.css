@@ -1,0 +1,155 @@
+.import-export-container {
+  padding: 20px;
+  color: #e2e8f0;
+}
+
+.import-export-container h1 {
+  margin-bottom: 20px;
+  color: #e2e8f0;
+  border-bottom: 1px solid #2d3748;
+  padding-bottom: 10px;
+}
+
+.import-export-container h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #e2e8f0;
+  font-size: 1.2rem;
+}
+
+.import-export-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 768px) {
+  .import-export-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+.export-section, .import-section {
+  background-color: #1e1e2e;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.date-picker {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #4a5568;
+  background-color: #2d3748;
+  color: #e2e8f0;
+}
+
+/* Styles spécifiques pour améliorer la visibilité du DatePicker */
+.react-datepicker__input-container input {
+  color: #ffffff !important; /* Texte blanc pour meilleure visibilité */
+  font-weight: 500; /* Texte légèrement plus gras */
+}
+
+.react-datepicker__month-container {
+  background-color: #2d3748;
+}
+
+.react-datepicker__header {
+  background-color: #1e1e2e;
+  border-bottom: 1px solid #4a5568;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: #e2e8f0;
+}
+
+.react-datepicker__day:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.react-datepicker__day--selected {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.file-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #4a5568;
+  background-color: #2d3748;
+  color: #e2e8f0;
+}
+
+.file-format-info {
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.export-button, .import-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  display: inline-block;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.export-button:hover, .import-button:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.export-button:active, .import-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:disabled, .import-button:disabled {
+  background-color: #4a5568;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.alert {
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.alert-success {
+  background-color: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #10b981;
+}
+
+.alert-error {
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
