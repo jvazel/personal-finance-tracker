@@ -13,7 +13,7 @@ const TransactionList = ({ selectedMonth }) => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
   const [currentPage, setCurrentPage] = useState(1);
-  const [transactionsPerPage] = useState(10);
+  const [transactionsPerPage] = useState(15);
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = async (id) => {
