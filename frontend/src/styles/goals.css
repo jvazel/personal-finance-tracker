@@ -388,7 +388,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #4299e1;
+  background-color: #3b82f6;
   color: white;
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -396,13 +396,13 @@
 }
 
 .add-transaction-button:hover {
-  background-color: #3182ce;
+  background-color: #3b82f6;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .add-transaction-button i {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
 }
 
 /* Form styling improvements */

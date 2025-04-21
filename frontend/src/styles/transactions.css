@@ -379,7 +379,7 @@
 }
 
 .add-transaction-button svg {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
 }
 
 .add-transaction-button {
@@ -398,8 +398,8 @@
   margin-left: auto; /* Pushes the button to the right */
   font-size: 30px;
   padding: 0; /* Remove padding to ensure perfect circle */
-  min-width: 70px; /* Ensure minimum width */
-  min-height: 70px; /* Ensure minimum height */
+  min-width: 48px; /* Ensure minimum width */
+  min-height: 48px; /* Ensure minimum height */
   overflow: hidden; /* Ensure content doesn't break the circular shape */
   position: relative; /* For positioning the icon */
 }
