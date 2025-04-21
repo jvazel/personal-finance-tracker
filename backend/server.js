@@ -38,7 +38,7 @@ app.use('/api/transactions', protect, transactionRoutes);
 app.use('/api/categories', protect, categoryRoutes);
 app.use('/api/predictions', protect, predictionRoutes);
 app.use('/api/goals', protect, goalRoutes);
-app.use('/api/financial-advisor', financialAdvisorRoutes);
+app.use('/api/financial-advisor', protect, financialAdvisorRoutes);
 app.use('/api/tax', protect, taxRoutes);
 app.use('/api/trends', protect, trendsRoutes);
 app.get('/api/dashboard-data', protect, require('./controllers/transactionController').getDashboardData);
