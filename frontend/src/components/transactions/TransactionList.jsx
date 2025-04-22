@@ -5,7 +5,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Modal from '../common/Modal';
 import AmountDisplay from '../common/AmountDisplay';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaStickyNote } from 'react-icons/fa';
+import NoteModal from './NoteModal';
 
 const TransactionList = ({ selectedMonth }) => {
   const { transactions, loading, error, deleteTransaction, refreshTransactions } = useContext(TransactionContext);
@@ -15,6 +16,8 @@ const TransactionList = ({ selectedMonth }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [transactionsPerPage] = useState(15);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null);
 
   const handleDelete = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) {
@@ -43,6 +46,16 @@ const TransactionList = ({ selectedMonth }) => {
     const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
     const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
     refreshTransactions(startOfMonth, endOfMonth);
+  };
+
+  const handleShowNote = (transaction) => {
+    setSelectedNote(transaction);
+    setShowNoteModal(true);
+  };
+
+  const handleCloseNoteModal = () => {
+    setShowNoteModal(false);
+    setSelectedNote(null);
   };
 
   // Fonction pour trier les transactions
@@ -183,6 +196,12 @@ const TransactionList = ({ selectedMonth }) => {
         />
       </Modal>
 
+      <NoteModal
+        isOpen={showNoteModal}
+        onClose={handleCloseNoteModal}
+        transaction={selectedNote}
+      />
+
       {/* Barre de recherche */}
       <div className="search-container">
         <input
@@ -231,7 +250,18 @@ const TransactionList = ({ selectedMonth }) => {
             currentTransactions.map((transaction) => (
               <tr key={transaction._id}>
                 <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
-                <td>{transaction.description}</td>
+                <td>
+                  {transaction.description}
+                  {transaction.note && (
+                    <button 
+                      className="note-button" 
+                      onClick={() => handleShowNote(transaction)}
+                      title="Voir la note"
+                    >
+                      <FaStickyNote className="note-icon" />
+                    </button>
+                  )}
+                </td>
                 <td className={`amount ${transaction.type}`}>
                   <AmountDisplay 
                     amount={transaction.amount} 

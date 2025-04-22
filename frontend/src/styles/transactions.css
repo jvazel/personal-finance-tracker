@@ -429,3 +429,40 @@
   background-color: #3a3a4c;
   width: 100%;
 }
+
+/* Ajouter à la fin du fichier transactions.css */
+
+/* Styles pour le bouton et l'icône de note */
+.note-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.note-icon {
+  color: #6366f1;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.note-button:hover .note-icon {
+  transform: scale(1.2);
+  color: #818cf8;
+}
+
+.note-content {
+  color: #e2e8f0;
+  font-size: 16px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  background-color: #353549;
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}

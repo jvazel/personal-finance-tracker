@@ -28,6 +28,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const [description, setDescription] = useState(transactionToEdit ? transactionToEdit.description : '');
   const [amount, setAmount] = useState(transactionToEdit ? transactionToEdit.amount : '');
   const [type, setType] = useState(transactionToEdit ? transactionToEdit.type : 'expense');
+  const [note, setNote] = useState(transactionToEdit ? transactionToEdit.note || '' : '');
   
   // Initialize category state with ID if available, otherwise use name
   const [category, setCategory] = useState(
@@ -108,7 +109,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       description,
       amount: parseFloat(amount),
       type,
-      category
+      category,
+      note
     };
 
     try {
@@ -208,6 +210,18 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
             ))
           )}
         </select>
+      </div>
+      
+      <div className="form-group">
+        <label htmlFor="note">Note (optionnelle)</label>
+        <textarea
+          id="note"
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          placeholder="Ajouter une note à cette transaction..."
+          rows="3"
+          className="form-textarea"
+        />
       </div>
       
       <div className="form-actions">
