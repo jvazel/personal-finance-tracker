@@ -168,8 +168,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       
       <div className="form-group">
         <label>Type</label>
-        <div>
-          <label>
+        <div className="type-options">
+          <label className="type-option">
             <input
               type="radio"
               name="type"
@@ -179,7 +179,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
             />
             Dépense
           </label>
-          <label>
+          <label className="type-option">
             <input
               type="radio"
               name="type"

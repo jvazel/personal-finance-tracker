@@ -466,3 +466,19 @@
   max-height: 300px;
   overflow-y: auto;
 }
+
+.type-options {
+  display: flex;
+  gap: 20px;
+}
+
+.type-option {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.type-option input {
+  margin: 0;
+}
