@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const transactionRoutes = require('./routes/transactionRoutes');
+const recurringExpensesRoutes = require('./routes/recurringExpensesRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const predictionRoutes = require('./routes/predictionRoutes');
 const goalRoutes = require('./routes/goalRoutes');
@@ -53,6 +54,7 @@ app.use('/api/tax', protect, taxRoutes);
 app.use('/api/trends', protect, trendsRoutes);
 app.get('/api/dashboard-data', protect, require('./controllers/transactionController').getDashboardData);
 app.use('/api/import-export', protect, importExportRoutes);
+app.use('/api/recurring-expenses', protect, recurringExpensesRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
