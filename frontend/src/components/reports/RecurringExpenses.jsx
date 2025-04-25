@@ -323,7 +323,17 @@ const RecurringExpenses = () => {
                         <tr key={transaction._id}>
                           <td>{formatDate(transaction.date)}</td>
                           <td className="amount-expense">{transaction.amount.toFixed(2)} €</td>
-                          <td>{typeof transaction.category === 'object' ? transaction.category.name : transaction.category}</td>
+                          <td>
+                            <div className="category-name">
+                              <div 
+                                className="category-color" 
+                                style={{ 
+                                  backgroundColor: typeof transaction.category === 'object' ? transaction.category.color : '#cccccc'
+                                }}
+                              ></div>
+                              {typeof transaction.category === 'object' ? transaction.category.name : transaction.category}
+                            </div>
+                          </td>
                           <td>{transaction.description}</td>
                         </tr>
                       ))}
