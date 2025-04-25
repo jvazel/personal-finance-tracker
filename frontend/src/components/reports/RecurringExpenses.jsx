@@ -77,8 +77,32 @@ const RecurringExpenses = () => {
     fetchExpenseDetails(expense.payee);
   };
 
-  const formatDate = (date) => {
-    return format(new Date(date), 'dd MMM yyyy', { locale: fr });
+  // Fonction pour formater les dates
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Date non disponible';
+    
+    const date = new Date(dateString);
+    
+    // Vérifier si la date est valide
+    if (isNaN(date.getTime())) {
+      return 'Date invalide';
+    }
+    
+    // Formater la date en français
+    return new Intl.DateTimeFormat('fr', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  };
+
+  // Fonction pour rendre la date du prochain paiement
+  const renderNextPaymentDate = (expense) => {
+    const nextDate = expense.nextPaymentDate;
+    if (!nextDate || !(new Date(nextDate) instanceof Date) || isNaN(new Date(nextDate).getTime())) {
+      return 'Date inconnue';
+    }
+    return formatDate(new Date(nextDate));
   };
 
   const getConfidenceColor = (score) => {
@@ -226,7 +250,7 @@ const RecurringExpenses = () => {
                       <td>{expense.payee}</td>
                       <td className="amount-expense">{expense.avgAmount.toFixed(2)} €</td>
                       <td>{expense.frequency}</td>
-                      <td>{formatDate(expense.nextPaymentDate)}</td>
+                      <td>{renderNextPaymentDate(expense)}</td>
                       <td>
                         <div className="confidence-bar">
                           <div 
@@ -266,11 +290,15 @@ const RecurringExpenses = () => {
                   </div>
                   <div className="report-card">
                     <h3>Nombre de paiements</h3>
-                    <p className="stat-value">{expenseDetails.statistics.transactionCount}</p>
+                    <p className="stat-value">{expenseDetails.statistics.count || 'Non disponible'}</p>
                   </div>
                   <div className="report-card">
                     <h3>Premier paiement</h3>
-                    <p className="stat-value">{formatDate(expenseDetails.statistics.firstTransaction)}</p>
+                    <p className="stat-value">
+                      {expenseDetails.transactions && expenseDetails.transactions.length > 0 
+                        ? formatDate(expenseDetails.transactions[expenseDetails.transactions.length - 1].date)
+                        : 'Non disponible'}
+                    </p>
                   </div>
                 </div>
 
@@ -295,7 +323,7 @@ const RecurringExpenses = () => {
                         <tr key={transaction._id}>
                           <td>{formatDate(transaction.date)}</td>
                           <td className="amount-expense">{transaction.amount.toFixed(2)} €</td>
-                          <td>{transaction.category}</td>
+                          <td>{typeof transaction.category === 'object' ? transaction.category.name : transaction.category}</td>
                           <td>{transaction.description}</td>
                         </tr>
                       ))}
