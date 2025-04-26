@@ -177,7 +177,6 @@ const calculateProgressKPIs = async (userId) => {
   try {
     recommendations = await SavedRecommendation.find({ user: userId });
   } catch (error) {
-    console.log('Modèle SavedRecommendation non disponible ou erreur:', error.message);
   }
   
   // Calculer le taux d'épargne

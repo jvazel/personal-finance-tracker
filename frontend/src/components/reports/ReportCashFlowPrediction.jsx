@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import AmountDisplay from '../common/AmountDisplay';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';

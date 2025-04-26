@@ -252,17 +252,11 @@ exports.calculateProgressKPIs = async (req, res) => {
   try {
     const userId = req.user.id;
     
-    console.log('Calculating KPIs for user:', userId);
-    
     // Use the KPI service to calculate all KPIs
     const kpis = await kpiService.calculateFinancialKPIs(userId);
-    
-    console.log('KPIs calculated:', kpis);
-    
+
     // Save the KPIs to the database
     const newProgressData = await kpiService.saveKPIs(userId, kpis);
-    
-    console.log('New progress entry saved with ID:', newProgressData._id);
     
     res.status(200).json(newProgressData);
   } catch (error) {

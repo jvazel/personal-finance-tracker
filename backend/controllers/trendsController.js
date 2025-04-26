@@ -184,8 +184,6 @@ exports.getHeatmapData = async (req, res) => {
             return res.json(cachedData);
         }
         
-        console.log('Fetching heatmap data with params:', { userId, period, startDate, endDate, type });
-        
         const data = await heatmapService.getHeatmapData(
             userId, period, startDate, endDate, type
         );

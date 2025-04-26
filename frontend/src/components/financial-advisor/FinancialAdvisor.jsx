@@ -298,7 +298,6 @@ export default FinancialAdvisor;
 
 // Ajoutons une fonction utilitaire pour formater les titres et descriptions qui pourraient contenir des IDs de catégorie
 const formatCategoryReferences = (text, insight) => {
-  console.log("formatCategoryReferences " + text + ";" + insight);
   if (!text || typeof text !== 'string') return text;
   
   // Recherche des IDs MongoDB (format: 24 caractères hexadécimaux)

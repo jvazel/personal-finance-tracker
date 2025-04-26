@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/auth/me');
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`);
         setCurrentUser(res.data.user);
       } catch (err) {
         console.error('Error loading user:', err);
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         email,
         password
       });
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const res = await axios.post('http://localhost:5000/api/auth/register', userData);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, userData);
       
       setToken(res.data.token);
       setCurrentUser(res.data.user);

@@ -193,12 +193,6 @@ exports.getDashboardData = async (req, res) => {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    console.log('Période du tableau de bord:', {
-      startOfMonth: startOfMonth.toISOString(),
-      endOfMonth: endOfMonth.toISOString(),
-      currentDate: now.toISOString()
-    });
-
     const transactions = await Transaction.find({
       user: req.user.id, // Filter by authenticated user
       date: { $gte: startOfMonth, $lte: endOfMonth }

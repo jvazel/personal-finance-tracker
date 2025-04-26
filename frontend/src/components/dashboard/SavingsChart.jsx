@@ -107,7 +107,7 @@ const SavingsChart = () => {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Amount ($)',
+          text: 'Amount (€)',
         },
       },
       x: {

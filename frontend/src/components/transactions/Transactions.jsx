@@ -6,7 +6,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { TransactionContext } from '../../contexts/TransactionContext';
 import Modal from '../common/Modal';
 import { addMonths, subMonths } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { FaPlus } from 'react-icons/fa';
 import api from '../../utils/api';
 
@@ -14,7 +13,6 @@ const Transactions = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const { refreshTransactions } = useContext(TransactionContext);
-  // Add new state variables for financial summary
   const [financialSummary, setFinancialSummary] = useState({
     savings: 0,
     totalIncome: 0,

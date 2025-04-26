@@ -5,7 +5,6 @@ import { fr } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Modal from '../common/Modal';
-//import '../styles/goals.css';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import api from '../../services/api';
 

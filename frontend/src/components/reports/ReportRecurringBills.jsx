@@ -15,7 +15,7 @@ const ReportRecurringBills = () => {
   const [period, setPeriod] = useState('12'); // Par défaut 12 mois
   const [selectedBill, setSelectedBill] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'statistics.count', direction: 'desc' });
-  const [categories, setCategories] = useState({}); // Add state for categories
+  const [categories, setCategories] = useState({});
 
   useEffect(() => {
     const fetchRecurringBills = async () => {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import SavingsChart from './SavingsChart';
 import ExpensePieChart from './ExpensePieChart';
 import IncomeExpenseTrend from './IncomeExpenseTrend';
 import TopExpenses from './TopExpenses';
@@ -47,7 +46,6 @@ const Dashboard = () => {
       try {
         // Récupérer les données du tableau de bord depuis l'API
         const response = await api.get('/api/transactions/dashboard');
-        console.log('Dashboard data received:', response.data);
 
         // Mettre à jour les états avec les données reçues
         setSavings(response.data.savings || 0);
@@ -68,7 +66,6 @@ const Dashboard = () => {
           const categoriesResponse = await api.get('/api/transactions/expenses-by-category', {
             params: { startDate, endDate }
           });
-          console.log('Categories response:', categoriesResponse.data);
           setExpensesByCategory(categoriesResponse.data || []);
         } catch (err) {
           console.error('Error fetching expenses by category:', err.response ? err.response.data : err.message);

@@ -27,7 +27,6 @@ const ExpenseLimits = () => {
         
         // Check if the response has data property or is an array directly
         const limitsData = limitsResponse.data.data || limitsResponse.data;
-        console.log('Expense limits from API:', limitsData);
         
         // Fetch all expenses by category for the current month in a single request
         const allExpensesResponse = await api.get('/api/transactions/expenses-by-category', {
@@ -36,7 +35,6 @@ const ExpenseLimits = () => {
         
         // Check if the response has data property or is an array directly
         const expensesData = allExpensesResponse.data.data || allExpensesResponse.data;
-        console.log('All expenses by category:', expensesData);
         
         // Map expenses by category for easier lookup
         const expensesByCategory = {};
@@ -58,8 +56,6 @@ const ExpenseLimits = () => {
             isExceeded: currentAmount > limit.targetAmount
           };
         });
-        
-        console.log('Processed limits with progress:', limitsWithProgress);
         
         setExpenseLimits(limitsWithProgress);
         setLoading(false);

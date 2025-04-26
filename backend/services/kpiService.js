@@ -18,7 +18,6 @@ exports.calculateFinancialKPIs = async (userId) => {
   try {
     recommendations = await SavedRecommendation.find({ user: userId });
   } catch (error) {
-    console.log('SavedRecommendation model not available or error:', error.message);
   }
   
   // Calculate savings rate

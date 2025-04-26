@@ -50,7 +50,6 @@ exports.initializeDefaultCategories = async () => {
   try {
     // We'll no longer initialize categories on server start
     // Instead, we'll create them when a user registers (see authController.js)
-    console.log('Category initialization moved to user registration');
   } catch (error) {
     console.error('Error initializing categories:', error);
   }

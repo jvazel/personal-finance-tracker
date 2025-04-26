@@ -34,13 +34,11 @@ const ProgressVisualization = () => {
       
       // Vérifier si nous avons des données en cache pour ce timeframe
       if (dataCache[timeframe]) {
-        console.log(`Utilisation des données en cache pour la période: ${timeframe}`);
         setProgressData(dataCache[timeframe]);
         setLoading(false);
         return;
       }
       
-      console.log(`Récupération des données pour la période: ${timeframe}`);
       const response = await api.get('/api/financial-advisor/progress', {
         params: { timeframe }
       });

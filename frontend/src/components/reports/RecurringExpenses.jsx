@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../utils/api'; // Remplacer axios par votre service API
-import { format } from 'date-fns';
+import api from '../../utils/api';
 import { fr } from 'date-fns/locale';
 import { Line } from 'react-chartjs-2';
 import { 
@@ -42,7 +41,7 @@ const RecurringExpenses = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const response = await api.get('/recurring-expenses'); // Modifier le chemin de l'API
+        const response = await api.get('/recurring-expenses');
         
         setRecurringExpenses(response.data.recurringExpenses);
         setStatistics(response.data.statistics);
@@ -61,7 +60,7 @@ const RecurringExpenses = () => {
     try {
       setDetailsLoading(true);
       const token = localStorage.getItem('token');
-      const response = await api.get(`/recurring-expenses/${encodeURIComponent(payee)}`); // Modifier le chemin de l'API
+      const response = await api.get(`/recurring-expenses/${encodeURIComponent(payee)}`);
       
       setExpenseDetails(response.data);
       setDetailsLoading(false);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format, isValid, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import Modal from '../common/Modal'; // Importer le composant Modal
+import Modal from '../common/Modal';
 
 const AnomalyDetection = ({ data, selectedCategories }) => {
   const [filteredData, setFilteredData] = useState(data);

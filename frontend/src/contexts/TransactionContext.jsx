@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback, useReducer } from 'react';
+import React, { createContext, useEffect, useCallback, useReducer } from 'react';
 import api from '../utils/api';
 
 export const TransactionContext = createContext();

@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 
 const HeatmapChart = ({ data, metadata, timeframe, selectedCategories }) => {
   const [metric, setMetric] = useState('expense'); // 'expense', 'count', 'average'
