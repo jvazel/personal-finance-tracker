@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle, FaCrystalBall } from 'react-icons/fa';
+import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle } from 'react-icons/fa';
 
 const Sidebar = () => {
   const { currentUser, logout } = useContext(AuthContext);
