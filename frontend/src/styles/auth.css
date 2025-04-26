@@ -195,3 +195,22 @@
   background-color: #1a1a2e;
   padding: 20px;
 }
+
+.input-icon {
+  margin-right: 8px;
+}
+
+.button-icon {
+  margin-right: 8px;
+}
+
+label {
+  display: flex;
+  align-items: center;
+}
+
+.auth-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

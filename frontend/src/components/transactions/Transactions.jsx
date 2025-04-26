@@ -41,14 +41,10 @@ const Transactions = () => {
       const formattedStartDate = startDate.toISOString().split('T')[0];
       const formattedEndDate = endDate.toISOString().split('T')[0];
       
-      console.log('Fetching summary for:', { formattedStartDate, formattedEndDate });
-      
       // Get the monthly KPIs
       const response = await api.get('/transactions/monthly-summary', {
         params: { startDate: formattedStartDate, endDate: formattedEndDate }
       });
-      
-      console.log('Summary response:', response.data);
       
       setFinancialSummary({
         savings: response.data.savings || 0,

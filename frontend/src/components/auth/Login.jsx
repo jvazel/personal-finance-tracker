@@ -90,7 +90,7 @@ const Login = () => {
           <div className="form-group">
             <label htmlFor="email">
               <FaEnvelope className="input-icon" />
-              Email
+              <span className="label-text">Email</span>
             </label>
             <input
               type="email"
@@ -107,7 +107,7 @@ const Login = () => {
           <div className="form-group">
             <label htmlFor="password">
               <FaLock className="input-icon" />
-              Mot de passe
+              <span className="label-text">Mot de passe</span>
             </label>
             <input
               type="password"
@@ -129,7 +129,7 @@ const Login = () => {
             {isSubmitting ? 'Connexion en cours...' : (
               <>
                 <FaSignInAlt className="button-icon" />
-                Se connecter
+                <span className="button-text">Se connecter</span>
               </>
             )}
           </button>
