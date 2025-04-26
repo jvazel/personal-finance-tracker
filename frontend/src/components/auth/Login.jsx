@@ -1,6 +1,7 @@
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -8,30 +9,64 @@ const Login = () => {
     password: ''
   });
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { login, error } = useContext(AuthContext);
+  const { login, error, currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/');
+    }
+  }, [currentUser, navigate]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Effacer les erreurs lors de la saisie
+    setFormError('');
+  };
+
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setFormError('Veuillez remplir tous les champs');
+      return false;
+    }
+    
+    // Validation simple de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setFormError('Veuillez entrer une adresse email valide');
+      return false;
+    }
+    
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
     
-    // Validation simple
-    if (!formData.email || !formData.password) {
-      setFormError('Veuillez remplir tous les champs');
+    if (!validateForm()) {
       return;
     }
-
-    const success = await login(formData.email, formData.password);
-    if (success) {
-      navigate('/');
+    
+    setIsSubmitting(true);
+    try {
+      const success = await login(formData.email, formData.password);
+      if (success) {
+        // Rediriger vers la page précédente ou la page d'accueil
+        const from = location.state?.from?.pathname || '/';
+        navigate(from);
+      }
+    } catch (err) {
+      console.error('Erreur de connexion:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -53,7 +88,10 @@ const Login = () => {
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">
+              <FaEnvelope className="input-icon" />
+              Email
+            </label>
             <input
               type="email"
               id="email"
@@ -61,11 +99,16 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Votre email"
+              disabled={isSubmitting}
+              autoComplete="email"
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Mot de passe</label>
+            <label htmlFor="password">
+              <FaLock className="input-icon" />
+              Mot de passe
+            </label>
             <input
               type="password"
               id="password"
@@ -73,11 +116,22 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Votre mot de passe"
+              disabled={isSubmitting}
+              autoComplete="current-password"
             />
           </div>
           
-          <button type="submit" className="auth-button">
-            Se connecter
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Connexion en cours...' : (
+              <>
+                <FaSignInAlt className="button-icon" />
+                Se connecter
+              </>
+            )}
           </button>
         </form>
         
