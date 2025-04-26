@@ -537,6 +537,10 @@
   margin: 24px 0;
 }
 
+.report-section .chart-container {
+  width: 95%;
+}
+
 .progress-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

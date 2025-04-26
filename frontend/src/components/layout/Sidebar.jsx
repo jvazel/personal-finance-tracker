@@ -66,10 +66,6 @@ const Sidebar = () => {
                 <span className="submenu-icon"><FaChartPie /></span>
                 <span className="submenu-text">Evolution des dépenses</span>
               </NavLink>
-              <NavLink to="/reports/recurring-bills" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
-                <span className="submenu-icon">🔄</span>
-                <span className="submenu-text">Factures récurrentes</span>
-              </NavLink>
               <NavLink to="/reports/recurring-expenses" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
                 <span className="submenu-icon">🔁</span>
                 <span className="submenu-text">Suivi des dépenses récurrentes</span>

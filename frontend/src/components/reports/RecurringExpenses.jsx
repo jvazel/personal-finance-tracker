@@ -134,6 +134,7 @@ const RecurringExpenses = () => {
 
     const options = {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
         x: {
           type: 'time',
@@ -191,7 +192,11 @@ const RecurringExpenses = () => {
       }
     };
 
-    return <Line data={data} options={options} />;
+    return (
+      <div style={{ width: '100%', height: '400px' }}>
+        <Line data={data} options={options} />
+      </div>
+    );
   };
 
   if (loading) {
@@ -204,6 +209,7 @@ const RecurringExpenses = () => {
 
   return (
     <div className="recurring-expenses-container">
+      <h2>Suivi des dépenses récurrentes</h2>
       <div className="bill-statistics">
         <div className="report-card">
           <h3>Dépenses récurrentes identifiées</h3>
@@ -302,43 +308,47 @@ const RecurringExpenses = () => {
                   </div>
                 </div>
 
-                <div className="chart-container">
-                  <h3>Historique des montants</h3>
-                  {renderAmountHistoryChart()}
-                </div>
+                <div className="report-section">
+                  <h2>Suivi des dépenses récurrentes</h2>
+                  
+                  <div className="chart-container">
+                    <h3>Historique des montants</h3>
+                    {renderAmountHistoryChart()}
+                  </div>
 
-                <h3>Historique des transactions</h3>
-                <div className="transaction-table-container">
-                  <table className="transaction-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Montant</th>
-                        <th>Catégorie</th>
-                        <th>Description</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {expenseDetails.transactions.map((transaction) => (
-                        <tr key={transaction._id}>
-                          <td>{formatDate(transaction.date)}</td>
-                          <td className="amount-expense">{transaction.amount.toFixed(2)} €</td>
-                          <td>
-                            <div className="category-name">
-                              <div 
-                                className="category-color" 
-                                style={{ 
-                                  backgroundColor: typeof transaction.category === 'object' ? transaction.category.color : '#cccccc'
-                                }}
-                              ></div>
-                              {typeof transaction.category === 'object' ? transaction.category.name : transaction.category}
-                            </div>
-                          </td>
-                          <td>{transaction.description}</td>
+                  <h3>Historique des transactions</h3>
+                  <div className="transaction-table-container">
+                    <table className="transaction-table">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Montant</th>
+                          <th>Catégorie</th>
+                          <th>Description</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {expenseDetails.transactions.map((transaction) => (
+                          <tr key={transaction._id}>
+                            <td>{formatDate(transaction.date)}</td>
+                            <td className="amount-expense">{transaction.amount.toFixed(2)} €</td>
+                            <td>
+                              <div className="category-name">
+                                <div 
+                                  className="category-color" 
+                                  style={{ 
+                                    backgroundColor: typeof transaction.category === 'object' ? transaction.category.color : '#cccccc'
+                                  }}
+                                ></div>
+                                {typeof transaction.category === 'object' ? transaction.category.name : transaction.category}
+                              </div>
+                            </td>
+                            <td>{transaction.description}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </>
             ) : (
