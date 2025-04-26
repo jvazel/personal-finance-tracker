@@ -5,6 +5,30 @@ import IncomeExpenseTrend from './IncomeExpenseTrend';
 import TopExpenses from './TopExpenses';
 import ExpenseLimits from './ExpenseLimits';
 import api from '../../services/api';
+import { motion } from 'framer-motion';
+import AnimatedCard from '../common/AnimatedCard';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100
+    }
+  }
+};
 
 const Dashboard = () => {
   // Définir les états pour stocker les données financières
@@ -63,50 +87,32 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  useEffect(() => {
-    const fetchExpensesByCategory = async () => {
-      try {
-        // Définir la période (par exemple, le mois en cours)
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-        
-        console.log('Fetching expenses by category for period:', { startOfMonth, endOfMonth });
-        
-        const response = await api.get(`/api/transactions/expenses-by-category?startDate=${startOfMonth}&endDate=${endOfMonth}`);
-        
-        console.log('Expenses by category response:', response.data);
-        setExpensesByCategory(response.data);
-      } catch (error) {
-        console.error('Error fetching expenses by category:', error);
-        // Gérer l'erreur (afficher un message, etc.)
-      }
-    };
-
-    fetchExpensesByCategory();
-  }, []);
-
   if (loading) return <div>Chargement du tableau de bord...</div>;
   if (error) return <div>Erreur lors du chargement des données: {error.message}</div>;
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-summary">
-        <div className={`dashboard-card ${savings >= 0 ? 'income' : 'expense'}`}>
+    <motion.div 
+      className="dashboard-container"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div className="dashboard-summary" variants={itemVariants}>
+        <AnimatedCard className={`dashboard-card ${savings >= 0 ? 'income' : 'expense'}`}>
           <h3>Solde actuel</h3>
           <p>{savings >= 0 ? `${savings.toFixed(2)} €` : `-${Math.abs(savings).toFixed(2)} €`}</p>
-        </div>
-        <div className="dashboard-card income">
+        </AnimatedCard>
+        <AnimatedCard className="dashboard-card income">
           <h3>Revenus du mois</h3>
           <p>{totalIncome.toFixed(2)} €</p>
-        </div>
-        <div className="dashboard-card expense">
+        </AnimatedCard>
+        <AnimatedCard className="dashboard-card expense">
           <h3>Dépenses du mois</h3>
           <p>{totalExpenses.toFixed(2)} €</p>
-        </div>
-      </div>
+        </AnimatedCard>
+      </motion.div>
 
-      <div className="dashboard-charts-row">
+      <motion.div className="dashboard-charts-row" variants={itemVariants}>
         <div className="dashboard-chart-section">
           <div className="chart-card">
             <h3>Aperçu des dépenses par catégorie</h3>
@@ -132,7 +138,7 @@ const Dashboard = () => {
             <TopExpenses limit={topExpensesLimit} />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Nouvelle section pour les limites de dépenses */}
       <div className="dashboard-chart-section">
@@ -148,7 +154,7 @@ const Dashboard = () => {
           <IncomeExpenseTrend />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

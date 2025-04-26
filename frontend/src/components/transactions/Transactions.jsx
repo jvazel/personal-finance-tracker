@@ -90,7 +90,7 @@ const Transactions = () => {
   );
   
   // Custom input component that capitalizes the first letter of the month
-  const CustomMonthInput = ({ value, onClick }) => {
+  const CustomMonthInput = React.forwardRef(({ value, onClick }, ref) => {
     // Capitalize the first letter of the month
     const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
     
@@ -99,7 +99,7 @@ const Transactions = () => {
         <div className="transaction-month-nav-button" onClick={goToPreviousMonth} title="Mois précédent">
           <span>&#10094;</span>
         </div>
-        <div className="month-display-button" onClick={onClick}>
+        <div className="month-display-button" onClick={onClick} ref={ref}>
           {capitalizedValue}
         </div>
         <div className="transaction-month-nav-button" onClick={goToNextMonth} title="Mois suivant">
@@ -107,7 +107,7 @@ const Transactions = () => {
         </div>
       </div>
     );
-  };
+  });
 
   // Fonction pour gérer la fermeture du formulaire et rafraîchir les données
   const handleFormClose = () => {

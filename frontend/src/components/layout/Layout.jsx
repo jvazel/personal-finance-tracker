@@ -1,13 +1,16 @@
 import React from 'react';
 import Sidebar from './Sidebar';
+import PageTransition from '../common/PageTransition';
 
 const Layout = ({ children }) => {
   return (
     <div className="app-container">
       <Sidebar />
-      <div className="main-content">
-        {children}
-      </div>
+      <main className="main-content">
+        <PageTransition>
+          {children}
+        </PageTransition>
+      </main>
     </div>
   );
 };

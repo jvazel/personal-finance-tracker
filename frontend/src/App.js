@@ -1,8 +1,9 @@
 import React, { Suspense, lazy, useTransition } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
 import { AuthProvider } from './context/AuthContext';
+import { AnimatePresence } from 'framer-motion';
 
 // Components
 import LoadingSpinner from './components/common/LoadingSpinner';
@@ -44,109 +45,113 @@ const TransitionWrapper = ({ children }) => {
 };
 
 function App() {
+  const location = useLocation();
+  
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
     
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Dashboard />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/transactions" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Transactions />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/reports/*" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Reports />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            {/* Autres routes */}
-            <Route path="/goals/*" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Goals />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/financial-advisor" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <FinancialAdvisor />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/settings/*" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Settings />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/tax" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <TaxDashboard />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/tax/reports/:id" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <TaxReportDetail />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/trends" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Trends />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-            <Route path="/import-export" element={
-              <Layout>
-                <TransitionWrapper>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <ImportExport />
-                  </Suspense>
-                </TransitionWrapper>
-              </Layout>
-            } />
-          </Route>
-        </Routes>
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Dashboard />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/transactions" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Transactions />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/reports/*" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Reports />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              {/* Autres routes */}
+              <Route path="/goals/*" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Goals />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/financial-advisor" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <FinancialAdvisor />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/settings/*" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Settings />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/tax" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <TaxDashboard />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/tax/reports/:id" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <TaxReportDetail />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/trends" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <Trends />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/import-export" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <ImportExport />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+            </Route>
+          </Routes>
+        </AnimatePresence>
       </AuthProvider>
     </ErrorBoundary>
   );

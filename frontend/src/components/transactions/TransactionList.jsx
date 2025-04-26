@@ -7,6 +7,29 @@ import Modal from '../common/Modal';
 import AmountDisplay from '../common/AmountDisplay';
 import { FaEdit, FaTrash, FaStickyNote } from 'react-icons/fa';
 import NoteModal from './NoteModal';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100
+    }
+  }
+};
 
 const TransactionList = ({ selectedMonth }) => {
   const { transactions, loading, error, deleteTransaction, refreshTransactions } = useContext(TransactionContext);
@@ -76,13 +99,13 @@ const TransactionList = ({ selectedMonth }) => {
   // Filtrer les transactions en fonction du terme de recherche
   const filteredTransactions = useMemo(() => {
     if (!transactions) return [];
-    
+
     return transactions.filter(transaction => {
       const searchTermLower = searchTerm.toLowerCase();
-      const categoryName = transaction.category && typeof transaction.category === 'object' 
-        ? transaction.category.name 
+      const categoryName = transaction.category && typeof transaction.category === 'object'
+        ? transaction.category.name
         : (transaction.categoryName || transaction.category || '');
-        
+
       return (
         transaction.description.toLowerCase().includes(searchTermLower) ||
         categoryName.toLowerCase().includes(searchTermLower)
@@ -93,20 +116,20 @@ const TransactionList = ({ selectedMonth }) => {
   // Trier les transactions en fonction de la configuration de tri actuelle
   const sortedTransactions = useMemo(() => {
     if (!filteredTransactions) return [];
-    
+
     let sortableTransactions = [...filteredTransactions];
     if (sortConfig.key) {
       sortableTransactions.sort((a, b) => {
         // Special handling for category which might be an object
         if (sortConfig.key === 'category') {
-          const aCategory = a.category && typeof a.category === 'object' 
-            ? a.category.name 
+          const aCategory = a.category && typeof a.category === 'object'
+            ? a.category.name
             : (a.categoryName || a.category || '');
-            
-          const bCategory = b.category && typeof b.category === 'object' 
-            ? b.category.name 
+
+          const bCategory = b.category && typeof b.category === 'object'
+            ? b.category.name
             : (b.categoryName || b.category || '');
-            
+
           if (aCategory < bCategory) {
             return sortConfig.direction === 'asc' ? -1 : 1;
           }
@@ -115,22 +138,22 @@ const TransactionList = ({ selectedMonth }) => {
           }
           return 0;
         }
-        
+
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
-        
+
         // Traitement spécial pour les dates
         if (sortConfig.key === 'date') {
           aValue = new Date(aValue).getTime();
           bValue = new Date(bValue).getTime();
         }
-        
+
         // Traitement pour les valeurs numériques
         if (sortConfig.key === 'amount') {
           aValue = parseFloat(aValue);
           bValue = parseFloat(bValue);
         }
-        
+
         if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
@@ -175,169 +198,179 @@ const TransactionList = ({ selectedMonth }) => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  if (loading) return <div>Chargement des transactions...</div>;
-  if (error) return <div>Erreur lors du chargement des transactions : {error.message}</div>;
-  if (!transactions || transactions.length === 0) {
-    const monthName = selectedMonth.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-    return <div>Aucune transaction enregistrée pour {monthName}.</div>;
-  }
-
+  // Rendu du composant
   return (
     <div className="transaction-list-container">
-      <Modal 
-        isOpen={showEditForm} 
-        onClose={handleCloseForm} 
-        title="Modifier la transaction"
-      >
-        <TransactionForm 
-          transactionToEdit={transactionToEdit} 
-          onClose={handleCloseForm} 
-          selectedMonth={selectedMonth}
-        />
-      </Modal>
-
-      <NoteModal
-        isOpen={showNoteModal}
-        onClose={handleCloseNoteModal}
-        transaction={selectedNote}
-      />
-
-      {/* Barre de recherche */}
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Rechercher par description ou catégorie..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        {searchTerm && (
-          <button 
-            className="search-clear-button"
-            onClick={() => setSearchTerm('')}
-          >
-            ×
-          </button>
-        )}
+      <div className="transaction-list-header">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Rechercher une transaction..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
       </div>
 
-      {/* Separator between search bar and transaction table */}
-      <div className="search-table-separator"></div>
-
-      <table className="transaction-table">
-        <thead>
-          <tr>
-            <th onClick={() => requestSort('date')} style={{ cursor: 'pointer' }}>
-              Date{getSortDirectionIndicator('date')}
-            </th>
-            <th onClick={() => requestSort('description')} style={{ cursor: 'pointer' }}>
-              Description{getSortDirectionIndicator('description')}
-            </th>
-            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }}>
-              Montant{getSortDirectionIndicator('amount')}
-            </th>
-            <th onClick={() => requestSort('type')} style={{ cursor: 'pointer' }}>
-              Type{getSortDirectionIndicator('type')}
-            </th>
-            <th onClick={() => requestSort('category')} style={{ cursor: 'pointer' }}>
-              Catégorie{getSortDirectionIndicator('category')}
-            </th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentTransactions.length > 0 ? (
-            currentTransactions.map((transaction) => (
-              <tr key={transaction._id}>
-                <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
-                <td>
-                  {transaction.description}
-                  {transaction.note && (
-                    <button 
-                      className="note-button" 
-                      onClick={() => handleShowNote(transaction)}
-                      title="Voir la note"
-                    >
-                      <FaStickyNote className="note-icon" />
-                    </button>
-                  )}
-                </td>
-                <td className={`amount ${transaction.type}`}>
-                  <AmountDisplay 
-                    amount={transaction.amount} 
-                    type={transaction.type} 
-                  />
-                </td>
-                <td>{transaction.type === 'income' ? 'Revenu' : 'Dépense'}</td>
-                <td>
-                  <span 
-                    className="category-indicator" 
-                    style={{ backgroundColor: transaction.category?.color || '#808080' }}
-                  ></span>
-                  {transaction.category?.name || 'Non catégorisé'}
-                </td>
-                <td className="transaction-actions">
-                  <button 
-                    className="edit-button" 
-                    onClick={() => handleEdit(transaction)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button 
-                    className="delete-button" 
-                    onClick={() => handleDelete(transaction._id)}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
+      {loading ? (
+        <div className="loading-message">Chargement des transactions...</div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
+      ) : sortedTransactions.length === 0 ? (
+        <div className="no-transactions-message">
+          {searchTerm ? 'Aucune transaction ne correspond à votre recherche.' : 'Aucune transaction pour ce mois.'}
+        </div>
+      ) : (
+        <motion.div
+          className="transaction-table-container"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <table className="transaction-table">
+            <thead>
+              <tr>
+                <th onClick={() => requestSort('date')}>
+                  Date{getSortDirectionIndicator('date')}
+                </th>
+                <th onClick={() => requestSort('description')}>
+                  Description{getSortDirectionIndicator('description')}
+                </th>
+                <th onClick={() => requestSort('category')}>
+                  Catégorie{getSortDirectionIndicator('category')}
+                </th>
+                <th onClick={() => requestSort('amount')}>
+                  Montant{getSortDirectionIndicator('amount')}
+                </th>
+                <th>Note</th>
+                <th></th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" className="no-transactions">
-                {searchTerm ? "Aucune transaction ne correspond à votre recherche." : "Aucune transaction pour ce mois."}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              <AnimatePresence>
+                {currentTransactions.map((transaction) => (
+                  <motion.tr
+                    key={transaction._id}
+                    variants={itemVariants}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
+                    <td>{transaction.description}</td>
+                    <td className="category-cell">
+                      {transaction.category && typeof transaction.category === 'object' ? (
+                        <>
+                          {transaction.category.color && (
+                            <span
+                              className="category-color"
+                              style={{ backgroundColor: transaction.category.color }}
+                            ></span>
+                          )}
+                          {transaction.category.name}
+                        </>
+                      ) : (
+                        transaction.categoryName || transaction.category || 'Non catégorisé'
+                      )}
+                    </td>
+                    <td>
+                      <AmountDisplay
+                        amount={transaction.amount}
+                        type={transaction.type}
+                      />
+                    </td>
+                    <td>
+                      {transaction.note && (
+                        <button
+                          className="note-button"
+                          onClick={() => handleShowNote(transaction)}
+                          title="Voir la note"
+                        >
+                          <FaStickyNote className="note-icon" />
+                        </button>
+                      )}
+                    </td>
+                    <td className="transaction-actions">
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEdit(transaction)}
+                        title="Modifier"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDelete(transaction._id)}
+                        title="Supprimer"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
+            </tbody>
+          </table>
+        </motion.div>
+      )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {sortedTransactions.length > 0 && (
         <div className="pagination">
-          <button 
-            onClick={firstPage} 
-            disabled={currentPage === 1}
+          <button
             className="pagination-button"
+            onClick={firstPage}
+            disabled={currentPage === 1}
           >
             &laquo; Première
           </button>
-          <button 
-            onClick={prevPage} 
-            disabled={currentPage === 1}
+          <button
             className="pagination-button"
+            onClick={prevPage}
+            disabled={currentPage === 1}
           >
-            &lt; Précédente
+            &lsaquo; Précédent
           </button>
           <span className="pagination-info">
             Page {currentPage} sur {totalPages}
           </span>
-          <button 
-            onClick={nextPage} 
-            disabled={currentPage === totalPages}
+          <button
             className="pagination-button"
+            onClick={nextPage}
+            disabled={currentPage === totalPages}
           >
-            Suivante &gt;
+            Suivant &rsaquo;
           </button>
-          <button 
-            onClick={lastPage} 
-            disabled={currentPage === totalPages}
+          <button
             className="pagination-button"
+            onClick={lastPage}
+            disabled={currentPage === totalPages}
           >
             Dernière &raquo;
           </button>
         </div>
       )}
+
+      {/* Modal pour éditer une transaction */}
+      <Modal
+        isOpen={showEditForm}
+        onClose={handleCloseForm}
+        title="Modifier la transaction"
+      >
+        {transactionToEdit && (
+          <TransactionForm
+            transactionToEdit={transactionToEdit}
+            onClose={handleCloseForm}
+            selectedMonth={selectedMonth}
+          />
+        )}
+      </Modal>
+
+      {/* Modal pour afficher les notes */}
+      <NoteModal
+        isOpen={showNoteModal}
+        onClose={handleCloseNoteModal}
+        transaction={selectedNote}
+      />
     </div>
   );
 };

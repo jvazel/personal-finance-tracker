@@ -5,38 +5,63 @@ import { TransactionContext } from '../../contexts/TransactionContext';
 import { registerLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
 import api from '../../utils/api';
+import { motion } from 'framer-motion';
 
 registerLocale('fr', fr);
+
+const formVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const inputVariants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100
+    }
+  }
+};
 
 const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const { addTransaction, updateTransaction } = useContext(TransactionContext);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  
+
   // Calculate the limits of the selected month
   const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
   const endOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
-  
+
   // Initialize date within the limits of the selected month
   let initialDate = transactionToEdit ? new Date(transactionToEdit.date) : new Date(selectedMonth);
   // Ensure date is within the selected month
   if (initialDate < startOfMonth || initialDate > endOfMonth) {
     initialDate = new Date(selectedMonth);
   }
-  
+
   const [date, setDate] = useState(initialDate);
   const [description, setDescription] = useState(transactionToEdit ? transactionToEdit.description : '');
   const [amount, setAmount] = useState(transactionToEdit ? transactionToEdit.amount : '');
   const [type, setType] = useState(transactionToEdit ? transactionToEdit.type : 'expense');
   const [note, setNote] = useState(transactionToEdit ? transactionToEdit.note || '' : '');
-  
+
   // Initialize category state with ID if available, otherwise use name
   const [category, setCategory] = useState(
-    transactionToEdit ? 
-    (transactionToEdit.category?._id || transactionToEdit.category) : 
-    ''
+    transactionToEdit ?
+      (transactionToEdit.category?._id || transactionToEdit.category) :
+      ''
   );
-  
+
   const [formError, setFormError] = useState('');
 
   // Fetch categories from the database
@@ -46,17 +71,17 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
         setLoadingCategories(true);
         const response = await api.get('/categories');
         // Ensure we're setting an array to categories
-        const categoriesData = Array.isArray(response.data) ? response.data : 
-                              (response.data && Array.isArray(response.data.data) ? response.data.data : []);
+        const categoriesData = Array.isArray(response.data) ? response.data :
+          (response.data && Array.isArray(response.data.data) ? response.data.data : []);
         setCategories(categoriesData);
-        
+
         // Set default category if none is selected yet
         if (!category && categoriesData.length > 0) {
           // Filter categories based on transaction type
           const filteredCategories = categoriesData.filter(
             cat => cat.type === type || cat.type === 'both'
           );
-          
+
           if (filteredCategories.length > 0) {
             setCategory(filteredCategories[0]._id);
           } else if (categoriesData.length > 0) {
@@ -77,7 +102,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
 
   // Filter categories based on transaction type
   // Ensure categories is an array before filtering
-  const filteredCategories = Array.isArray(categories) ? 
+  const filteredCategories = Array.isArray(categories) ?
     categories.filter(cat => cat.type === type || cat.type === 'both') : [];
 
   // Update category when type changes
@@ -127,10 +152,16 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   };
 
   return (
-    <form className="transaction-form" onSubmit={handleSubmit}>
+    <motion.form
+      className="transaction-form"
+      onSubmit={handleSubmit}
+      variants={formVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {formError && <div className="form-error">{formError}</div>}
-      
-      <div className="form-group">
+
+      <motion.div className="form-group" variants={inputVariants}>
         <label htmlFor="date">Date</label>
         <DatePicker
           id="date"
@@ -141,9 +172,9 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           minDate={startOfMonth}
           maxDate={endOfMonth}
         />
-      </div>
-      
-      <div className="form-group">
+      </motion.div>
+
+      <motion.div className="form-group" variants={inputVariants}>
         <label htmlFor="description">Description</label>
         <input
           id="description"
@@ -152,8 +183,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           onChange={e => setDescription(e.target.value)}
           placeholder="Entrez une description"
         />
-      </div>
-      
+      </motion.div>
+
       <div className="form-group">
         <label htmlFor="amount">Montant</label>
         <input
@@ -165,7 +196,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           className={type ? `amount-${type}` : ''}
         />
       </div>
-      
+
       <div className="form-group">
         <label>Type</label>
         <div className="type-options">
@@ -191,7 +222,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           </label>
         </div>
       </div>
-      
+
       <div className="form-group">
         <label htmlFor="category">Catégorie</label>
         <select
@@ -211,7 +242,7 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           )}
         </select>
       </div>
-      
+
       <div className="form-group">
         <label htmlFor="note">Note (optionnelle)</label>
         <textarea
@@ -223,16 +254,21 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
           className="form-textarea"
         />
       </div>
-      
-      <div className="form-actions">
-        <button type="button" onClick={onClose} className="cancel-button">
+
+      <motion.div
+        className="form-actions"
+        variants={inputVariants}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <button type="button" className="danger" onClick={onClose}>
           Annuler
         </button>
         <button type="submit" className="submit-button">
           {transactionToEdit ? 'Mettre à jour' : 'Ajouter'}
         </button>
-      </div>
-    </form>
+      </motion.div>
+    </motion.form>
   );
 };
 

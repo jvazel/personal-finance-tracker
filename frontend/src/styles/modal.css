@@ -14,7 +14,7 @@
 }
 
 .modal-content {
-  background-color: #353549;
+  background-color: #2a2a3c;
   border-radius: 12px;
   padding: 24px;
   width: 90%;
@@ -28,13 +28,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h3 {
   margin: 0;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
 }
 
@@ -44,26 +46,64 @@
   color: #e2e8f0;
   font-size: 20px;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
+  width: 36px;
+  height: 36px;
 }
 
 .modal-close:hover {
   background-color: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
 }
 
 .modal-body {
+  margin-bottom: 24px;
+}
+
+/* Style pour les champs de formulaire dans la modal */
+.modal-body .form-group {
   margin-bottom: 20px;
+}
+
+.modal-body .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #d1d5db;
+  font-weight: 500;
+}
+
+.modal-body .form-group input,
+.modal-body .form-group select,
+.modal-body .form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background-color: #353549;
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-body .form-group input:focus,
+.modal-body .form-group select:focus,
+.modal-body .form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-footer button {

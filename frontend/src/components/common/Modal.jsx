@@ -1,49 +1,89 @@
 import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 }
+};
+
+const modalVariants = {
+  hidden: { 
+    opacity: 0,
+    y: 50,
+    scale: 0.95
+  },
+  visible: { 
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      damping: 25,
+      stiffness: 300
+    }
+  },
+  exit: {
+    opacity: 0,
+    y: 30,
+    scale: 0.95,
+    transition: {
+      duration: 0.2
+    }
+  }
+};
 
 const Modal = ({ isOpen, onClose, title, children }) => {
-  // Empêcher le défilement du body quand le modal est ouvert
   useEffect(() => {
     if (isOpen) {
+      // Empêcher le défilement du corps lorsque la modale est ouverte
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'auto';
+      // Réactiver le défilement lorsque la modale est fermée
+      document.body.style.overflow = 'unset';
     }
     
-    // Cleanup function
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 
-  // Fermer le modal avec la touche Escape
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      window.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3>{title}</h3>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-        {children}
-      </div>
-    </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          className="modal-overlay"
+          variants={backdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          onClick={onClose}
+        >
+          <motion.div 
+            className="modal-content"
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>{title}</h2>
+              <motion.button 
+                className="modal-close"
+                onClick={onClose}
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                ×
+              </motion.button>
+            </div>
+            <div className="modal-body">
+              {children}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
