@@ -109,3 +109,27 @@
   font-size: 12px;
   margin-top: 4px;
 }
+
+.checkbox-container-option {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.checkbox-container-option input[type="checkbox"],
+.checkbox-container-option input[type="radio"] {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+}
+
+.checkbox-container-option label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* Style spécifique pour les options de type */
+.type-options {
+  display: flex;
+  gap: 20px;
+  margin-top: 5px;
+}

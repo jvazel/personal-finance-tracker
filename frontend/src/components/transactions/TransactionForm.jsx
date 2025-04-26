@@ -200,26 +200,28 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       <div className="form-group">
         <label>Type</label>
         <div className="type-options">
-          <label className="type-option">
+          <div className="checkbox-container-option">
             <input
               type="radio"
               name="type"
+              id="expense"
               value="expense"
               checked={type === 'expense'}
               onChange={() => setType('expense')}
             />
-            Dépense
-          </label>
-          <label className="type-option">
+            <label htmlFor="expense">Dépense</label>
+          </div>
+          <div className="checkbox-container-option">
             <input
               type="radio"
               name="type"
+              id="income"
               value="income"
               checked={type === 'income'}
               onChange={() => setType('income')}
             />
-            Revenu
-          </label>
+            <label htmlFor="income">Revenu</label>
+          </div>
         </div>
       </div>
 
