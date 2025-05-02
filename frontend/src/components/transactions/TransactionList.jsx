@@ -299,7 +299,7 @@ const TransactionList = ({ selectedMonth }) => {
                           <>
                             {transaction.category.color && (
                               <span
-                                className="category-color-indicator"
+                                className="category-indicator"
                                 style={{ backgroundColor: transaction.category.color }}
                               ></span>
                             )}
@@ -323,11 +323,11 @@ const TransactionList = ({ selectedMonth }) => {
                       <td>
                         {transaction.note && (
                           <button
-                            className="action-button note"
+                            className="note-view-button"
                             onClick={() => handleShowNote(transaction)}
                             title="Voir la note"
                           >
-                            <FaStickyNote />
+                            <FaStickyNote className="note-icon" />
                           </button>
                         )}
                       </td>

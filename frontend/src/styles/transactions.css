@@ -495,6 +495,23 @@
   color: #4f46e5;
 }
 
+/* Style pour la pastille de couleur de catégorie */
+.category-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Style pour le conteneur de la catégorie avec sa pastille */
+.transaction-category {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Styles pour les boutons d'action des transactions */
 .transaction-item-actions {
   display: flex;
@@ -575,4 +592,28 @@
 
 .action-button.note:hover {
   background-color: #f59e0b;
+}
+
+/* Style pour le bouton d'affichage des notes */
+.note-view-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.note-view-button:hover {
+  background-color: rgba(245, 158, 11, 0.2);
+  transform: scale(1.1);
+}
+
+.note-view-button .note-icon {
+  font-size: 16px;
 }
