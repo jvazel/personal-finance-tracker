@@ -20,9 +20,9 @@ const ExpenseLimits = () => {
         const startDate = firstDayOfMonth.toISOString().split('T')[0];
         const endDate = lastDayOfMonth.toISOString().split('T')[0];
         
-        // Fetch active expense limits
+        // Fetch active expense limits AND savings goals
         const limitsResponse = await api.get('/api/goals', {
-          params: { type: 'expense_limit', isActive: true }
+          params: { type: ['expense_limit', 'savings'], isActive: true }
         });
         
         // Check if the response has data property or is an array directly
@@ -42,19 +42,34 @@ const ExpenseLimits = () => {
           expensesByCategory[item.category] = item.amount;
         });
         
-        // For each limit, find the corresponding expense amount
+        // For each limit or savings goal, find the corresponding expense amount or use currentAmount
         const limitsWithProgress = limitsData.map(limit => {
-          const currentAmount = expensesByCategory[limit.category] || 0;
-          const percentage = limit.targetAmount > 0 
-            ? Math.min(100, (currentAmount / limit.targetAmount) * 100) 
-            : 0;
-            
-          return {
-            ...limit,
-            currentAmount,
-            percentage,
-            isExceeded: currentAmount > limit.targetAmount
-          };
+          // For expense limits, use expenses by category
+          if (limit.type === 'expense_limit') {
+            const currentAmount = expensesByCategory[limit.category] || 0;
+            const percentage = limit.targetAmount > 0 
+              ? Math.min(100, (currentAmount / limit.targetAmount) * 100) 
+              : 0;
+              
+            return {
+              ...limit,
+              currentAmount,
+              percentage,
+              isExceeded: currentAmount > limit.targetAmount
+            };
+          } 
+          // For savings goals, use the currentAmount from the goal itself
+          else if (limit.type === 'savings') {
+            const percentage = limit.targetAmount > 0 
+              ? Math.min(100, (limit.currentAmount / limit.targetAmount) * 100) 
+              : 0;
+              
+            return {
+              ...limit,
+              percentage,
+              isExceeded: false
+            };
+          }
         });
         
         setExpenseLimits(limitsWithProgress);
