@@ -37,6 +37,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   const { addTransaction, updateTransaction } = useContext(TransactionContext);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [savingsGoals, setSavingsGoals] = useState([]);
+  const [loadingSavingsGoals, setLoadingSavingsGoals] = useState(true);
 
   // Calculate the limits of the selected month
   const startOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
@@ -63,6 +65,11 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   );
 
   const [formError, setFormError] = useState('');
+
+  // Initialize savings goal state
+  const [savingsGoal, setSavingsGoal] = useState(
+    transactionToEdit ? transactionToEdit.goalId || transactionToEdit.savingsGoal || '' : ''
+  );
 
   // Fetch categories from the database
   useEffect(() => {
@@ -100,6 +107,29 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
     fetchCategories();
   }, []);
 
+  // Fetch savings goals
+  useEffect(() => {
+    const fetchSavingsGoals = async () => {
+      try {
+        setLoadingSavingsGoals(true);
+        const response = await api.get('/goals/savings-goals');
+        
+        // Ensure we're setting an array to savingsGoals
+        const goalsData = Array.isArray(response.data) ? response.data :
+          (response.data && Array.isArray(response.data.data) ? response.data.data : []);
+        
+        setSavingsGoals(goalsData);
+      } catch (error) {
+        console.error('Erreur lors du chargement des objectifs d\'épargne:', error);
+        setSavingsGoals([]); // Set to empty array on error
+      } finally {
+        setLoadingSavingsGoals(false);
+      }
+    };
+
+    fetchSavingsGoals();
+  }, []);
+
   // Filter categories based on transaction type
   // Ensure categories is an array before filtering
   const filteredCategories = Array.isArray(categories) ?
@@ -129,13 +159,17 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       return;
     }
 
+    // Assurez-vous que le montant est toujours positif, quel que soit le type de transaction
+    const parsedAmount = Math.abs(parseFloat(amount));
+
     const transactionData = {
       date,
       description,
-      amount: parseFloat(amount),
+      amount: parsedAmount,
       type,
       category,
-      note
+      note,
+      savingsGoal: savingsGoal || null // Include savings goal if selected
     };
 
     try {
@@ -257,19 +291,37 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
         />
       </div>
 
-      <motion.div
-        className="form-actions"
-        variants={inputVariants}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <button type="button" className="danger" onClick={onClose}>
-          Annuler
-        </button>
-        <button type="submit" className="submit-button">
+      {/* Savings Goal field - only show for income transactions */}
+      {type === 'expense' && (
+        <motion.div className="form-group" variants={inputVariants}>
+          <label htmlFor="savingsGoal">Objectif d'épargne (optionnel)</label>
+          {loadingSavingsGoals ? (
+            <div className="loading-indicator">Chargement des objectifs...</div>
+          ) : (
+            <select
+              id="savingsGoal"
+              value={savingsGoal}
+              onChange={e => setSavingsGoal(e.target.value)}
+            >
+              <option value="">Aucun objectif</option>
+              {savingsGoals.map(goal => (
+                <option key={goal._id} value={goal._id}>
+                  {goal.title} ({goal.currentAmount}/{goal.targetAmount} €)
+                </option>
+              ))}
+            </select>
+          )}
+        </motion.div>
+      )}
+
+      <div className="form-actions">
+        <button type="submit" className="submit">
           {transactionToEdit ? 'Mettre à jour' : 'Ajouter'}
         </button>
-      </motion.div>
+        <button type="button" className="cancel" onClick={onClose}>
+          Annuler
+        </button>
+      </div>
     </motion.form>
   );
 };

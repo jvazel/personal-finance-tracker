@@ -2,6 +2,7 @@
 const Transaction = require('../models/Transaction');
 const Category = require('../models/Category');
 const mongoose = require('mongoose');
+const Goal = require('../models/Goal');
 
 // Get all transactions
 exports.getAllTransactions = async (req, res) => {
@@ -86,7 +87,7 @@ exports.createTransaction = async (req, res) => {
     
     // If the category is not a valid ObjectId, try to find it by name
     if (categoryId && !mongoose.Types.ObjectId.isValid(categoryId)) {
-      const category = await Category.findOne({ 
+      const category = await Category.findOne({
         name: categoryId,
         user: req.user.id
       });
@@ -94,22 +95,43 @@ exports.createTransaction = async (req, res) => {
       if (category) {
         categoryId = category._id;
       } else {
-        return res.status(400).json({ 
-          message: 'Category not found. Please provide a valid category ID or name.' 
+        return res.status(400).json({
+          message: 'Category not found. Please provide a valid category ID or name.'
         });
       }
     }
     
+    // S'assurer que le montant est toujours positif, quel que soit le type de transaction
+    let transactionAmount = Math.abs(req.body.amount);
+    
+    // Créer la nouvelle transaction avec l'objectif d'épargne si fourni
     const newTransaction = new Transaction({
       ...req.body,
+      amount: transactionAmount,
       category: categoryId,
-      user: req.user.id // Add user ID to transaction
+      user: req.user.id,
+      goalId: req.body.goalId || req.body.savingsGoal // Accepter les deux noms de champ
     });
     
     const savedTransaction = await newTransaction.save();
     
+    // Si un objectif d'épargne est associé, mettre à jour sa progression
+    if (savedTransaction.goalId) {
+      const goal = await Goal.findById(savedTransaction.goalId);
+      if (goal) {
+        // Toujours ajouter une valeur positive à l'objectif d'épargne
+        const amountToAdd = Math.abs(savedTransaction.amount);
+        goal.currentAmount += amountToAdd;
+        if (goal.currentAmount >= goal.targetAmount) {
+          goal.isCompleted = true;
+        }
+        await goal.save();
+      }
+    }
+    
     // Populate the category for the response
     await savedTransaction.populate('category', 'name color icon type');
+    await savedTransaction.populate('goalId', 'name targetAmount currentAmount');
     
     res.status(201).json(savedTransaction);
   } catch (error) {
@@ -154,11 +176,85 @@ exports.updateTransaction = async (req, res) => {
       }
     }
     
+    // Récupérer la transaction existante pour comparer les changements
+    const existingTransaction = await Transaction.findOne({
+      _id: req.params.id,
+      user: req.user.id
+    });
+    
+    if (!existingTransaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+    
+    // Si savingsGoal est fourni, le stocker dans goalId
+    if (updateData.savingsGoal) {
+      updateData.goalId = updateData.savingsGoal;
+    } else if (!updateData.goalId && existingTransaction.goalId) {
+      // Conserver le goalId existant s'il n'est pas explicitement fourni
+      updateData.goalId = existingTransaction.goalId;
+    }
+    
+    // Mettre à jour la transaction
     const updatedTransaction = await Transaction.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id }, // Only update user's own transaction
       updateData,
       { new: true, runValidators: true }
     ).populate('category', 'name color icon type');
+
+    console.log("updateData : " + updateData.savingsGoal);
+
+    // Gérer les mises à jour des objectifs associés
+    // Si l'objectif a changé ou si le montant a changé
+    if ((existingTransaction.goalId && existingTransaction.goalId.toString() !== (updateData.goalId || '')) || 
+        (updateData.goalId && existingTransaction.goalId?.toString() !== updateData.goalId) ||
+        (existingTransaction.amount !== updateData.amount && updateData.goalId)) {
+      
+      // Si l'ancienne transaction avait un objectif, mettre à jour cet objectif
+      if (existingTransaction.goalId) {
+        const oldGoal = await Goal.findById(existingTransaction.goalId);
+        if (oldGoal) {
+          // Soustraire le montant de l'ancienne transaction
+          oldGoal.currentAmount -= existingTransaction.type === 'income' ? existingTransaction.amount : -existingTransaction.amount;
+          await oldGoal.save();
+        }
+      }
+      
+      // Si la nouvelle transaction a un objectif, mettre à jour ce nouvel objectif
+      if (updateData.goalId) {
+        const newGoal = await Goal.findById(updateData.goalId);
+        if (newGoal) {
+          // Ajouter le montant de la nouvelle transaction
+          const amountToAdd = updateData.amount !== undefined ? updateData.amount : existingTransaction.amount;
+          const typeToUse = updateData.type !== undefined ? updateData.type : existingTransaction.type;
+          newGoal.currentAmount += typeToUse === 'income' ? amountToAdd : -amountToAdd;
+          
+          if (newGoal.currentAmount >= newGoal.targetAmount) {
+            newGoal.isCompleted = true;
+          }
+          
+          await newGoal.save();
+        }
+      }
+    } else if (updateData.amount !== undefined && existingTransaction.amount !== updateData.amount && existingTransaction.goalId) {
+      // Si seul le montant a changé et qu'il y a un objectif associé
+      const goal = await Goal.findById(existingTransaction.goalId);
+      if (goal) {
+        // Soustraire l'ancien montant
+        goal.currentAmount -= existingTransaction.type === 'income' ? existingTransaction.amount : -existingTransaction.amount;
+        
+        // Ajouter le nouveau montant
+        const typeToUse = updateData.type !== undefined ? updateData.type : existingTransaction.type;
+        goal.currentAmount += typeToUse === 'income' ? updateData.amount : -updateData.amount;
+        
+        if (goal.currentAmount >= goal.targetAmount) {
+          goal.isCompleted = true;
+        } else {
+          goal.isCompleted = false;
+        }
+        
+        await goal.save();
+      }
+    }
     
     if (!updatedTransaction) {
       return res.status(404).json({ message: 'Transaction not found' });
@@ -173,13 +269,29 @@ exports.updateTransaction = async (req, res) => {
 // Delete transaction by ID
 exports.deleteTransaction = async (req, res) => {
   try {
-    const deletedTransaction = await Transaction.findOneAndDelete({
+    // Récupérer la transaction avant de la supprimer
+    const transaction = await Transaction.findOne({
       _id: req.params.id,
       user: req.user.id // Only delete user's own transaction
     });
-    if (!deletedTransaction) {
+    
+    if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
+    
+    // Si la transaction est associée à un objectif, mettre à jour l'objectif
+    if (transaction.goalId) {
+      const goal = await Goal.findById(transaction.goalId);
+      if (goal) {
+        // Soustraire le montant de la transaction de l'objectif
+        goal.currentAmount -= transaction.type === 'income' ? transaction.amount : -transaction.amount;
+        await goal.save();
+      }
+    }
+    
+    // Supprimer la transaction
+    await Transaction.deleteOne({ _id: req.params.id, user: req.user.id });
+    
     res.json({ message: 'Transaction deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting transaction', error: error.message });

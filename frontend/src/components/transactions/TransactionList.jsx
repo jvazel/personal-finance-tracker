@@ -5,9 +5,10 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Modal from '../common/Modal';
 import AmountDisplay from '../common/AmountDisplay';
-import { FaEdit, FaTrash, FaStickyNote } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaStickyNote, FaBullseye } from 'react-icons/fa';
 import NoteModal from './NoteModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../../services/api'; // Ajout de l'import manquant
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -41,6 +42,8 @@ const TransactionList = ({ selectedMonth }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
+  const [savingsGoals, setSavingsGoals] = useState([]);
+  const [loadingSavingsGoals, setLoadingSavingsGoals] = useState(true);
 
   const handleDelete = async (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) {
@@ -198,9 +201,45 @@ const TransactionList = ({ selectedMonth }) => {
     setCurrentPage(1);
   }, [searchTerm]);
 
+  // Charger les objectifs d'épargne pour afficher leurs noms
+  React.useEffect(() => {
+    const fetchSavingsGoals = async () => {
+      try {
+        setLoadingSavingsGoals(true);
+        const response = await api.get('api/goals/savings-goals');
+        
+        // Assurer que nous définissons un tableau pour savingsGoals
+        const goalsData = Array.isArray(response.data) ? response.data :
+          (response.data && Array.isArray(response.data.data) ? response.data.data : []);
+        
+        setSavingsGoals(goalsData);
+      } catch (error) {
+        console.error('Erreur lors du chargement des objectifs d\'épargne:', error);
+        setSavingsGoals([]); // Définir un tableau vide en cas d'erreur
+      } finally {
+        setLoadingSavingsGoals(false);
+      }
+    };
+
+    fetchSavingsGoals();
+  }, []);
+
+  // Fonction pour obtenir le nom de l'objectif d'épargne à partir de l'ID
+  const getGoalNameById = (goalId) => {
+    if (!goalId || !savingsGoals || savingsGoals.length === 0) return null;
+    
+    const goal = savingsGoals.find(goal => goal._id === goalId);
+    return goal ? goal.title : null;
+  };
+
   // Rendu du composant
   return (
-    <div className="transaction-list-container">
+    <motion.div 
+      className="transaction-list-container"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <div className="transaction-list-header">
         <div className="search-container">
           <input
@@ -217,137 +256,140 @@ const TransactionList = ({ selectedMonth }) => {
         <div className="loading-message">Chargement des transactions...</div>
       ) : error ? (
         <div className="error-message">{error}</div>
-      ) : sortedTransactions.length === 0 ? (
+      ) : transactions.length === 0 ? (
         <div className="no-transactions-message">
-          {searchTerm ? 'Aucune transaction ne correspond à votre recherche.' : 'Aucune transaction pour ce mois.'}
+          Aucune transaction pour ce mois. Ajoutez-en une !
         </div>
       ) : (
-        <motion.div
-          className="transaction-table-container"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <table className="transaction-table">
-            <thead>
-              <tr>
-                <th onClick={() => requestSort('date')}>
-                  Date{getSortDirectionIndicator('date')}
-                </th>
-                <th onClick={() => requestSort('description')}>
-                  Description{getSortDirectionIndicator('description')}
-                </th>
-                <th onClick={() => requestSort('category')}>
-                  Catégorie{getSortDirectionIndicator('category')}
-                </th>
-                <th onClick={() => requestSort('amount')}>
-                  Montant{getSortDirectionIndicator('amount')}
-                </th>
-                <th>Note</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <AnimatePresence>
-                {currentTransactions.map((transaction) => (
-                  <motion.tr
-                    key={transaction._id}
-                    variants={itemVariants}
-                    exit={{ opacity: 0, y: -10 }}
-                  >
-                    <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
-                    <td>{transaction.description}</td>
-                    <td className="category-cell">
-                      {transaction.category && typeof transaction.category === 'object' ? (
-                        <>
-                          {transaction.category.color && (
-                            <span
-                              className="category-color"
-                              style={{ backgroundColor: transaction.category.color }}
-                            ></span>
+        <>
+          <div className="transaction-table-container">
+            <table className="transaction-table">
+              <thead>
+                <tr>
+                  <th onClick={() => requestSort('date')}>
+                    Date{getSortDirectionIndicator('date')}
+                  </th>
+                  <th onClick={() => requestSort('description')}>
+                    Description{getSortDirectionIndicator('description')}
+                  </th>
+                  <th onClick={() => requestSort('category')}>
+                    Catégorie{getSortDirectionIndicator('category')}
+                  </th>
+                  <th onClick={() => requestSort('amount')}>
+                    Montant{getSortDirectionIndicator('amount')}
+                  </th>
+                  <th>Objectif</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <AnimatePresence>
+                  {currentTransactions.map((transaction) => (
+                    <motion.tr
+                      key={transaction._id}
+                      variants={itemVariants}
+                      exit={{ opacity: 0, y: -10 }}
+                      className={transaction.type === 'income' ? 'income-row' : 'expense-row'}
+                    >
+                      <td>{format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}</td>
+                      <td>{transaction.description}</td>
+                      <td className="category-cell">
+                        {transaction.category && typeof transaction.category === 'object' ? (
+                          <>
+                            {transaction.category.color && (
+                              <span
+                                className="category-color-indicator"
+                                style={{ backgroundColor: transaction.category.color }}
+                              ></span>
+                            )}
+                            {transaction.category.name}
+                          </>
+                        ) : (
+                          transaction.categoryName || 'Non catégorisé'
+                        )}
+                      </td>
+                      <td>
+                        <AmountDisplay amount={transaction.amount} type={transaction.type} />
+                      </td>
+                      <td>
+                        {transaction.goalId && (
+                          <div className="goal-indicator">
+                            <FaBullseye className="goal-icon" />
+                            <span className="goal-name">{getGoalNameById(transaction.goalId) || 'Objectif'}</span>
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        <div className="transaction-actions">
+                          <button
+                            className="action-button edit"
+                            onClick={() => handleEdit(transaction)}
+                            title="Modifier"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            className="action-button delete"
+                            onClick={() => handleDelete(transaction._id)}
+                            title="Supprimer"
+                          >
+                            <FaTrash />
+                          </button>
+                          {transaction.note && (
+                            <button
+                              className="action-button note"
+                              onClick={() => handleShowNote(transaction)}
+                              title="Voir la note"
+                            >
+                              <FaStickyNote />
+                            </button>
                           )}
-                          {transaction.category.name}
-                        </>
-                      ) : (
-                        transaction.categoryName || transaction.category || 'Non catégorisé'
-                      )}
-                    </td>
-                    <td>
-                      <AmountDisplay
-                        amount={transaction.amount}
-                        type={transaction.type}
-                      />
-                    </td>
-                    <td>
-                      {transaction.note && (
-                        <button
-                          className="note-button"
-                          onClick={() => handleShowNote(transaction)}
-                          title="Voir la note"
-                        >
-                          <FaStickyNote className="note-icon" />
-                        </button>
-                      )}
-                    </td>
-                    <td className="transaction-actions">
-                      <button
-                        className="edit-button"
-                        onClick={() => handleEdit(transaction)}
-                        title="Modifier"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="delete-button"
-                        onClick={() => handleDelete(transaction._id)}
-                        title="Supprimer"
-                      >
-                        <FaTrash />
-                      </button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
-        </motion.div>
-      )}
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
 
-      {/* Pagination */}
-      {sortedTransactions.length > 0 && (
-        <div className="pagination">
-          <button
-            className="pagination-button"
-            onClick={firstPage}
-            disabled={currentPage === 1}
-          >
-            &laquo; Première
-          </button>
-          <button
-            className="pagination-button"
-            onClick={prevPage}
-            disabled={currentPage === 1}
-          >
-            &lsaquo; Précédent
-          </button>
-          <span className="pagination-info">
-            Page {currentPage} sur {totalPages}
-          </span>
-          <button
-            className="pagination-button"
-            onClick={nextPage}
-            disabled={currentPage === totalPages}
-          >
-            Suivant &rsaquo;
-          </button>
-          <button
-            className="pagination-button"
-            onClick={lastPage}
-            disabled={currentPage === totalPages}
-          >
-            Dernière &raquo;
-          </button>
-        </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                className="pagination-button"
+                onClick={firstPage}
+                disabled={currentPage === 1}
+              >
+                &laquo; Première
+              </button>
+              <button
+                className="pagination-button"
+                onClick={prevPage}
+                disabled={currentPage === 1}
+              >
+                &lsaquo; Précédent
+              </button>
+              <span className="pagination-info">
+                Page {currentPage} sur {totalPages}
+              </span>
+              <button
+                className="pagination-button"
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+              >
+                Suivant &rsaquo;
+              </button>
+              <button
+                className="pagination-button"
+                onClick={lastPage}
+                disabled={currentPage === totalPages}
+              >
+                Dernière &raquo;
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal pour éditer une transaction */}
@@ -371,7 +413,7 @@ const TransactionList = ({ selectedMonth }) => {
         onClose={handleCloseNoteModal}
         transaction={selectedNote}
       />
-    </div>
+    </motion.div>
   );
 };
 

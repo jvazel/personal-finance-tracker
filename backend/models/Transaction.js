@@ -31,6 +31,11 @@ const TransactionSchema = new mongoose.Schema({
   note: {
     type: String,
     required: false
+  },
+  goalId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Goal',
+    required: false
   }
 });
 

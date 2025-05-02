@@ -482,3 +482,18 @@
 .type-option input {
   margin: 0;
 }
+
+.goal-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.goal-icon {
+  color: #4f46e5;
+}
+
+.goal-name {
+  font-size: 0.9em;
+  color: #4f46e5;
+}
