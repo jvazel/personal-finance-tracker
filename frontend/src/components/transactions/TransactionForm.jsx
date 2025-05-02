@@ -219,42 +219,44 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
         />
       </motion.div>
 
-      <div className="form-group">
-        <label htmlFor="amount">Montant</label>
-        <input
-          id="amount"
-          type="text"
-          value={amount}
-          onChange={e => setAmount(e.target.value)}
-          placeholder="Entrez un montant"
-          className={type ? `amount-${type}` : ''}
-        />
-      </div>
+      <div className="form-row">
+        <div className="form-group form-group-half">
+          <label htmlFor="amount">Montant</label>
+          <input
+            id="amount"
+            type="text"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            placeholder="Entrez un montant"
+            className={type ? `amount-${type}` : ''}
+          />
+        </div>
 
-      <div className="form-group">
-        <label>Type</label>
-        <div className="type-options">
-          <div className="checkbox-container-option">
-            <input
-              type="radio"
-              name="type"
-              id="expense"
-              value="expense"
-              checked={type === 'expense'}
-              onChange={() => setType('expense')}
-            />
-            <label htmlFor="expense">Dépense</label>
-          </div>
-          <div className="checkbox-container-option">
-            <input
-              type="radio"
-              name="type"
-              id="income"
-              value="income"
-              checked={type === 'income'}
-              onChange={() => setType('income')}
-            />
-            <label htmlFor="income">Revenu</label>
+        <div className="form-group form-group-half">
+          <label>Type</label>
+          <div className="type-options">
+            <div className="checkbox-container-option">
+              <input
+                type="radio"
+                name="type"
+                id="expense"
+                value="expense"
+                checked={type === 'expense'}
+                onChange={() => setType('expense')}
+              />
+              <label htmlFor="expense">Dépense</label>
+            </div>
+            <div className="checkbox-container-option">
+              <input
+                type="radio"
+                name="type"
+                id="income"
+                value="income"
+                checked={type === 'income'}
+                onChange={() => setType('income')}
+              />
+              <label htmlFor="income">Revenu</label>
+            </div>
           </div>
         </div>
       </div>

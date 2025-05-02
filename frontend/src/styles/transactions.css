@@ -617,3 +617,34 @@
 .note-view-button .note-icon {
   font-size: 16px;
 }
+
+/* Styles pour le formulaire de transaction */
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-group-half {
+  flex: 1;
+  min-width: 0; /* Permet aux éléments de rétrécir en dessous de leur largeur minimale */
+}
+
+.form-group-half input {
+  width: 100%;
+}
+
+/* Ajustement pour les options de type dans la nouvelle mise en page */
+.form-group-half .type-options {
+  display: flex;
+  height: 38px; /* Hauteur similaire à celle des inputs */
+  align-items: center;
+}
+
+/* Ajustement responsive */
+@media (max-width: 480px) {
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
