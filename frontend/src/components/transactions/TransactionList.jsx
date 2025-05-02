@@ -207,11 +207,11 @@ const TransactionList = ({ selectedMonth }) => {
       try {
         setLoadingSavingsGoals(true);
         const response = await api.get('api/goals/savings-goals');
-        
+
         // Assurer que nous définissons un tableau pour savingsGoals
         const goalsData = Array.isArray(response.data) ? response.data :
           (response.data && Array.isArray(response.data.data) ? response.data.data : []);
-        
+
         setSavingsGoals(goalsData);
       } catch (error) {
         console.error('Erreur lors du chargement des objectifs d\'épargne:', error);
@@ -227,14 +227,14 @@ const TransactionList = ({ selectedMonth }) => {
   // Fonction pour obtenir le nom de l'objectif d'épargne à partir de l'ID
   const getGoalNameById = (goalId) => {
     if (!goalId || !savingsGoals || savingsGoals.length === 0) return null;
-    
+
     const goal = savingsGoals.find(goal => goal._id === goalId);
     return goal ? goal.title : null;
   };
 
   // Rendu du composant
   return (
-    <motion.div 
+    <motion.div
       className="transaction-list-container"
       variants={containerVariants}
       initial="hidden"
@@ -279,7 +279,8 @@ const TransactionList = ({ selectedMonth }) => {
                     Montant{getSortDirectionIndicator('amount')}
                   </th>
                   <th>Objectif</th>
-                  <th>Actions</th>
+                  <th>Note</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -320,30 +321,32 @@ const TransactionList = ({ selectedMonth }) => {
                         )}
                       </td>
                       <td>
-                        <div className="transaction-actions">
+                        {transaction.note && (
                           <button
-                            className="action-button edit"
+                            className="action-button note"
+                            onClick={() => handleShowNote(transaction)}
+                            title="Voir la note"
+                          >
+                            <FaStickyNote />
+                          </button>
+                        )}
+                      </td>
+                      <td>
+                        <div className="transaction-item-actions">
+                          <button
+                            className="edit-action"
                             onClick={() => handleEdit(transaction)}
                             title="Modifier"
                           >
-                            <FaEdit />
+                            <i className="fas fa-edit"></i>
                           </button>
                           <button
-                            className="action-button delete"
+                            className="delete-action"
                             onClick={() => handleDelete(transaction._id)}
                             title="Supprimer"
                           >
-                            <FaTrash />
+                            <i className="fas fa-trash"></i>
                           </button>
-                          {transaction.note && (
-                            <button
-                              className="action-button note"
-                              onClick={() => handleShowNote(transaction)}
-                              title="Voir la note"
-                            >
-                              <FaStickyNote />
-                            </button>
-                          )}
                         </div>
                       </td>
                     </motion.tr>

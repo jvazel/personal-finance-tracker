@@ -430,9 +430,6 @@
   width: 100%;
 }
 
-/* Ajouter à la fin du fichier transactions.css */
-
-/* Styles pour le bouton et l'icône de note */
 .note-button {
   background: none;
   border: none;
@@ -496,4 +493,86 @@
 .goal-name {
   font-size: 0.9em;
   color: #4f46e5;
+}
+
+/* Styles pour les boutons d'action des transactions */
+.transaction-item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.transaction-item-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  outline: none;
+}
+
+.transaction-item-actions button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.transaction-item-actions button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.transaction-item-actions .edit-action {
+  color: #3b82f6;
+  background: none;
+}
+
+.transaction-item-actions .edit-action:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.transaction-item-actions .delete-action {
+  color: #ef4444;
+  background: none;
+}
+
+.transaction-item-actions .delete-action:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.transaction-item-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.action-button {
+  background-color: #4b5563;
+  border: none;
+  color: #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-button:hover {
+  background-color: #6366f1;
+}
+
+.action-button.delete {
+  background-color: #ef4444;
+}
+
+.action-button.delete:hover {
+  background-color: #dc2626;
+}
+
+.action-button.edit:hover {
+  background-color: #3b82f6;
+}
+
+.action-button.note:hover {
+  background-color: #f59e0b;
 }
