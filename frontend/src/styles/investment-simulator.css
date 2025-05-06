@@ -91,6 +91,12 @@
   color: #9ca3af;
 }
 
+.currency-icon-right {
+    position: absolute;
+    right: 12px;
+    color: #9ca3af;
+}
+
 .percentage-icon {
   position: absolute;
   right: 12px;
@@ -161,7 +167,7 @@
   font-weight: 500;
 }
 
-.chart-container {
+.chart-container-simulator {
   background-color: #353549;
   border-radius: 8px;
   padding: 20px;

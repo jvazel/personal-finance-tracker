@@ -299,7 +299,7 @@ const InvestmentSimulator = () => {
         </div>
 
         <div className="investment-simulator-results">
-          <div className="chart-container">
+          <div className="chart-container-simulator">
             <Line data={chartData} options={chartOptions} />
           </div>
 
