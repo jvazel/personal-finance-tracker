@@ -1,0 +1,224 @@
+/* Styles pour le simulateur financier */
+.simulator-container {
+  background-color: #2a2a3c;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.simulator-header {
+  margin-bottom: 16px;
+}
+
+.simulator-header h1 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.simulator-header p {
+  color: #e2e8f0;
+  margin-bottom: 24px;
+}
+
+/* Onglets pour les différents simulateurs */
+.simulator-tabs {
+  display: flex;
+  border-bottom: 1px solid #4b5563;
+  margin-bottom: 24px;
+}
+
+.simulator-tab-button {
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.simulator-tab-button:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.simulator-tab-button.active {
+  color: #6366f1;
+  border-bottom: 2px solid #6366f1;
+  font-weight: 500;
+}
+
+/* Formulaires de simulation */
+.simulator-form {
+  background-color: #353549;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.simulator-form-title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.simulator-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.simulator-form-group {
+  flex: 1 1 200px;
+}
+
+.simulator-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.simulator-form-group input,
+.simulator-form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background-color: #1e1e2e;
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.simulator-form-group input:focus,
+.simulator-form-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.simulator-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.simulator-button:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.simulator-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Résultats de simulation */
+.simulator-results {
+  background-color: #353549;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.simulator-results-title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.simulator-results-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.simulator-result-card {
+  background-color: #2a2a3c;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.simulator-result-card h3 {
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.simulator-result-value {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.simulator-chart-container {
+  margin-top: 24px;
+  height: 300px;
+}
+
+/* Tableau d'amortissement */
+.amortization-table-container {
+  margin-top: 24px;
+  overflow-x: auto;
+}
+
+.amortization-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.amortization-table th,
+.amortization-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #4b5563;
+}
+
+.amortization-table th {
+  color: #e2e8f0;
+  font-weight: 500;
+  background-color: #2a2a3c;
+}
+
+.amortization-table tbody tr:hover {
+  background-color: #3f3f5f;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .simulator-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .simulator-form-row {
+    flex-direction: column;
+  }
+  
+  .simulator-form-group {
+    flex: 1 1 100%;
+  }
+}

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle } from 'react-icons/fa';
+import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle, FaCalculator } from 'react-icons/fa';
 
 const Sidebar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -104,6 +104,11 @@ const Sidebar = () => {
         <NavLink to="/financial-advisor" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
           <span className="nav-icon"><FaLightbulb /></span>
           <span className="nav-text">Conseiller</span>
+        </NavLink>
+
+        <NavLink to="/simulateur" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          <span className="nav-icon"><FaCalculator /></span>
+          <span className="nav-text">Simulateur</span>
         </NavLink>
 
         <NavLink to="/tax" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>

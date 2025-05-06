@@ -28,6 +28,7 @@ const Trends = lazy(() => import('./components/trends/Trends'));
 const TaxDashboard = lazy(() => import('./components/tax/TaxDashboard'));
 const TaxReportDetail = lazy(() => import('./components/tax/TaxReportDetail'));
 const ImportExport = lazy(() => import('./components/import-export/ImportExport'));
+const InvestmentSimulator = lazy(() => import('./components/InvestmentSimulator'));
 
 // Register French locale
 registerLocale('fr', fr);
@@ -145,6 +146,15 @@ function App() {
                   <TransitionWrapper>
                     <Suspense fallback={<LoadingSpinner />}>
                       <ImportExport />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
+              <Route path="/simulateur" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <InvestmentSimulator />
                     </Suspense>
                   </TransitionWrapper>
                 </Layout>
