@@ -39,6 +39,24 @@ const TaxDashboard = () => {
   const generateTaxReport = async () => {
     try {
       setLoading(true);
+      
+      // Vérifier d'abord si un rapport existe déjà pour cette année
+      const reportsResponse = await api.get('/api/tax/reports');
+      
+      // Conversion explicite pour s'assurer que la comparaison fonctionne
+      const existingReport = reportsResponse.data.find(report => 
+        parseInt(report.year) === currentYear || report.year === currentYear
+      );
+      
+      if (existingReport) {
+        // Si un rapport existe déjà, informer l'utilisateur qu'il doit d'abord le supprimer
+        alert(`Un rapport fiscal pour ${currentYear} existe déjà. Veuillez d'abord supprimer ce rapport si vous souhaitez en générer un nouveau.`);
+        setActiveTab('reports');
+        setLoading(false);
+        return; // Arrêter l'exécution de la fonction ici
+      }
+      
+      // Sinon, générer un nouveau rapport
       const response = await api.post(`/api/tax/report/${currentYear}`);
       alert(`Rapport fiscal pour ${currentYear} généré avec succès!`);
       setActiveTab('reports');
