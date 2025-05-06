@@ -317,11 +317,11 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
       )}
 
       <div className="form-actions">
-        <button type="submit" className="submit">
-          {transactionToEdit ? 'Mettre à jour' : 'Ajouter'}
-        </button>
         <button type="button" className="cancel" onClick={onClose}>
           Annuler
+        </button>
+        <button type="submit" className="submit">
+          {transactionToEdit ? 'Mettre à jour' : 'Ajouter'}
         </button>
       </div>
     </motion.form>
