@@ -3,6 +3,11 @@ import api from '../../utils/api';
 import AmountDisplay from '../common/AmountDisplay';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+
+// Enregistrer les composants nécessaires pour Chart.js
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const ReportSavings = () => {
   const [monthlySavings, setMonthlySavings] = useState([]);
@@ -81,6 +86,68 @@ const ReportSavings = () => {
     return format(date, 'MMMM yyyy', { locale: fr });
   };
 
+  // Préparation des données pour le graphique
+  const prepareChartData = () => {
+    // Créer une copie triée chronologiquement pour le graphique
+    const chronologicalData = [...monthlySavings].sort((a, b) => {
+      const dateA = new Date(a.monthYear);
+      const dateB = new Date(b.monthYear);
+      return dateA - dateB;
+    });
+
+    return {
+      labels: chronologicalData.map(item => item.displayDate.charAt(0).toUpperCase() + item.displayDate.slice(1)),
+      datasets: [
+        {
+          label: 'Évolution du solde',
+          data: chronologicalData.map(item => item.savings),
+          fill: false,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          tension: 0.1,
+          pointBackgroundColor: chronologicalData.map(item => 
+            item.savings >= 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)'
+          ),
+          pointBorderColor: chronologicalData.map(item => 
+            item.savings >= 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)'
+          ),
+        }
+      ]
+    };
+  };
+
+  // Options du graphique
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Évolution du solde mensuel',
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const value = context.raw;
+            return `Solde: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: {
+          callback: function(value) {
+            return value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+          }
+        }
+      }
+    }
+  };
+
   if (loading) return <div>Chargement du rapport...</div>;
   if (error) return <div>Erreur lors du chargement du rapport: {error.message}</div>;
   if (!monthlySavings || monthlySavings.length === 0) return <div>Aucune donnée disponible.</div>;
@@ -88,6 +155,12 @@ const ReportSavings = () => {
   return (
     <div>
       <h2>Rapport sur l'évolution du solde (sur une année)</h2>
+      
+      {/* Ajout du graphique */}
+      <div className="chart-container" style={{ marginBottom: '30px', height: '400px' }}>
+        <Line data={prepareChartData()} options={chartOptions} />
+      </div>
+      
       <table className="transaction-table">
         <thead>
           <tr>
