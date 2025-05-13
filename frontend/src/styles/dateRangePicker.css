@@ -1,0 +1,85 @@
+.date-range-picker {
+  position: relative;
+  display: inline-block;
+}
+
+.date-range-button {
+  background-color: #353549;
+  color: #e2e8f0;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.date-range-button:hover {
+  background-color: #4a5568;
+}
+
+.date-range-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background-color: #2a2a3c;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  padding: 16px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  min-width: 300px;
+}
+
+.date-inputs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.date-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-input-group label {
+  font-size: 12px;
+  color: #a0aec0;
+}
+
+.date-input-group input {
+  background-color: #353549;
+  color: #e2e8f0;
+  border: 1px solid #4b5563;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.date-input-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.date-range-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.date-range-close {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.date-range-close:hover {
+  background-color: #2563eb;
+}

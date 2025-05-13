@@ -15,6 +15,7 @@ const taxRoutes = require('./routes/taxRoutes');
 const trendsRoutes = require('./routes/trendsRoutes');
 const importExportRoutes = require('./routes/importExportRoutes');
 const simulatorRoutes = require('./routes/simulator');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -56,7 +57,8 @@ app.use('/api/trends', protect, trendsRoutes);
 app.get('/api/dashboard-data', protect, require('./controllers/transactionController').getDashboardData);
 app.use('/api/import-export', protect, importExportRoutes);
 app.use('/api/recurring-expenses', protect, recurringExpensesRoutes);
-app.use('/api/simulator', simulatorRoutes);
+app.use('/api/simulator', protect, simulatorRoutes);
+app.use('/api/reports', protect, reportRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

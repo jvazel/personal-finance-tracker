@@ -216,10 +216,6 @@ const AnomalyDetection = ({ data, selectedCategories }) => {
                   " Il s'agit d'une anomalie majeure qui mérite votre attention." : 
                   " Vérifiez si cette dépense était prévue ou si elle nécessite une action de votre part."}
               </p>
-              <div className="recommendation-actions">
-                <button className="action-button">Marquer comme vérifiée</button>
-                <button className="action-button">Ajouter une note</button>
-              </div>
             </div>
           </div>
         </Modal>

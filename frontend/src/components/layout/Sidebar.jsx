@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle, FaCalculator } from 'react-icons/fa';
+import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle, FaCalculator, FaExchangeAlt } from 'react-icons/fa';
 
 const Sidebar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -78,6 +78,10 @@ const Sidebar = () => {
               <NavLink to="/reports/expenses" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
                 <span className="submenu-icon"><FaChartBar /></span>
                 <span className="submenu-text">Evolution des dépenses</span>
+              </NavLink>
+              <NavLink to="/reports/income-expense" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
+                <span className="submenu-icon"><FaExchangeAlt /></span>
+                <span className="submenu-text">Revenus et Dépenses</span>
               </NavLink>
               <NavLink to="/reports/recurring-expenses" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
                 <span className="submenu-icon"><FaRecycle /></span>

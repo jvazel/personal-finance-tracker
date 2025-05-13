@@ -29,6 +29,7 @@ const TaxDashboard = lazy(() => import('./components/tax/TaxDashboard'));
 const TaxReportDetail = lazy(() => import('./components/tax/TaxReportDetail'));
 const ImportExport = lazy(() => import('./components/import-export/ImportExport'));
 const InvestmentSimulator = lazy(() => import('./components/InvestmentSimulator'));
+const IncomeExpenseReport = lazy(() => import('./components/reports/IncomeExpenseReport'));
 
 // Register French locale
 registerLocale('fr', fr);
@@ -86,7 +87,15 @@ function App() {
                   </TransitionWrapper>
                 </Layout>
               } />
-              {/* Autres routes */}
+              <Route path="/reports/income-expense" element={
+                <Layout>
+                  <TransitionWrapper>
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <IncomeExpenseReport />
+                    </Suspense>
+                  </TransitionWrapper>
+                </Layout>
+              } />
               <Route path="/goals/*" element={
                 <Layout>
                   <TransitionWrapper>
