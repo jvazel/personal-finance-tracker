@@ -90,7 +90,10 @@ const Categories = () => {
     }
   };
 
-  const handleEdit = (category) => {
+  const handleEdit = (e, category) => {
+    // Empêcher la propagation de l'événement
+    e.stopPropagation();
+    
     setFormData({
       name: category.name,
       type: category.type,
@@ -105,6 +108,21 @@ const Categories = () => {
     setShowModal(true);
   };
 
+  const handleDelete = async (e, id) => {
+    // Empêcher la propagation de l'événement
+    e.stopPropagation();
+    
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
+      try {
+        await api.delete(`/api/categories/${id}`);
+        fetchCategories();
+      } catch (error) {
+        console.error('Error deleting category:', error);
+        setError('Erreur lors de la suppression de la catégorie');
+      }
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -117,18 +135,6 @@ const Categories = () => {
       taxCategory: 'none'
     });
     setEditingId(null);
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-      try {
-        await api.delete(`/api/categories/${id}`);
-        fetchCategories();
-      } catch (error) {
-        console.error('Error deleting category:', error);
-        setError('Erreur lors de la suppression de la catégorie');
-      }
-    }
   };
 
   const openAddModal = () => {
@@ -334,7 +340,7 @@ const Categories = () => {
               <div className="category-actions">
                 <motion.button 
                   className="edit-button"
-                  onClick={() => handleEdit(category)}
+                  onClick={(e) => handleEdit(e, category)}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -342,7 +348,7 @@ const Categories = () => {
                 </motion.button>
                 <motion.button 
                   className="delete-button"
-                  onClick={() => handleDelete(category._id)}
+                  onClick={(e) => handleDelete(e, category._id)}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >

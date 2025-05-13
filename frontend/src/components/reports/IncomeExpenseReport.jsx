@@ -32,11 +32,6 @@ const IncomeExpenseReport = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        console.log('Début de l\'appel API avec les paramètres:', {
-          startDate: format(dateRange.startDate, 'yyyy-MM-dd'),
-          endDate: format(dateRange.endDate, 'yyyy-MM-dd')
-        });
-        
         const response = await api.get('/reports/income-expense', {
           params: {
             startDate: format(dateRange.startDate, 'yyyy-MM-dd'),
@@ -44,7 +39,6 @@ const IncomeExpenseReport = () => {
           }
         });
         
-        console.log('Réponse API reçue:', response.data);
         setData(response.data);
         setError(null);
       } catch (err) {
