@@ -324,8 +324,6 @@ const Categories = () => {
               key={category._id} 
               className="category-item"
               variants={itemVariants}
-              whileHover={{ scale: 1.02, boxShadow: "0px 3px 8px rgba(0,0,0,0.1)" }}
-              whileTap={{ scale: 0.98 }}
             >
               <div 
                 className="category-color" 
@@ -338,22 +336,26 @@ const Categories = () => {
                 </span>
               </div>
               <div className="category-actions">
-                <motion.button 
+                <button 
                   className="edit-button"
-                  onClick={(e) => handleEdit(e, category)}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleEdit(e, category);
+                  }}
                 >
                   <i className="fas fa-edit"></i>
-                </motion.button>
-                <motion.button 
+                </button>
+                <button 
                   className="delete-button"
-                  onClick={(e) => handleDelete(e, category._id)}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDelete(e, category._id);
+                  }}
                 >
                   <i className="fas fa-trash"></i>
-                </motion.button>
+                </button>
               </div>
             </motion.div>
           ))
