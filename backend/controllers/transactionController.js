@@ -3,6 +3,7 @@ const Transaction = require('../models/Transaction');
 const Category = require('../models/Category');
 const mongoose = require('mongoose');
 const Goal = require('../models/Goal');
+const logger = require('../utils/logger');
 
 // Get all transactions
 exports.getAllTransactions = async (req, res) => {
@@ -33,7 +34,12 @@ exports.getAllTransactions = async (req, res) => {
     
     res.json(formattedTransactions);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching transactions', error: error.message });
+    logger.error('Erreur lors de la récupération des transactions:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
+    res.status(500).json({ message: 'Erreur lors de la récupération des transactions' });
   }
 };
 
@@ -75,6 +81,13 @@ exports.getReportTransactions = async (req, res) => {
 
     res.json(formattedTransactions);
   } catch (error) {
+    logger.error('Erreur lors de la récupération des transactions pour le rapport:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate
+    });
     res.status(500).json({ message: 'Error fetching report transactions', error: error.message });
   }
 };
@@ -135,7 +148,13 @@ exports.createTransaction = async (req, res) => {
     
     res.status(201).json(savedTransaction);
   } catch (error) {
-    res.status(400).json({ message: 'Error creating transaction', error: error.message });
+    logger.error('Erreur lors de la création de la transaction:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      transactionData: req.body
+    });
+    res.status(400).json({ message: 'Erreur lors de la création de la transaction', error: error.message });
   }
 };
 
@@ -151,6 +170,12 @@ exports.getTransactionById = async (req, res) => {
     }
     res.json(transaction);
   } catch (error) {
+    logger.error('Erreur lors de la récupération de la transaction:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      transactionId: req.params.id
+    });
     res.status(500).json({ message: 'Error fetching transaction', error: error.message });
   }
 };
@@ -200,8 +225,6 @@ exports.updateTransaction = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).populate('category', 'name color icon type');
-
-    console.log("updateData : " + updateData.savingsGoal);
 
     // Gérer les mises à jour des objectifs associés
     // Si l'objectif a changé ou si le montant a changé
@@ -262,6 +285,13 @@ exports.updateTransaction = async (req, res) => {
     
     res.json(updatedTransaction);
   } catch (error) {
+    logger.error('Erreur lors de la mise à jour de la transaction:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      transactionId: req.params.id,
+      updateData: req.body
+    });
     res.status(400).json({ message: 'Error updating transaction', error: error.message });
   }
 };
@@ -294,6 +324,12 @@ exports.deleteTransaction = async (req, res) => {
     
     res.json({ message: 'Transaction deleted successfully' });
   } catch (error) {
+    logger.error('Erreur lors de la suppression de la transaction:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      transactionId: req.params.id
+    });
     res.status(500).json({ message: 'Error deleting transaction', error: error.message });
   }
 };
@@ -332,8 +368,12 @@ exports.getDashboardData = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('Erreur tableau de bord:', error);
-    res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
+    logger.error('Erreur tableau de bord:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
+    res.status(500).json({ message: 'Erreur lors de la récupération des données du tableau de bord', error: error.message });
   }
 };
 
@@ -392,7 +432,13 @@ exports.getExpensesByCategory = async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error('Error fetching expenses by category:', error);
+    logger.error('Erreur lors de la récupération des dépenses par catégorie:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des dépenses par catégorie',
@@ -455,7 +501,11 @@ exports.getIncomeExpenseTrends = async (req, res) => {
 
     res.json(trendsData);
   } catch (error) {
-    console.error('Error fetching income/expense trends:', error);
+    logger.error('Erreur lors de la récupération des tendances revenus/dépenses:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Error fetching trends data' });
   }
 };
@@ -500,7 +550,14 @@ exports.getTopExpenses = async (req, res) => {
 
     res.status(200).json(topExpenses);
   } catch (error) {
-    console.error('Error fetching top expenses:', error);
+    logger.error('Erreur lors de la récupération des principales dépenses:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate,
+      limit: req.query.limit
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des principales dépenses',
@@ -592,7 +649,12 @@ exports.getRecurringBills = async (req, res) => {
     
     res.json(recurringBills);
   } catch (error) {
-    console.error('Erreur lors de la récupération des factures récurrentes:', error);
+    logger.error('Erreur lors de la récupération des factures récurrentes:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      period: req.query.period
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des factures récurrentes' });
   }
 };
@@ -637,7 +699,11 @@ exports.getMonthlySummary = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error fetching monthly summary:', error);
+    logger.error('Erreur lors de la récupération du résumé mensuel:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ 
       message: 'Error fetching monthly summary', 
       error: error.message 
@@ -744,7 +810,13 @@ exports.getExpenseReport = async (req, res) => {
       dailyExpenseTrend
     });
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport de dépenses:', error);
+    logger.error('Erreur lors de la génération du rapport de dépenses:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate
+    });
     res.status(500).json({ message: 'Erreur lors de la génération du rapport de dépenses' });
   }
 };
@@ -756,7 +828,11 @@ exports.getCategories = async (req, res) => {
     const categories = await Transaction.distinct('category', { user: req.user.id });
     res.json(categories);
   } catch (err) {
-    console.error('Erreur lors de la récupération des catégories:', err);
+    logger.error('Erreur lors de la récupération des catégories:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des catégories' });
   }
 };

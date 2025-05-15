@@ -1,6 +1,7 @@
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const TaxReport = require('../models/TaxReport');
+const logger = require('../utils/logger');
 
 // Récupérer les données fiscales pour une année spécifique
 exports.getTaxData = async (req, res) => {
@@ -61,7 +62,12 @@ exports.getTaxData = async (req, res) => {
 
     res.json(taxData);
   } catch (error) {
-    console.error('Erreur lors de la récupération des données fiscales:', error);
+    logger.error('Erreur lors de la récupération des données fiscales:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      year: req.params.year
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des données fiscales', error: error.message });
   }
 };
@@ -112,7 +118,12 @@ exports.generateTaxReport = async (req, res) => {
 
     res.json(taxReport);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport fiscal:', error);
+    logger.error('Erreur lors de la génération du rapport fiscal:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      year: req.params.year
+    });
     res.status(500).json({ message: 'Erreur lors de la génération du rapport fiscal', error: error.message });
   }
 };
@@ -156,7 +167,13 @@ exports.exportTaxData = async (req, res) => {
       res.status(400).json({ message: 'Format non supporté' });
     }
   } catch (error) {
-    console.error('Erreur lors de l\'exportation des données fiscales:', error);
+    logger.error('Erreur lors de l\'exportation des données fiscales:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      year: req.params.year,
+      format: req.params.format
+    });
     res.status(500).json({ message: 'Erreur lors de l\'exportation des données fiscales', error: error.message });
   }
 };
@@ -170,7 +187,11 @@ exports.getTaxReports = async (req, res) => {
     
     res.json(taxReports);
   } catch (error) {
-    console.error('Erreur lors de la récupération des rapports fiscaux:', error);
+    logger.error('Erreur lors de la récupération des rapports fiscaux:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des rapports fiscaux', error: error.message });
   }
 };
@@ -192,7 +213,12 @@ exports.deleteTaxReport = async (req, res) => {
     
     res.status(200).json({ message: 'Rapport fiscal supprimé avec succès' });
   } catch (err) {
-    console.error('Erreur lors de la suppression du rapport fiscal:', err);
+    logger.error('Erreur lors de la suppression du rapport fiscal:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id,
+      reportId: req.params.id
+    });
     res.status(500).json({ message: 'Erreur lors de la suppression du rapport fiscal' });
   }
 };
@@ -214,7 +240,12 @@ exports.getTaxReportById = async (req, res) => {
 
     res.json(report);
   } catch (error) {
-    console.error('Erreur lors de la récupération du rapport fiscal:', error);
+    logger.error('Erreur lors de la récupération du rapport fiscal:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      reportId: req.params.id
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération du rapport fiscal' });
   }
 };

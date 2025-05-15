@@ -1,6 +1,7 @@
 const Transaction = require('../models/Transaction');
 const Category = require('../models/Category'); // Ajout de l'import du modèle Category
 const mongoose = require('mongoose'); // Ajout de l'import de mongoose
+const logger = require('../utils/logger');
 const { addDays, addMonths, format, parseISO, isAfter, isBefore, startOfMonth, endOfMonth } = require('date-fns');
 const { fr } = require('date-fns/locale');
 
@@ -281,7 +282,12 @@ exports.getCashFlowPrediction = async (req, res) => {
     
     res.json(predictions);
   } catch (error) {
-    console.error('Erreur lors de la génération des prédictions de flux de trésorerie:', error);
+    logger.error('Erreur lors de la génération des prédictions de flux de trésorerie:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      months: req.query.months
+    });
     res.status(500).json({ message: 'Erreur lors de la génération des prédictions' });
   }
 };

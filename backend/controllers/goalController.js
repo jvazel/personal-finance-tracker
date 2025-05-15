@@ -1,6 +1,7 @@
 const Goal = require('../models/Goal');
 const Transaction = require('../models/Transaction');
 const { startOfMonth, endOfMonth } = require('date-fns');
+const logger = require('../utils/logger');
 
 // Récupérer tous les objectifs
 exports.getAllGoals = async (req, res) => {
@@ -26,7 +27,11 @@ exports.getAllGoals = async (req, res) => {
 
     res.json(formattedGoals);
   } catch (error) {
-    console.error('Erreur lors de la récupération des objectifs:', error);
+    logger.error('Erreur lors de la récupération des objectifs:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id 
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des objectifs' });
   }
 };
@@ -48,7 +53,12 @@ exports.getGoalById = async (req, res) => {
 
     res.json(goalObj);
   } catch (err) {
-    console.error('Erreur lors de la récupération de l\'objectif:', err);
+    logger.error('Erreur lors de la récupération de l\'objectif:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id,
+      goalId: req.params.id
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération de l\'objectif' });
   }
 };
@@ -65,7 +75,12 @@ exports.createGoal = async (req, res) => {
     const savedGoal = await newGoal.save();
     res.status(201).json(savedGoal);
   } catch (err) {
-    console.error('Erreur lors de la création de l\'objectif:', err);
+    logger.error('Erreur lors de la création de l\'objectif:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id,
+      goalData: req.body
+    });
     res.status(400).json({ message: 'Erreur lors de la création de l\'objectif', error: err.message });
   }
 };
@@ -98,7 +113,13 @@ exports.updateGoal = async (req, res) => {
 
     res.json(goalObj);
   } catch (err) {
-    console.error('Erreur lors de la mise à jour de l\'objectif:', err);
+    logger.error('Erreur lors de la mise à jour de l\'objectif:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id,
+      goalId: req.params.id,
+      updateData: req.body
+    });
     res.status(400).json({ message: 'Erreur lors de la mise à jour de l\'objectif', error: err.message });
   }
 };
@@ -106,8 +127,7 @@ exports.updateGoal = async (req, res) => {
 // Supprimer un objectif
 exports.deleteGoal = async (req, res) => {
   try {
-    // Vérifier d'abord que l'objectif appartient à l'utilisateur
-    const goal = await Goal.findOne({
+    const goal = await Goal.findOneAndDelete({
       _id: req.params.id,
       user: req.user.id
     });
@@ -116,11 +136,20 @@ exports.deleteGoal = async (req, res) => {
       return res.status(404).json({ message: 'Objectif non trouvé ou non autorisé' });
     }
 
-    const deletedGoal = await Goal.findByIdAndDelete(req.params.id);
+    logger.info('Objectif supprimé:', { 
+      goalId: goal._id,
+      goalTitle: goal.title,
+      userId: req.user.id
+    });
 
     res.json({ message: 'Objectif supprimé avec succès' });
   } catch (err) {
-    console.error('Erreur lors de la suppression de l\'objectif:', err);
+    logger.error('Erreur lors de la suppression de l\'objectif:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id,
+      goalId: req.params.id
+    });
     res.status(500).json({ message: 'Erreur lors de la suppression de l\'objectif' });
   }
 };
@@ -165,7 +194,13 @@ exports.updateGoalProgress = async (req, res) => {
 
     res.json(goalObj);
   } catch (err) {
-    console.error('Erreur lors de la mise à jour de la progression:', err);
+    logger.error('Erreur lors de la mise à jour de la progression:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id,
+      goalId: req.params.id,
+      amount: req.body.amount
+    });
     res.status(400).json({ message: 'Erreur lors de la mise à jour de la progression', error: err.message });
   }
 };
@@ -225,7 +260,11 @@ exports.getExpenseLimitStats = async (req, res) => {
 
     res.json(stats);
   } catch (err) {
-    console.error('Erreur lors de la récupération des statistiques de limite de dépenses:', err);
+    logger.error('Erreur lors de la récupération des statistiques de limite de dépenses:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des statistiques' });
   }
 };
@@ -276,7 +315,11 @@ exports.syncGoalsWithTransactions = async (req, res) => {
 
     res.json({ message: 'Objectifs synchronisés avec succès' });
   } catch (err) {
-    console.error('Erreur lors de la synchronisation des objectifs:', err);
+    logger.error('Erreur lors de la synchronisation des objectifs:', { 
+      error: err.message, 
+      stack: err.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Erreur lors de la synchronisation des objectifs' });
   }
 };
@@ -309,6 +352,11 @@ exports.getSavingsGoals = async (req, res) => {
 
     res.json(formattedGoals);
   } catch (error) {
+    logger.error('Erreur lors de la récupération des objectifs d\'épargne:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des objectifs d\'épargne', error: error.message });
   }
 };

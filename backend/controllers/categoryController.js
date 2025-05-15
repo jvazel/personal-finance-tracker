@@ -1,5 +1,6 @@
 // backend/controllers/categoryController.js
 const Category = require('../models/Category');
+const logger = require('../utils/logger');
 
 // Get category by ID
 exports.getCategoryById = async (req, res) => {
@@ -51,7 +52,10 @@ exports.initializeDefaultCategories = async () => {
     // We'll no longer initialize categories on server start
     // Instead, we'll create them when a user registers (see authController.js)
   } catch (error) {
-    console.error('Error initializing categories:', error);
+    logger.error('Erreur lors de l\'initialisation des catégories:', { 
+      error: error.message, 
+      stack: error.stack
+    });
   }
 };
 
@@ -81,6 +85,12 @@ exports.createCategory = async (req, res) => {
     const category = await Category.create({
       ...req.body,
       user: req.user.id
+    });
+    
+    logger.info('Nouvelle catégorie créée:', { 
+      categoryId: category._id,
+      categoryName: category.name,
+      userId: req.user.id
     });
     
     res.status(201).json({

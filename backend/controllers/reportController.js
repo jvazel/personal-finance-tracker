@@ -1,6 +1,7 @@
 const Transaction = require('../models/Transaction');
 const Category = require('../models/Category');
 const { format, parseISO, startOfMonth, endOfMonth, addMonths } = require('date-fns');
+const logger = require('../utils/logger');
 
 // Contrôleur pour le rapport Revenus et Dépenses
 exports.getIncomeExpenseReport = async (req, res) => {
@@ -99,7 +100,12 @@ exports.getIncomeExpenseReport = async (req, res) => {
 
     res.json(response);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport revenus et dépenses:', error);
+    logger.error('Erreur lors de la génération du rapport revenus et dépenses:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      dateRange: { startDate: req.query.startDate, endDate: req.query.endDate }
+    });
     res.status(500).json({ message: 'Erreur serveur lors de la génération du rapport' });
   }
 };

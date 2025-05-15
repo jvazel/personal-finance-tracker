@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const Category = require('../models/Category');
+const logger = require('../utils/logger');
 
 // Générer un token JWT
 const generateToken = (id) => {
@@ -50,6 +51,12 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
+    logger.error('Erreur lors de l\'enregistrement:', { 
+      error: error.message, 
+      stack: error.stack,
+      username: req.body.username,
+      email: req.body.email
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de l\'enregistrement',
@@ -104,6 +111,11 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
+    logger.error('Erreur lors de la connexion:', { 
+      error: error.message, 
+      stack: error.stack,
+      email: req.body.email
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la connexion',

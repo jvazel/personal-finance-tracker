@@ -16,6 +16,7 @@ const trendsRoutes = require('./routes/trendsRoutes');
 const importExportRoutes = require('./routes/importExportRoutes');
 const simulatorRoutes = require('./routes/simulator');
 const reportRoutes = require('./routes/reportRoutes');
+const logger = require('./utils/logger');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,15 +25,34 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Middleware pour logger les requêtes HTTP
+app.use((req, res, next) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.http('Requête HTTP', {
+      method: req.method,
+      url: req.originalUrl,
+      status: res.statusCode,
+      duration: `${duration}ms`,
+      userAgent: req.get('User-Agent'),
+      ip: req.ip
+    });
+  });
+  
+  next();
+});
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
 .then(() => {
-    console.log('MongoDB Connected');
+    logger.info('MongoDB Connected');
 })
-.catch(err => console.error('MongoDB Connection Error:', err));
+.catch(err => logger.error('Erreur de connexion MongoDB:', { error: err.message, stack: err.stack }));
 
 // Ajouter le middleware pour créer le dossier uploads s'il n'existe pas
 const fs = require('fs');
@@ -61,5 +81,5 @@ app.use('/api/simulator', protect, simulatorRoutes);
 app.use('/api/reports', protect, reportRoutes);
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    logger.info(`Server running on port ${PORT}`);
 });

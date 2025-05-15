@@ -1,4 +1,5 @@
 const Transaction = require('../models/Transaction');
+const logger = require('../utils/logger');
 
 // Fonction pour identifier les dépenses récurrentes
 exports.getRecurringExpenses = async (req, res) => {
@@ -161,7 +162,11 @@ exports.getRecurringExpenses = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Erreur lors de l\'identification des dépenses récurrentes:', error);
+    logger.error('Erreur lors de l\'identification des dépenses récurrentes:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Erreur serveur lors de l\'analyse des dépenses récurrentes' });
   }
 };
@@ -216,7 +221,11 @@ exports.getRecurringExpenseDetails = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Erreur lors de la récupération des détails de dépense récurrente:', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des détails' });
+    logger.error('Erreur lors de la récupération des dépenses récurrentes:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
+    res.status(500).json({ message: 'Erreur lors de la récupération des dépenses récurrentes' });
   }
 };

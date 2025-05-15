@@ -1,4 +1,4 @@
-// At the top of the file, add the kpiService import
+// At the top of the file, add the logger import
 const FinancialProgress = require('../models/FinancialProgress');
 const SavedRecommendation = require('../models/SavedRecommendation');
 const Transaction = require('../models/Transaction');
@@ -6,6 +6,7 @@ const Category = require('../models/Category');
 const Goal = require('../models/Goal');
 const ProgressData = require('../models/ProgressData');
 const kpiService = require('../services/kpiService');
+const logger = require('../utils/logger');
 
 const { SeededRandom, getDateRange, replaceIdsWithCategoryNames } = require('../services/financialUtils');
 const { analyzeSpendingTrends } = require('../services/spendingAnalysisService');
@@ -86,7 +87,12 @@ exports.getFinancialInsights = async (req, res) => {
       recommendations
     });
   } catch (error) {
-    console.error('Erreur lors de la génération des conseils financiers:', error);
+    logger.error('Erreur lors de la génération des conseils financiers:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      timeframe: req.query.timeframe
+    });
     res.status(500).json({ message: 'Erreur lors de la génération des conseils financiers' });
   }
 };
@@ -101,7 +107,11 @@ exports.getSavedRecommendations = async (req, res) => {
     
     res.json(savedRecommendations);
   } catch (error) {
-    console.error('Erreur lors de la récupération des recommandations sauvegardées:', error);
+    logger.error('Erreur lors de la récupération des recommandations sauvegardées:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des recommandations sauvegardées' });
   }
 };
@@ -123,7 +133,12 @@ exports.saveRecommendation = async (req, res) => {
     
     res.status(201).json(savedRecommendation);
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde de la recommandation:', error);
+    logger.error('Erreur lors de la sauvegarde de la recommandation:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      recommendation: req.body
+    });
     res.status(500).json({ message: 'Erreur lors de la sauvegarde de la recommandation' });
   }
 };
@@ -156,7 +171,13 @@ exports.updateRecommendationStep = async (req, res) => {
     
     res.json(savedRecommendation);
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'étape:', error);
+    logger.error('Erreur lors de la mise à jour de l\'étape:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      recommendationId: req.params.id,
+      stepIndex: req.params.stepIndex
+    });
     res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'étape' });
   }
 };
@@ -181,7 +202,12 @@ exports.deleteRecommendation = async (req, res) => {
     
     res.json({ message: 'Recommandation supprimée avec succès' });
   } catch (error) {
-    console.error('Erreur lors de la suppression de la recommandation:', error);
+    logger.error('Erreur lors de la suppression de la recommandation:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      recommendationId: req.params.id
+    });
     res.status(500).json({ message: 'Erreur lors de la suppression de la recommandation' });
   }
 };
@@ -195,7 +221,12 @@ exports.getFinancialProgress = async (req, res) => {
     const progressData = await progressService.getFinancialProgress(userId, timeframe);
     res.json(progressData);
   } catch (error) {
-    console.error('Erreur lors de la récupération des données de progression:', error);
+    logger.error('Erreur lors de la récupération des données de progression:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      timeframe: req.query.timeframe
+    });
     res.status(500).json({ message: 'Erreur lors de la récupération des données de progression' });
   }
 };
@@ -209,7 +240,12 @@ exports.updateFinancialProgress = async (req, res) => {
     const updatedProgress = await progressService.updateFinancialProgress(userId, progressData);
     res.json(updatedProgress);
   } catch (error) {
-    console.error('Erreur lors de la mise à jour des données de progression:', error);
+    logger.error('Erreur lors de la mise à jour des données de progression:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      progressData: req.body
+    });
     res.status(500).json({ message: 'Erreur lors de la mise à jour des données de progression' });
   }
 };
@@ -223,7 +259,12 @@ exports.getProgressData = async (req, res) => {
     const progressData = await progressService.getProgressData(userId, timeframe);
     res.status(200).json(progressData);
   } catch (error) {
-    console.error('Erreur lors de la récupération des données de progression:', error);
+    logger.error('Erreur lors de la récupération des données de progression:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      timeframe: req.query.timeframe
+    });
     res.status(500).json({ 
       message: 'Erreur serveur lors de la récupération des données de progression', 
       error: error.message,
@@ -241,13 +282,17 @@ exports.saveProgressData = async (req, res) => {
     const newProgressData = await progressService.saveProgressData(userId, progressData);
     res.status(201).json(newProgressData);
   } catch (error) {
-    console.error('Erreur lors de l\'enregistrement des données de progression:', error);
+    logger.error('Erreur lors de l\'enregistrement des données de progression:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      progressData: req.body
+    });
     res.status(500).json({ message: 'Erreur serveur' });
   }
 };
 
 // Fonction pour calculer automatiquement les KPIs
-// Update the calculateProgressKPIs function to use the kpiService
 exports.calculateProgressKPIs = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -258,13 +303,17 @@ exports.calculateProgressKPIs = async (req, res) => {
     // Save the KPIs to the database
     const newProgressData = await kpiService.saveKPIs(userId, kpis);
     
+    logger.info('KPIs calculés avec succès', { userId });
     res.status(200).json(newProgressData);
   } catch (error) {
-    console.error('Error calculating KPIs:', error);
+    logger.error('Erreur lors du calcul des KPIs', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id 
+    });
     res.status(500).json({ 
-      message: 'Server error while calculating KPIs', 
-      error: error.message,
-      stack: error.stack 
+      message: 'Erreur serveur lors du calcul des KPIs', 
+      error: error.message 
     });
   }
 };

@@ -9,6 +9,7 @@ const outlierService = require('../services/trends/outlierService');
 const seasonalService = require('../services/trends/seasonalService');
 const leakService = require('../services/trends/leakService');
 const statisticsService = require('../services/trends/statisticsService');
+const logger = require('../utils/logger');
 
 // Cache configuration with 10 minute TTL (time to live)
 const trendsCache = new NodeCache({ stdTTL: 600, checkperiod: 120 });
@@ -39,8 +40,15 @@ exports.getTimeSeriesData = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error fetching time series data:', error);
-        res.status(500).json({ message: 'Error fetching time series data', error: error.message });
+        logger.error('Erreur lors de la récupération des données de séries temporelles:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            period: req.query.period,
+            startDate: req.query.startDate,
+            endDate: req.query.endDate
+        });
+        res.status(500).json({ message: 'Erreur lors de la récupération des données de séries temporelles', error: error.message });
     }
 };
 
@@ -131,8 +139,14 @@ exports.getPeriodComparison = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error comparing periods:', error);
-        res.status(500).json({ message: 'Error comparing periods', error: error.message });
+        logger.error('Erreur lors de la comparaison des périodes:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            timeframe: req.query.timeframe,
+            date: req.query.date
+        });
+        res.status(500).json({ message: 'Erreur lors de la comparaison des périodes', error: error.message });
     }
 };
 
@@ -162,8 +176,14 @@ exports.getCategoryEvolution = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error fetching category evolution:', error);
-        res.status(500).json({ message: 'Error fetching category evolution', error: error.message });
+        logger.error('Erreur lors de la récupération de l\'évolution des catégories:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            period: req.query.period,
+            groupBy: req.query.groupBy
+        });
+        res.status(500).json({ message: 'Erreur lors de la récupération de l\'évolution des catégories', error: error.message });
     }
 };
 
@@ -193,11 +213,15 @@ exports.getHeatmapData = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error fetching heatmap data:', error);
-        // More detailed error logging
-        console.error('Error stack:', error.stack);
+        logger.error('Erreur lors de la récupération des données de heatmap:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            period: req.query.period,
+            type: req.query.type
+        });
         res.status(500).json({ 
-            message: 'Error fetching heatmap data', 
+            message: 'Erreur lors de la récupération des données de heatmap', 
             error: error.message,
             stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
@@ -230,8 +254,14 @@ exports.getOutliers = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error detecting outliers:', error);
-        res.status(500).json({ message: 'Error detecting outliers', error: error.message });
+        logger.error('Erreur lors de la détection des valeurs aberrantes:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            period: req.query.period,
+            threshold: req.query.threshold
+        });
+        res.status(500).json({ message: 'Erreur lors de la détection des valeurs aberrantes', error: error.message });
     }
 };
 
@@ -261,8 +291,14 @@ exports.getSeasonalPatterns = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error detecting seasonal patterns:', error);
-        res.status(500).json({ message: 'Error detecting seasonal patterns', error: error.message });
+        logger.error('Erreur lors de la détection des modèles saisonniers:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            years: req.query.years,
+            categories: req.query.categories
+        });
+        res.status(500).json({ message: 'Erreur lors de la détection des modèles saisonniers', error: error.message });
     }
 };
 
@@ -292,8 +328,14 @@ exports.getFinancialLeaks = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error identifying financial leaks:', error);
-        res.status(500).json({ message: 'Error identifying financial leaks', error: error.message });
+        logger.error('Erreur lors de l\'identification des fuites financières:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            period: req.query.period,
+            threshold: req.query.threshold
+        });
+        res.status(500).json({ message: 'Erreur lors de l\'identification des fuites financières', error: error.message });
     }
 };
 
@@ -323,7 +365,12 @@ exports.getStatistics = async (req, res) => {
         
         res.json(data);
     } catch (error) {
-        console.error('Error fetching statistics:', error);
-        res.status(500).json({ message: 'Error fetching statistics', error: error.message });
+        logger.error('Erreur lors de la récupération des statistiques:', { 
+            error: error.message, 
+            stack: error.stack,
+            userId: req.user.id,
+            period: req.query.period
+        });
+        res.status(500).json({ message: 'Erreur lors de la récupération des statistiques', error: error.message });
     }
 };

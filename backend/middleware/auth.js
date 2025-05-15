@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 // Middleware pour protéger les routes
 exports.protect = async (req, res, next) => {
@@ -26,6 +27,11 @@ exports.protect = async (req, res, next) => {
     req.user = await User.findById(decoded.id);
     next();
   } catch (error) {
+    logger.error('Erreur d\'authentification:', { 
+      error: error.message, 
+      stack: error.stack,
+      token: token ? token.substring(0, 10) + '...' : 'aucun'
+    });
     return res.status(401).json({
       success: false,
       message: 'Accès non autorisé'

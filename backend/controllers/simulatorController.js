@@ -1,6 +1,7 @@
 /**
  * Contrôleur pour les fonctionnalités de simulation financière
  */
+const logger = require('../utils/logger');
 
 // Calcul de prêt (mensualités, intérêts totaux, etc.)
 exports.calculateLoan = (req, res) => {
@@ -54,7 +55,12 @@ exports.calculateLoan = (req, res) => {
       amortizationSchedule
     });
   } catch (error) {
-    console.error('Erreur lors du calcul du prêt:', error);
+    logger.error('Erreur lors du calcul du prêt:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      loanData: req.body
+    });
     res.status(500).json({ error: 'Erreur lors du calcul du prêt' });
   }
 };
@@ -116,7 +122,12 @@ exports.calculateInvestment = (req, res) => {
       growthData
     });
   } catch (error) {
-    console.error('Erreur lors du calcul de l\'investissement:', error);
+    logger.error('Erreur lors du calcul de l\'investissement:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      investmentData: req.body
+    });
     res.status(500).json({ error: 'Erreur lors du calcul de l\'investissement' });
   }
 };
@@ -212,7 +223,12 @@ exports.calculateRetirement = (req, res) => {
       retirementPhase
     });
   } catch (error) {
-    console.error('Erreur lors du calcul de la retraite:', error);
+    logger.error('Erreur lors du calcul de la retraite:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      retirementData: req.body
+    });
     res.status(500).json({ error: 'Erreur lors du calcul de la retraite' });
   }
 };

@@ -5,6 +5,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 // Exporter les transactions au format CSV
 exports.exportTransactions = async (req, res) => {
@@ -63,7 +64,12 @@ exports.exportTransactions = async (req, res) => {
     // Envoyer le CSV
     res.status(200).send(csv);
   } catch (error) {
-    console.error('Erreur lors de l\'export des transactions:', error);
+    logger.error('Erreur lors de l\'export des transactions:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      dateRange: { startDate: req.query.startDate, endDate: req.query.endDate }
+    });
     res.status(500).json({ message: 'Erreur lors de l\'export des transactions', error: error.message });
   }
 };
@@ -162,7 +168,12 @@ exports.importTransactions = async (req, res) => {
         }
       });
   } catch (error) {
-    console.error('Erreur lors de l\'import des transactions:', error);
+    logger.error('Erreur lors de l\'import des transactions:', { 
+      error: error.message, 
+      stack: error.stack,
+      userId: req.user.id,
+      fileName: req.file ? req.file.originalname : 'aucun fichier'
+    });
     
     // Supprimer le fichier temporaire en cas d'erreur
     if (req.file && req.file.path) {
