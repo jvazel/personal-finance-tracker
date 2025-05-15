@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "FinaTrack",
+  "name": "FinaTrack - Suivi des finances personnelles",
   "icons": [
     {
       "src": "favicon.ico",

@@ -1,50 +1,48 @@
-import React, { Suspense, lazy, useTransition } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { registerLocale, setDefaultLocale } from 'react-datepicker';
-import fr from 'date-fns/locale/fr';
-import { AuthProvider } from './context/AuthContext';
+import React, { Suspense, lazy } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-
-// Components
-import LoadingSpinner from './components/common/LoadingSpinner';
-import Sidebar from './components/layout/Sidebar';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import Layout from './components/layout/Layout';
+import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import Layout from './components/layout/Layout';
+import LoadingSpinner from './components/common/LoadingSpinner';
+import TransitionWrapper from './components/common/TransitionWrapper';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
-// Styles
-import './styles/auth.css';
+// Regroupement logique des imports paresseux
+// Pages d'authentification
+const Login = lazy(() => import('./components/auth/Login'));
+const Register = lazy(() => import('./components/auth/Register'));
 
-// Lazy load components
+// Pages principales
 const Dashboard = lazy(() => import('./components/dashboard/Dashboard'));
 const Transactions = lazy(() => import('./components/transactions/Transactions'));
+
+// Pages de rapports
 const Reports = lazy(() => import('./components/reports/Reports'));
-const Goals = lazy(() => import('./components/goals/Goals'));
-const Settings = lazy(() => import('./components/settings/Settings'));
-const FinancialAdvisor = lazy(() => import('./components/financial-advisor/FinancialAdvisor'));
-const Trends = lazy(() => import('./components/trends/Trends'));
+const IncomeExpenseReport = lazy(() => import('./components/reports/IncomeExpenseReport'));
 const TaxDashboard = lazy(() => import('./components/tax/TaxDashboard'));
 const TaxReportDetail = lazy(() => import('./components/tax/TaxReportDetail'));
+
+// Pages d'analyse et de planification
+const Goals = lazy(() => import('./components/goals/Goals'));
+const FinancialAdvisor = lazy(() => import('./components/financial-advisor/FinancialAdvisor'));
+const Trends = lazy(() => import('./components/trends/Trends'));
+const InvestmentSimulator = lazy(() => import('./components/simulator/InvestmentSimulator'));
+
+// Pages utilitaires
+const Settings = lazy(() => import('./components/settings/Settings'));
 const ImportExport = lazy(() => import('./components/import-export/ImportExport'));
-const InvestmentSimulator = lazy(() => import('./components/InvestmentSimulator'));
-const IncomeExpenseReport = lazy(() => import('./components/reports/IncomeExpenseReport'));
 
-// Register French locale
-registerLocale('fr', fr);
-setDefaultLocale('fr');
-
-// Wrapper component to handle transitions
-const TransitionWrapper = ({ children }) => {
-  const [isPending, startTransition] = useTransition();
-  
-  return (
-    <React.Fragment>
-      {isPending ? <LoadingSpinner /> : children}
-    </React.Fragment>
-  );
-};
+// Composant de route avec Suspense réutilisable
+const SuspenseRoute = ({ element }) => (
+  <Layout>
+    <TransitionWrapper>
+      <Suspense fallback={<LoadingSpinner />}>
+        {element}
+      </Suspense>
+    </TransitionWrapper>
+  </Layout>
+);
 
 function App() {
   const location = useLocation();
@@ -55,119 +53,31 @@ function App() {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <Login />
+              </Suspense>
+            } />
+            <Route path="/register" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <Register />
+              </Suspense>
+            } />
     
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Dashboard />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/transactions" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Transactions />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/reports/*" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Reports />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/reports/income-expense" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <IncomeExpenseReport />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/goals/*" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Goals />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/financial-advisor" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <FinancialAdvisor />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/settings/*" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Settings />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/tax" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <TaxDashboard />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/tax/reports/:id" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <TaxReportDetail />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/trends" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <Trends />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/import-export" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ImportExport />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
-              <Route path="/simulateur" element={
-                <Layout>
-                  <TransitionWrapper>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <InvestmentSimulator />
-                    </Suspense>
-                  </TransitionWrapper>
-                </Layout>
-              } />
+              <Route path="/" element={<SuspenseRoute element={<Dashboard />} />} />
+              <Route path="/transactions" element={<SuspenseRoute element={<Transactions />} />} />
+              <Route path="/reports/*" element={<SuspenseRoute element={<Reports />} />} />
+              <Route path="/reports/income-expense" element={<SuspenseRoute element={<IncomeExpenseReport />} />} />
+              <Route path="/goals/*" element={<SuspenseRoute element={<Goals />} />} />
+              <Route path="/financial-advisor" element={<SuspenseRoute element={<FinancialAdvisor />} />} />
+              <Route path="/settings/*" element={<SuspenseRoute element={<Settings />} />} />
+              <Route path="/tax" element={<SuspenseRoute element={<TaxDashboard />} />} />
+              <Route path="/tax/reports/:id" element={<SuspenseRoute element={<TaxReportDetail />} />} />
+              <Route path="/trends" element={<SuspenseRoute element={<Trends />} />} />
+              <Route path="/import-export" element={<SuspenseRoute element={<ImportExport />} />} />
+              <Route path="/simulateur" element={<SuspenseRoute element={<InvestmentSimulator />} />} />
             </Route>
           </Routes>
         </AnimatePresence>

@@ -39,15 +39,15 @@ const TaxDashboard = () => {
   const generateTaxReport = async () => {
     try {
       setLoading(true);
-      
+
       // Vérifier d'abord si un rapport existe déjà pour cette année
       const reportsResponse = await api.get('/api/tax/reports');
-      
+
       // Conversion explicite pour s'assurer que la comparaison fonctionne
-      const existingReport = reportsResponse.data.find(report => 
+      const existingReport = reportsResponse.data.find(report =>
         parseInt(report.year) === currentYear || report.year === currentYear
       );
-      
+
       if (existingReport) {
         // Si un rapport existe déjà, informer l'utilisateur qu'il doit d'abord le supprimer
         alert(`Un rapport fiscal pour ${currentYear} existe déjà. Veuillez d'abord supprimer ce rapport si vous souhaitez en générer un nouveau.`);
@@ -55,7 +55,7 @@ const TaxDashboard = () => {
         setLoading(false);
         return; // Arrêter l'exécution de la fonction ici
       }
-      
+
       // Sinon, générer un nouveau rapport
       const response = await api.post(`/api/tax/report/${currentYear}`);
       alert(`Rapport fiscal pour ${currentYear} généré avec succès!`);
@@ -70,10 +70,30 @@ const TaxDashboard = () => {
 
   const exportTaxData = async (format) => {
     try {
-      window.open(`${api.defaults.baseURL}/api/tax/export/${currentYear}/${format}`, '_blank');
+      setLoading(true);
+      // Utiliser api.get avec responseType: 'blob' pour obtenir les données binaires
+      const response = await api.get(`/api/tax/export/${currentYear}/${format}`, {
+        responseType: 'blob'
+      });
+
+      // Créer un objet URL pour le blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      // Créer un élément <a> temporaire pour déclencher le téléchargement
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `donnees_fiscales_${currentYear}.${format}`);
+      document.body.appendChild(link);
+
+      // Déclencher le téléchargement et nettoyer
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Erreur lors de l\'exportation des données fiscales:', err);
       alert('Erreur lors de l\'exportation des données fiscales. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,9 +107,9 @@ const TaxDashboard = () => {
       <div className="tax-dashboard-controls">
         <div className="year-selector">
           <label htmlFor="taxYear">Année fiscale:</label>
-          <select 
-            id="taxYear" 
-            value={currentYear} 
+          <select
+            id="taxYear"
+            value={currentYear}
             onChange={handleYearChange}
           >
             {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
@@ -99,14 +119,14 @@ const TaxDashboard = () => {
         </div>
 
         <div className="tax-actions">
-          <button 
+          <button
             className="tax-action-button generate"
             onClick={generateTaxReport}
             disabled={loading}
           >
             Générer un rapport fiscal
           </button>
-          <button 
+          <button
             className="tax-action-button export"
             onClick={() => exportTaxData('csv')}
             disabled={loading}
@@ -117,25 +137,25 @@ const TaxDashboard = () => {
       </div>
 
       <div className="tax-dashboard-tabs">
-        <button 
+        <button
           className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
           Aperçu
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'transactions' ? 'active' : ''}`}
           onClick={() => setActiveTab('transactions')}
         >
           Transactions
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'reports' ? 'active' : ''}`}
           onClick={() => setActiveTab('reports')}
         >
           Rapports
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
@@ -176,8 +196,8 @@ const TaxDashboard = () => {
               <div className="tax-info-section">
                 <h3>Informations importantes</h3>
                 <p>
-                  Ces données sont basées sur vos transactions catégorisées. Pour une déclaration précise, 
-                  assurez-vous que toutes vos transactions sont correctement catégorisées et que les 
+                  Ces données sont basées sur vos transactions catégorisées. Pour une déclaration précise,
+                  assurez-vous que toutes vos transactions sont correctement catégorisées et que les
                   propriétés fiscales des catégories sont bien configurées.
                 </p>
                 <p>

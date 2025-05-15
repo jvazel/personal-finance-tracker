@@ -1,5 +1,9 @@
 // backend/server.js
-require('dotenv').config();
+require('dotenv').config({
+  path: process.env.NODE_ENV === 'production' 
+    ? './.env.production' 
+    : './.env'
+});
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -22,7 +26,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Middleware pour logger les requêtes HTTP
@@ -82,4 +93,6 @@ app.use('/api/reports', protect, reportRoutes);
 
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info(`CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
 });
