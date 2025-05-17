@@ -1,70 +1,93 @@
-# Getting Started with Create React App
+# Documentation du Projet Personal Finance Tracker
+## Aperçu du Projet
+Personal Finance Tracker est une application web complète pour la gestion des finances personnelles. Elle permet aux utilisateurs de suivre leurs dépenses, revenus, et d'analyser leurs habitudes financières à travers des rapports détaillés et des visualisations.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Structure du Projet
+L'application est divisée en deux parties principales:
 
-## Available Scripts
+### Frontend
+- Développé avec React.js
+- Interface utilisateur intuitive avec des composants Material UI
+- Visualisations de données avec Chart.js
+- Support PWA (Progressive Web App) avec service worker
+### Backend
+- Serveur Node.js avec Express
+- Base de données MongoDB avec Mongoose
+- API RESTful pour la gestion des données
+- Services d'analyse financière avancés
+## Fonctionnalités Principales
+### Gestion des Transactions
+- Ajout, modification et suppression de transactions
+- Catégorisation des dépenses et revenus
+- Filtrage et recherche avancés
+### Catégories Personnalisables
+- Création et gestion de catégories personnalisées
+- Attribution de couleurs pour une meilleure visualisation
+- Suivi des dépenses par catégorie
+### Rapports et Analyses
+- Rapports détaillés sur les dépenses et revenus
+- Comparaison entre différentes périodes
+- Analyse des tendances financières
+- Suivi des dépenses récurrentes
+### Objectifs Financiers
+- Définition d'objectifs d'épargne
+- Suivi de la progression vers les objectifs
+- Recommandations personnalisées
+### Fonctionnalités Avancées
+- Importation/exportation de données CSV
+- Mode hors ligne avec synchronisation
+- Interface responsive pour mobile et desktop
+## Installation et Configuration
+### Prérequis
+- Node.js (v14 ou supérieur)
+- MongoDB
+- npm ou yarn
+### Installation du Backend
+Créez un fichier .env dans le dossier backend avec les variables suivantes:
 
-In the project directory, you can run:
+### Installation du Frontend
+## Démarrage de l'Application
+### Backend
+Le serveur backend démarrera sur http://localhost:5000
 
-### `npm start`
+### Frontend
+L'application frontend sera accessible sur http://localhost:3000
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Technologies Utilisées
+### Frontend
+- React.js
+- Material UI
+- Chart.js
+- Framer Motion pour les animations
+- Axios pour les requêtes HTTP
+### Backend
+- Node.js
+- Express
+- MongoDB avec Mongoose
+- JWT pour l'authentification
+- Winston pour la journalisation
+## Structure des API
+L'application expose plusieurs endpoints API:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Transactions
+- GET /api/transactions - Récupérer toutes les transactions
+- POST /api/transactions - Créer une nouvelle transaction
+- GET /api/transactions/reports - Données pour les rapports
+- GET /api/transactions/dashboard - Données pour le tableau de bord
+### Catégories
+- GET /api/categories - Récupérer toutes les catégories
+- POST /api/categories - Créer une nouvelle catégorie
+### Analyses Financières
+- Services de comparaison entre périodes
+- Analyse des tendances
+- Suivi de la progression financière
+## Contribution
+Pour contribuer au projet:
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Forkez le dépôt
+2. Créez une branche pour votre fonctionnalité ( git checkout -b feature/amazing-feature )
+3. Committez vos changements ( git commit -m 'Add some amazing feature' )
+4. Poussez vers la branche ( git push origin feature/amazing-feature )
+5. Ouvrez une Pull Request
+## Licence
+Ce projet est sous licence ISC.
