@@ -179,66 +179,69 @@ const TaxCategorySettings = () => {
           </thead>
           <tbody>
             {Array.isArray(categories) && categories.length > 0 ? (
-              categories.map(category => (
-                <tr key={category._id}>
-                  <td>
-                    <div className="category-name">
-                      <span className="category-color" style={{ backgroundColor: category.color }}></span>
-                      {category.name}
-                    </div>
-                  </td>
-                  <td>{category.type === 'income' ? 'Revenu' : 'Dépense'}</td>
-                  <td>
-                    <div className="tax-category-checkbox-group">
-                      <input 
-                        type="checkbox" 
-                        id={`taxable-${category._id}`}
-                        checked={category.taxable || false}
-                        onChange={(e) => handleTaxableChange(category._id, e.target.checked)}
-                        disabled={category.type === 'expense'}
-                      />
-                      <label htmlFor={`taxable-${category._id}`}>Imposable</label>
-                    </div>
-                  </td>
-                  
-                  <td>
-                    <div className="tax-category-checkbox-group">
-                      <input 
-                        type="checkbox" 
-                        id={`deductible-${category._id}`}
-                        checked={category.taxDeductible || false}
-                        onChange={(e) => handleDeductibleChange(category._id, e.target.checked)}
-                        disabled={category.type === 'income'}
-                      />
-                      <label htmlFor={`deductible-${category._id}`}>Dépense déductible</label>
-                    </div>
-                  </td>
-                  <td>
-                    <select 
-                      value={category.taxCategory || 'none'}
-                      onChange={(e) => handleTaxCategoryChange(category._id, e.target.value)}
-                      className="tax-category-select"
-                    >
-                      <option value="none">Aucune</option>
-                      {category.type === 'income' && (
-                        <option value="income">Revenu imposable</option>
-                      )}
-                      {category.type === 'expense' && (
-                        <>
-                          <option value="deduction">Déduction standard</option>
-                          <option value="donation">Don caritatif</option>
-                          <option value="investment">Investissement</option>
-                        </>
-                      )}
-                    </select>
-                  </td>
-                  <td>
-                    <span className="tax-category-description">
-                      {getTaxCategoryDescription(category.taxCategory)}
-                    </span>
-                  </td>
-                </tr>
-              ))
+              // Tri des catégories par ordre alphabétique
+              [...categories]
+                .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+                .map(category => (
+                  <tr key={category._id}>
+                    <td>
+                      <div className="category-name">
+                        <span className="category-color" style={{ backgroundColor: category.color }}></span>
+                        {category.name}
+                      </div>
+                    </td>
+                    <td>{category.type === 'income' ? 'Revenu' : 'Dépense'}</td>
+                    <td>
+                      <div className="tax-category-checkbox-group">
+                        <input 
+                          type="checkbox" 
+                          id={`taxable-${category._id}`}
+                          checked={category.taxable || false}
+                          onChange={(e) => handleTaxableChange(category._id, e.target.checked)}
+                          disabled={category.type === 'expense'}
+                        />
+                        <label htmlFor={`taxable-${category._id}`}>Imposable</label>
+                      </div>
+                    </td>
+                    
+                    <td>
+                      <div className="tax-category-checkbox-group">
+                        <input 
+                          type="checkbox" 
+                          id={`deductible-${category._id}`}
+                          checked={category.taxDeductible || false}
+                          onChange={(e) => handleDeductibleChange(category._id, e.target.checked)}
+                          disabled={category.type === 'income'}
+                        />
+                        <label htmlFor={`deductible-${category._id}`}>Dépense déductible</label>
+                      </div>
+                    </td>
+                    <td>
+                      <select 
+                        value={category.taxCategory || 'none'}
+                        onChange={(e) => handleTaxCategoryChange(category._id, e.target.value)}
+                        className="tax-category-select"
+                      >
+                        <option value="none">Aucune</option>
+                        {category.type === 'income' && (
+                          <option value="income">Revenu imposable</option>
+                        )}
+                        {category.type === 'expense' && (
+                          <>
+                            <option value="deduction">Déduction standard</option>
+                            <option value="donation">Don caritatif</option>
+                            <option value="investment">Investissement</option>
+                          </>
+                        )}
+                      </select>
+                    </td>
+                    <td>
+                      <span className="tax-category-description">
+                        {getTaxCategoryDescription(category.taxCategory)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
             ) : (
               <tr>
                 <td colSpan="6" className="no-data-message">

@@ -13,6 +13,11 @@ const FilterPanel = ({
   handleCategoryChange,
   toggleAllCategories
 }) => {
+  // Trier les catégories par ordre alphabétique
+  const sortedCategories = [...categories].sort((a, b) => 
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  );
+
   return (
     <div className="filter-panel">
       <div className="filter-section">
@@ -75,7 +80,7 @@ const FilterPanel = ({
           </button>
         </div>
         <div className="categories-list">
-          {categories.map(category => (
+          {sortedCategories.map(category => (
             <div key={category._id} className="category-checkbox">
               <input
                 type="checkbox"

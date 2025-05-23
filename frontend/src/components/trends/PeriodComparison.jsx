@@ -54,7 +54,12 @@ const PeriodComparison = ({ data, timeframe, selectedCategories = [] }) => {
         return hasCurrentData || hasComparisonData;
       });
   
-      relevantCategories.forEach(category => {
+      // Trier les catégories par ordre alphabétique
+      const sortedCategories = [...relevantCategories].sort((a, b) => 
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      );
+  
+      sortedCategories.forEach(category => {
         const currentValue = data.current.categoriesData[category.id] || 0;
         const comparisonValue = comparisonPeriod.categoriesData[category.id] || 0;
         const difference = currentValue - comparisonValue;

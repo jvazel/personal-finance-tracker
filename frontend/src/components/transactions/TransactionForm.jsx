@@ -133,7 +133,8 @@ const TransactionForm = ({ transactionToEdit, onClose, selectedMonth }) => {
   // Filter categories based on transaction type
   // Ensure categories is an array before filtering
   const filteredCategories = Array.isArray(categories) ?
-    categories.filter(cat => cat.type === type || cat.type === 'both') : [];
+    categories.filter(cat => cat.type === type || cat.type === 'both')
+      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())) : [];
 
   // Update category when type changes
   useEffect(() => {

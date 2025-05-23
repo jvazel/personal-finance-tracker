@@ -273,3 +273,42 @@
   color: #a0aec0;
   font-size: 0.85rem;
 }
+
+.categories-filter {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: #2a2a3c;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.filter-label {
+  margin-right: 15px;
+  color: #d1d5db;
+  font-weight: 500;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-button {
+  background-color: #374151;
+  color: #d1d5db;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  background-color: #4b5563;
+}
+
+.filter-button.active {
+  background-color: #3b82f6;
+  color: white;
+}

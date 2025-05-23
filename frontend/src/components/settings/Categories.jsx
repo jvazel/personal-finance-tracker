@@ -43,6 +43,7 @@ const Categories = () => {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [typeFilter, setTypeFilter] = useState('all'); // Nouveau state pour le filtre ('all', 'expense', 'income')
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -147,6 +148,16 @@ const Categories = () => {
     resetForm();
   };
 
+  // Filtrer les catégories en fonction du type sélectionné
+  const filteredCategories = typeFilter === 'all' 
+    ? categories 
+    : categories.filter(category => category.type === typeFilter);
+
+  // Trier les catégories par ordre alphabétique
+  const sortedCategories = filteredCategories.sort((a, b) => 
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  );
+
   if (loading) return <div className="loading">Chargement des catégories...</div>;
   if (error && !categories.length) return <div className="error">{error}</div>;
 
@@ -165,6 +176,31 @@ const Categories = () => {
         >
           +
         </button>
+      </motion.div>
+
+      {/* Ajout du filtre de type */}
+      <motion.div className="categories-filter" variants={itemVariants}>
+        <div className="filter-label">Filtrer par type:</div>
+        <div className="filter-buttons">
+          <button 
+            className={`filter-button ${typeFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setTypeFilter('all')}
+          >
+            Tous
+          </button>
+          <button 
+            className={`filter-button ${typeFilter === 'expense' ? 'active' : ''}`}
+            onClick={() => setTypeFilter('expense')}
+          >
+            Dépenses
+          </button>
+          <button 
+            className={`filter-button ${typeFilter === 'income' ? 'active' : ''}`}
+            onClick={() => setTypeFilter('income')}
+          >
+            Revenus
+          </button>
+        </div>
       </motion.div>
 
       {/* Modal for adding/editing categories */}
@@ -318,8 +354,8 @@ const Categories = () => {
       )}
 
       <motion.div className="categories-list" variants={itemVariants}>
-        {categories.length > 0 ? (
-          categories.map(category => (
+        {sortedCategories.length > 0 ? (
+          sortedCategories.map(category => (
             <motion.div 
               key={category._id} 
               className="category-item"
@@ -365,7 +401,9 @@ const Categories = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Aucune catégorie trouvée. Ajoutez-en une !
+            {typeFilter !== 'all' 
+              ? `Aucune catégorie de type "${typeFilter === 'expense' ? 'dépense' : 'revenu'}" trouvée.` 
+              : 'Aucune catégorie trouvée. Ajoutez-en une !'}
           </motion.p>
         )}
       </motion.div>
