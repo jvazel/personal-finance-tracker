@@ -58,10 +58,8 @@ personal-finance-tracker/
 │   ├── services/            # Services métier
 │   ├── utils/               # Utilitaires
 │   └── server.js            # Point d'entrée du serveur
-├── frontend/                # Code client 
-React
-│   ├── public/              # Fichiers 
-statiques
+├── frontend/                # Code client React
+│   ├── public/              # Fichiers statiques
 │   └── src/                 # Code source React
 │       ├── components/      # Composants React
 │       ├── context/         # Contextes React pour la gestion d'état
