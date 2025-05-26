@@ -50,39 +50,26 @@ L'application est construite selon une architecture client-serveur moderne :
 ## Structure du Projet
 ```
 personal-finance-tracker/
-├── backend/                  # Code du 
-serveur
-│   ├── controllers/         # Contrôleurs 
-pour la logique métier
-│   ├── middleware/          # Middleware 
-(auth, validation, etc.)
-│   ├── models/              # Modèles de 
-données Mongoose
-│   ├── routes/              # Définition des 
-routes API
+├── backend/                  # Code du serveur
+│   ├── controllers/         # Contrôleurs pour la logique métier
+│   ├── middleware/          # Middleware (auth, validation, etc.)
+│   ├── models/              # Modèles de données Mongoose
+│   ├── routes/              # Définition des routes API
 │   ├── services/            # Services métier
 │   ├── utils/               # Utilitaires
-│   └── server.js            # Point d'entrée 
-du serveur
+│   └── server.js            # Point d'entrée du serveur
 ├── frontend/                # Code client 
 React
 │   ├── public/              # Fichiers 
 statiques
-│   └── src/                 # Code source 
-React
-│       ├── components/      # Composants 
-React
-│       ├── context/         # Contextes 
-React pour la gestion d'état
-│       ├── services/        # Services (API, 
-etc.)
+│   └── src/                 # Code source React
+│       ├── components/      # Composants React
+│       ├── context/         # Contextes React pour la gestion d'état
+│       ├── services/        # Services (API, etc.)
 │       ├── styles/          # Fichiers CSS
-│       ├── utils/           # Fonctions 
-utilitaires
-│       └── App.js           # Composant 
-racine
-└── package.json             # Configuration 
-du projet racine
+│       ├── utils/           # Fonctions utilitaires
+│       └── App.js           # Composant racine
+└── package.json             # Configuration du projet racine
 ```
 ## Fonctionnalités
 ### Gestion des Transactions
