@@ -50,7 +50,7 @@ L'application est construite selon une architecture client-serveur moderne :
 ## Structure du Projet
 ```
 personal-finance-tracker/
-├── backend/                  # Code du serveur
+├── backend/                 # Code du serveur
 │   ├── controllers/         # Contrôleurs pour la logique métier
 │   ├── middleware/          # Middleware (auth, validation, etc.)
 │   ├── models/              # Modèles de données Mongoose
