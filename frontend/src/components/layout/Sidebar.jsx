@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle, FaCalculator, FaExchangeAlt } from 'react-icons/fa';
+import { FaChartPie, FaChartLine, FaFileImport, FaSignOutAlt, FaMoneyBillWave, FaRegListAlt, FaBullseye, FaLightbulb, FaFileInvoiceDollar, FaCog, FaHistory, FaChartBar, FaRecycle, FaCalculator, FaExchangeAlt, FaLayerGroup } from 'react-icons/fa'; // Added FaLayerGroup
 
 const Sidebar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -90,6 +90,10 @@ const Sidebar = () => {
               <NavLink to="/reports/cash-flow-prediction" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
                 <span className="submenu-icon"><FaChartLine /></span>
                 <span className="submenu-text">Prédiction de flux de trésorerie</span>
+              </NavLink>
+              <NavLink to="/reports/category-evolution" className={({ isActive }) => isActive ? 'submenu-link active' : 'submenu-link'}>
+                <span className="submenu-icon"><FaLayerGroup /></span>
+                <span className="submenu-text">Évolution par Catégorie</span>
               </NavLink>
             </div>
           )}

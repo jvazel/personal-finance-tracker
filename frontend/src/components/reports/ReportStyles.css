@@ -1,0 +1,222 @@
+/* General Report Section Styling */
+.report-section {
+  padding: 20px;
+  background-color: #1e1e1e; /* Dark background for the report section */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: #e0e0e0; /* Light text color */
+  margin-bottom: 30px;
+}
+
+.report-section h2 {
+  color: #ffffff;
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 1.8em;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+/* Report Controls (like date pickers) */
+.report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: #2a2a2a; /* Slightly lighter background for controls */
+  border-radius: 6px;
+}
+
+/* Date Range Picker Specific Styles */
+.date-range-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Spacing between date pickers and button */
+}
+
+.date-picker-group {
+  display: flex;
+  flex-direction: column; /* Stack label on top of input */
+  align-items: flex-start; /* Align items to the start */
+  gap: 5px; /* Space between label and input */
+}
+
+.date-picker-group label {
+  font-size: 0.9em;
+  color: #cccccc;
+  margin-bottom: 3px;
+}
+
+.date-picker-input {
+  padding: 10px 12px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #333;
+  color: #e0e0e0;
+  font-size: 0.95em;
+  width: 150px; /* Adjust width as needed */
+}
+
+.react-datepicker-wrapper {
+  width: auto; /* Allow date picker to size naturally */
+}
+
+.react-datepicker__input-container {
+  display: flex;
+  align-items: center;
+}
+
+.react-datepicker__input-container .date-picker-input {
+  flex-grow: 1;
+}
+
+
+.date-picker-icon {
+  margin-left: -25px; /* Position icon inside the input field */
+  color: #888;
+  pointer-events: none; /* So it doesn't interfere with input click */
+}
+
+
+/* Apply Button for Date Picker */
+.apply-dates-btn {
+  padding: 10px 20px;
+  background-color: #007bff; /* Primary button color */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: background-color 0.2s ease;
+}
+
+.apply-dates-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Primary Button Style (if you have a general primary button style) */
+.primary-button {
+  /* Define your primary button styles here if not already globally defined */
+  /* Example: */
+  /* background-color: #007bff; */
+  /* color: white; */
+  /* padding: 10px 15px; */
+  /* border: none; */
+  /* border-radius: 4px; */
+  /* cursor: pointer; */
+}
+.primary-button:hover {
+  /* background-color: #0056b3; */
+}
+
+
+/* Loading, Error, No Data Messages */
+.loading-message, .error-message, .no-data-message {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 4px;
+  font-size: 1.1em;
+}
+
+.loading-message {
+  color: #87cefa; /* Light sky blue */
+}
+
+.error-message {
+  background-color: rgba(255, 0, 0, 0.1); /* Light red background */
+  color: #ff4d4d; /* Red text */
+  border: 1px solid #ff4d4d;
+}
+
+.no-data-message {
+  color: #aaa;
+}
+
+/* Chart Container */
+.chart-container {
+  width: 100%;
+  height: 400px; /* Default height, can be overridden by component */
+  margin-top: 20px;
+  background-color: #252525; /* Background for the chart area */
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Tooltip */
+.recharts-tooltip-wrapper .custom-tooltip {
+  background-color: rgba(30, 30, 30, 0.95) !important; /* Darker, more transparent */
+  border: 1px solid #555 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  padding: 12px !important;
+  color: #e0e0e0 !important;
+}
+
+.custom-tooltip .label {
+  font-weight: bold;
+  margin-bottom: 8px !important;
+  color: #ffffff !important;
+  font-size: 1.05em;
+}
+
+.custom-tooltip p {
+  margin: 4px 0 !important;
+  font-size: 0.95em;
+}
+
+/* Legend styling */
+.recharts-legend-wrapper {
+  padding-top: 20px !important; /* Ensure legend doesn't overlap with chart */
+}
+
+.recharts-legend-item {
+  margin-right: 15px !important; /* Spacing between legend items */
+  font-size: 0.9em;
+  color: #ccc; /* Light color for legend text */
+}
+
+.recharts-surface {
+  /* Fix for text color in charts if needed */
+  color: #e0e0e0;
+}
+
+/* Responsive adjustments if needed */
+@media (max-width: 768px) {
+  .report-controls, .date-range-picker-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-picker-group {
+    width: 100%;
+  }
+
+  .date-picker-input {
+    width: 100%;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  }
+
+  .apply-dates-btn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .report-section h2 {
+    font-size: 1.5em;
+  }
+
+  .chart-container {
+    height: 300px; /* Adjust height for smaller screens */
+  }
+}
+
+/* Styles for CategoryEvolutionReport specific elements if any */
+.category-evolution-report .date-picker-group label {
+  /* Example: Slightly different label style for this specific report */
+  /* color: #a0a0a0; */
+}

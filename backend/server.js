@@ -56,14 +56,23 @@ app.use((req, res, next) => {
 });
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => {
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     logger.info('MongoDB Connected');
-})
-.catch(err => logger.error('Erreur de connexion MongoDB:', { error: err.message, stack: err.stack }));
+  } catch (err) {
+    logger.error('Erreur de connexion MongoDB:', { error: err.message, stack: err.stack });
+    process.exit(1); // Exit process with failure
+  }
+};
+
+// Connect to DB only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 
 // Ajouter le middleware pour créer le dossier uploads s'il n'existe pas
 const fs = require('fs');
@@ -91,8 +100,15 @@ app.use('/api/recurring-expenses', protect, recurringExpensesRoutes);
 app.use('/api/simulator', protect, simulatorRoutes);
 app.use('/api/reports', protect, reportRoutes);
 
-app.listen(PORT, () => {
+// Start server only if not in test environment
+// The test environment will start its own server instance
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
     logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.info(`CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
-});
+  });
+}
+
+module.exports = { app, mongoose, connectDB, server }; // Export app and mongoose, and server for potential programmatic closing
